@@ -45,7 +45,7 @@ $routes->group('',['namespace'=>'App\Controllers'], function($routes){
 	});
 
 	$routes->group('', function($dashboard){
-		$dashboard->get('/dashboard','Dashboard::index',['filter'=>'autenticar','filter'=>'roladmin']);
+		$dashboard->get('/dashboard','Dashboard::index',['filter'=>'autenticar','filter'=>'roldashboard']);
 		$dashboard->get('inicio', 'Dashboard::inicio');
 		$dashboard->get('dashboard/mensajeSaludoInicial/(:any)', 'Dashboard::mensajeSaludoInicial/$1');
 		$dashboard->get('dashboard/graficoEstatusContratos', 'Dashboard::graficoEstatusContratos');
@@ -193,6 +193,8 @@ $routes->group('',['namespace'=>'App\Controllers'], function($routes){
 
 	$routes->group('', function($reportes){
 		$reportes->get('listausuario','Reportes::listausuario');
+		$reportes->get('listausuario/llenarListadosUsuarios','Reportes::llenarListadosUsuarios');
+		$reportes->get('listausuario/llenarListadosFiltraCalles/(:any)','Reportes::llenarListadosFiltraCalles/$1');
 		$reportes->get('listausuario/generarListadosNavegador','Reportes::generarListadosNavegador');
 		$reportes->get('listausuario/llenarTablaPaginadaUsuarios/(:any)','Reportes::llenarTablaPaginadaUsuarios/$1');
 		$reportes->get('reimcomprob','Reportes::reimcomprob');
@@ -220,10 +222,12 @@ $routes->group('',['namespace'=>'App\Controllers'], function($routes){
 		$reportes->get('reportegral','Reportes::reportegral');
 		$reportes->get('reportegral/informacionContratosGeneral','Reportes::informacionContratosGeneral');
 		$reportes->get('reporteesp','Reportes::reporteesp');
-		$reportes->get('reporteesp/informacionReporteEspeciales','Reportes::informacionReporteEspeciales');
+		$reportes->get('reporteesp/informacionReporteEspeciales/(:any)','Reportes::informacionReporteEspeciales/$1');
+		$reportes->get('reporteesp/llenarComboMensual','Reportes::llenarComboMensual');
 
 		$reportes->get('listacortes','Reportes::listacortes');
 		$reportes->get('listacortes/exportadorListaDeudas','Reportes::exportadorListaDeudas');
+
 	});
 
 	$routes->group('', function($auditorias){
@@ -235,7 +239,7 @@ $routes->group('',['namespace'=>'App\Controllers'], function($routes){
 
 $routes->group('', ['namespace'=>'App\Controllers\Administrador'], function($admins){
 	$admins->group('',function($dashboard){
-		$dashboard->get('adashboard','Dashboard::adashboard',['filter'=>'autenticar']);
+		$dashboard->get('adashboard','Dashboard::adashboard',['filter'=>'autenticar','filter'=>'roladmin']);
 
 	});
 
@@ -243,41 +247,40 @@ $routes->group('', ['namespace'=>'App\Controllers\Administrador'], function($adm
 
 $routes->group('', ['namespace'=>'App\Controllers\Sistema'], function($sistema){
 	$sistema->group('', function($menus){
-		$menus->get('menunivela','Menuopcion::menuniva');
-		$menus->get('menunivelb','Menuopcion::menunivb');
-		$menus->get('menunivelc','Menuopcion::menunivc');
-		$menus->get('menuniveld','Menuopcion::menunivd');
-		$menus->get('menuopcion/buscarIconos','Menuopcion::buscarIconos');
+		$menus->get('menunivela','Menuopcion::menunivela',['filter'=>'autenticar','filter'=>'roladmin']);
+		$menus->get('menunivela/llenarTablaMenuA','Menuopcion::llenarTablaMenuA');
+		$menus->post('menunivela/guardarMenuNivelA','Menuopcion::guardarMenuNivelA');
+		$menus->get('menunivela/buscarEditarMenuA/(:any)','Menuopcion::buscarEditarMenuA/$1');
+		$menus->post('menunivela/actualizarMenuNivelA','Menuopcion::actualizarMenuNivelA');
+		$menus->get('menunivela/eliminarMenuNivelA/(:any)','Menuopcion::eliminarMenuNivelA/$1');
+		$menus->get('menunivelb','Menuopcion::menunivelb',['filter'=>'autenticar','filter'=>'roladmin']);
+		$menus->get('menunivelb/llenarTablaMenuB','Menuopcion::llenarTablaMenuB');
+		$menus->post('menunivelb/guardarMenuNivelB','Menuopcion::guardarMenuNivelB');
+		$menus->get('menunivelb/buscarEditarMenuB/(:any)','Menuopcion::buscarEditarMenuB/$1');
+		$menus->post('menunivelb/actualizarMenuNivelB','Menuopcion::actualizarMenuNivelB');
+		$menus->get('menunivelb/eliminarMenuNivelB/(:any)','Menuopcion::eliminarMenuNivelB/$1');
+		$menus->get('menunivelc','Menuopcion::menunivelc',['filter'=>'autenticar','filter'=>'roladmin']);
+		$menus->get('menunivelc/llenarTablaMenuC','Menuopcion::llenarTablaMenuC');
+		$menus->post('menunivelc/guardarMenuNivelC','Menuopcion::guardarMenuNivelC');
+		$menus->get('menunivelc/buscarEditarMenuC/(:any)','Menuopcion::buscarEditarMenuC/$1');
+		$menus->post('menunivelc/actualizarMenuNivelC','Menuopcion::actualizarMenuNivelC');
+		$menus->get('menunivelc/eliminarMenuNivelC/(:any)','Menuopcion::eliminarMenuNivelC/$1');
+		$menus->get('menuniveld','Menuopcion::menuniveld',['filter'=>'autenticar','filter'=>'roladmin']);
+		$menus->get('menuniveld/llenarTablaMenuD','Menuopcion::llenarTablaMenuD');
+		$menus->post('menuniveld/guardarMenuNivelD','Menuopcion::guardarMenuNivelD');
+		$menus->get('menuniveld/buscarEditarMenuD/(:any)','Menuopcion::buscarEditarMenuD/$1');
+		$menus->post('menuniveld/actualizarMenuNivelD','Menuopcion::actualizarMenuNivelD');
+		$menus->get('menuniveld/eliminarMenuNivelD/(:any)','Menuopcion::eliminarMenuNivelD/$1');
+
+		$menus->get('menuopcion/llenarComboMenuA','Menuopcion::llenarComboMenuA');
+		$menus->get('menuopcion/llenarComboMenuB/(:any)','Menuopcion::llenarComboMenuB/$1');
+		$menus->get('menuopcion/llenarComboMenuC/(:any)','Menuopcion::llenarComboMenuC/$1');
+		$menus->get('menuopcion/llenarComboAMenuC','Menuopcion::llenarComboAMenuC');
+		$menus->get('menuopcion/llenarComboBMenuD/(:any)','Menuopcion::llenarComboBMenuD/$1');
 		$menus->get('menuopcion/buscarIconos/(:any)','Menuopcion::buscarIconos/$1');
-		$menus->get('menuopcion/llenarTablaMenuA','Menuopcion::llenarTablaMenuA');
-		$menus->post('menuopcion/datosGuardarMenuA','Menuopcion::datosGuardarMenuA');
-		$menus->get('menuopcion/buscarEditarMenuA/(:alphanum)','Menuopcion::buscarEditarMenuA/$1');
-		$menus->get('menuopcion/datosEliminarMenuA/(:alphanum)','Menuopcion::datosEliminarMenuA/$1');
-		$menus->post('menuopcion/datosActualizarMenuA','Menuopcion::datosActualizarMenuA');
-		$menus->get('menuopcion/llenarTablaMenuB','Menuopcion::llenarTablaMenuB');
-		$menus->post('menuopcion/datosGuardarMenuB','Menuopcion::datosGuardarMenuB');
-		$menus->get('menuopcion/buscarEditarMenuB/(:alphanum)_(:alphanum)','Menuopcion::buscarEditarMenuB/$1_$2');
-		$menus->get('menuopcion/datosEliminarMenuB/(:alphanum)_(:alphanum)','Menuopcion::datosEliminarMenuB/$1_$2');
-		$menus->post('menuopcion/datosActualizarMenuB','Menuopcion::datosActualizarMenuB');
-		$menus->get('menuopcion/llenarTablaMenuC','Menuopcion::llenarTablaMenuC');
-		$menus->post('menuopcion/datosGuardarMenuC','Menuopcion::datosGuardarMenuC');
-		$menus->get('menuopcion/buscarEditarMenuC/(:alphanum)_(:alphanum)','Menuopcion::buscarEditarMenuC/$1_$2');
-		$menus->get('menuopcion/datosEliminarMenuC/(:alphanum)_(:alphanum)','Menuopcion::datosEliminarMenuC/$1_$2');
-		$menus->post('menuopcion/datosActualizarMenuC','Menuopcion::datosActualizarMenuC');
-		$menus->get('menuopcion/llenarTablaMenuD','Menuopcion::llenarTablaMenuD');
-		$menus->post('menuopcion/datosGuardarMenuD','Menuopcion::datosGuardarMenuD');
-		$menus->get('menuopcion/buscarEditarMenuD/(:alphanum)_(:alphanum)','Menuopcion::buscarEditarMenuD/$1_$2');
-		$menus->get('menuopcion/datosEliminarMenuD/(:alphanum)_(:alphanum)','Menuopcion::datosEliminarMenuD/$1_$2');
-		$menus->post('menuopcion/datosActualizarMenuD','Menuopcion::datosActualizarMenuD');
 
 		$menus->get('menuarmado/armarMenuSistema/(:any)','Menuarmado::armarMenuSistema/$1');
 		$menus->get('menuarmado/armarMenuSistemaRoles','Menuarmado::armarMenuSistemaRoles');
-
-		$menus->get('menuopcion/llenarComboMenuA','Menuopcion::llenarComboMenuA');
-		$menus->get('menuopcion/llenarComboMenuB/(:alphanum)','Menuopcion::llenarComboMenuB/$1');
-		$menus->get('menuopcion/llenarComboMenuC/(:alphanum)','Menuopcion::llenarComboMenuC/$1');
-		$menus->get('menuopcion/llenarComboAMenuC','Menuopcion::llenarComboAMenuC');
-		$menus->get('menuopcion/llenarComboBMenuD/(:any)','Menuopcion::llenarComboBMenuD/$1');
 
 	});
 
