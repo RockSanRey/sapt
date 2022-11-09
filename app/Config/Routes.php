@@ -45,7 +45,7 @@ $routes->group('',['namespace'=>'App\Controllers'], function($routes){
 	});
 
 	$routes->group('', function($dashboard){
-		$dashboard->get('/dashboard','Dashboard::index',['filter'=>'autenticar','filter'=>'roldashboard']);
+		$dashboard->get('dashboard','Dashboard::index',['filter'=> 'roldashboard']);
 		$dashboard->get('inicio', 'Dashboard::inicio');
 		$dashboard->get('dashboard/mensajeSaludoInicial/(:any)', 'Dashboard::mensajeSaludoInicial/$1');
 		$dashboard->get('dashboard/graficoEstatusContratos', 'Dashboard::graficoEstatusContratos');
@@ -120,7 +120,7 @@ $routes->group('',['namespace'=>'App\Controllers'], function($routes){
 		$comite->get('convasamble/usuariosConvocados','Comite::usuariosConvocados');
 		$comite->post('convasamble/creandoInvitacionUsuario','Comite::creandoInvitacionUsuario');
 		$comite->get('convasamble/informeAsambleaAsistencias/(:any)','Comite::informeAsambleaAsistencias/$1');
-		$comite->get('convasamble/usuariosFaltantes','Comite::usuariosFaltantes');
+		$comite->get('convasamble/usuariosFaltantes/(:any)','Comite::usuariosFaltantes/$1');
 		$comite->post('convasamble/aplicandoSanciones','Comite::aplicandoSanciones');
 		$comite->get('convasamble/mostrarResumenConvocados/(:any)','Comite::mostrarResumenConvocados/$1');
 		$comite->get('convasamble/consultarAsambleaConvocada/(:any)','Comite::consultarAsambleaConvocada/$1');
@@ -183,6 +183,7 @@ $routes->group('',['namespace'=>'App\Controllers'], function($routes){
 		$cobros->get('crearcargo','Cobros::crearcargo');
 		$cobros->get('crearcargo/buscarUsuariosTotal','Cobros::buscarUsuariosTotal');
 		$cobros->get('crearcargo/verificarMesCorriente/(:any)','Cobros::verificarMesCorriente/$1');
+		$cobros->get('crearcargo/verificarMesSelectivo/(:any)','Cobros::verificarMesSelectivo/$1');
 		$cobros->get('crearcargo/mostrarResumenCargos','Cobros::mostrarResumenCargos');
 		$cobros->get('crearrecarg','Cobros::crearrecarg');
 		$cobros->get('crearrecarg/buscarIdUsuariosAdeudo','Cobros::buscarIdUsuariosAdeudo');
@@ -237,35 +238,105 @@ $routes->group('',['namespace'=>'App\Controllers'], function($routes){
 	});
 });
 
+
 $routes->group('', ['namespace'=>'App\Controllers\Administrador'], function($admins){
-	$admins->group('',function($dashboard){
-		$dashboard->get('adashboard','Dashboard::adashboard',['filter'=>'autenticar','filter'=>'roladmin']);
+
+
+	$admins->group('', function($dashboard){
+		$dashboard->get('adashboard','Dashboard::adashboard',['filter'=>'autenticar']);
+
+	});
+
+	$admins->group('',function($catalogos){
+		$catalogos->get('catconceptos','Catalogos::catconceptos',['filter'=>'autenticar']);
+		$catalogos->get('catconceptos/llenarTablaConceptos','Catalogos::llenarTablaConceptos');
+		$catalogos->get('catconceptos/autoCompletDescrip/(:any)','Catalogos::autoCompletDescrip/$1');
+		$catalogos->post('catconceptos/registrarConceptos','Catalogos::registrarConceptos');
+		$catalogos->get('catconceptos/buscarConceptosEditar/(:any)','Catalogos::buscarConceptosEditar/$1');
+		$catalogos->post('catconceptos/actualizarRegistroConceptos','Catalogos::actualizarRegistroConceptos');
+		$catalogos->get('catconceptos/eliminarRegistroConceptos/(:any)','Catalogos::eliminarRegistroConceptos/$1');
+
+		$catalogos->get('acatalogos/llenarComboCatContrato','Catalogos::llenarComboCatContrato');
+		$catalogos->get('acatalogos/llenarComboCatExpedicion','Catalogos::llenarComboCatExpedicion');
+		$catalogos->get('acatalogos/llenarComboCatPermisos','Catalogos::llenarComboCatPermisos');
+		$catalogos->get('acatalogos/llenarComboCatTarifa','Catalogos::llenarComboCatTarifa');
+
+	});
+
+	$admins->group('', function($cuenta){
+		$cuenta->get('alogin','Cuenta::alogin');
+		$cuenta->post('alogin/verificandoCredencial','Cuenta::verificandoCredencial');
+	});
+
+
+	$admins->group('', function($tramites){
+		$tramites->get('aregusuarios','Tramites::aregusuarios',['filter'=>'autenticar']);
+		$tramites->get('aregusuarios/llenarTablaUsuariosContratosMes','Tramites::llenarTablaUsuariosContratosMes');
+		$tramites->post('aregusuarios/guardarUsuarioNuevo','Tramites::guardarUsuarioNuevo');
+		$tramites->post('aregusuarios/asignarContratoUsuario','Tramites::asignarContratoUsuario');
+		$tramites->get('aregusuarios/cargarContratosUsuarios/(:any)','Tramites::cargarContratosUsuarios/$1');
+		$tramites->post('aregusuarios/actualizarRegistroUsuario','Tramites::actualizarRegistroUsuario');
+		$tramites->get('amodusuarios','Tramites::amodusuarios',['filter'=>'autenticar']);
+		$tramites->get('amodusuarios/llenarTablaUsuarioModificar/(:any)','Tramites::llenarTablaUsuarioModificar/$1');
+		$tramites->get('amodusuarios/cargarUsuarioModificar/(:any)','Tramites::cargarUsuarioModificar/$1');
+		$tramites->post('amodusuarios/actualizarUsuarioInformacion','Tramites::actualizarUsuarioInformacion');
+		$tramites->get('aagrcontrato','Tramites::aagrcontrato',['filter'=>'autenticar']);
+		$tramites->get('aagrcontrato/llenarTablaUsuariosAsignado/(:any)','Tramites::llenarTablaUsuariosAsignado/$1');
+		$tramites->get('aagrcontrato/cargaUsuarioAsignar/(:any)','Tramites::cargaUsuarioAsignar/$1');
+		$tramites->post('aagrcontrato/asignarNuevoContrato','Tramites::asignarNuevoContrato');
+		$tramites->get('aagrcontrato/cargarUsuarioContratos/(:any)','Tramites::cargarUsuarioContratos/$1');
+		$tramites->get('aagrcontrato/mostrandoContratoNuevo/(:any)','Tramites::mostrandoContratoNuevo/$1');
+		$tramites->get('amodcontrato','Tramites::amodcontrato',['filter'=>'autenticar']);
+		$tramites->get('amodcontrato/llenarTablaContratoModificar/(:any)','Tramites::llenarTablaContratoModificar/$1');
+		$tramites->post('amodcontrato/actualizarContratoDetalle','Tramites::actualizarContratoDetalle');
+		$tramites->get('atracontrato','Tramites::atracontrato',['filter'=>'autenticar']);
+
+		$tramites->get('aborcontrato','Tramites::aborcontrato',['filter'=>'autenticar']);
+		$tramites->get('aborcontrato/llenarTablaUsuarioContratos/(:any)','Tramites::llenarTablaUsuarioContratos/$1');
+		$tramites->get('aborcontrato/eliminarContratos/(:any)','Tramites::eliminarContratos/$1');
+		$tramites->get('aborusuarios','Tramites::aborusuarios',['filter'=>'autenticar']);
+		$tramites->get('aborusuarios/llenarTablaUsuariosContratosHoy','Tramites::llenarTablaUsuariosContratosHoy');
+		$tramites->get('aborusuarios/contratoUsuarioBorrar/(:any)','Tramites::contratoUsuarioBorrar/$1');
+		$tramites->get('aborusuarios/eliminarUsuarioContrato/(:any)','Tramites::eliminarUsuarioContrato/$1');
+
+		$tramites->get('atramites/autocompletarUsuario/(:any)','Tramites::autocompletarUsuario/$1');
+		$tramites->get('atramites/autocompletarContrato/(:any)','Tramites::autocompletarContrato/$1');
+
 
 	});
 
 });
 
+$routes->resource('aregusuarios', ['controllers/Administrador'=>'Tramites']);
+$routes->resource('amodusuarios', ['controllers/Administrador'=>'Tramites']);
+$routes->resource('aagrcontrato', ['controllers/Administrador'=>'Tramites']);
+$routes->resource('amodcontrato', ['controllers/Administrador'=>'Tramites']);
+$routes->resource('atracontrato', ['controllers/Administrador'=>'Tramites']);
+$routes->resource('aborcontrato', ['controllers/Administrador'=>'Tramites']);
+$routes->resource('aborusuarios', ['controllers/Administrador'=>'Tramites']);
+
 $routes->group('', ['namespace'=>'App\Controllers\Sistema'], function($sistema){
-	$sistema->group('', function($menus){
-		$menus->get('menunivela','Menuopcion::menunivela',['filter'=>'autenticar','filter'=>'roladmin']);
+
+	$sistema->group('',function($menus){
+		$menus->get('menunivela','Menuopcion::menunivela',['filter'=>'autenticar']);
 		$menus->get('menunivela/llenarTablaMenuA','Menuopcion::llenarTablaMenuA');
 		$menus->post('menunivela/guardarMenuNivelA','Menuopcion::guardarMenuNivelA');
 		$menus->get('menunivela/buscarEditarMenuA/(:any)','Menuopcion::buscarEditarMenuA/$1');
 		$menus->post('menunivela/actualizarMenuNivelA','Menuopcion::actualizarMenuNivelA');
 		$menus->get('menunivela/eliminarMenuNivelA/(:any)','Menuopcion::eliminarMenuNivelA/$1');
-		$menus->get('menunivelb','Menuopcion::menunivelb',['filter'=>'autenticar','filter'=>'roladmin']);
+		$menus->get('menunivelb','Menuopcion::menunivelb',['filter'=>'autenticar']);
 		$menus->get('menunivelb/llenarTablaMenuB','Menuopcion::llenarTablaMenuB');
 		$menus->post('menunivelb/guardarMenuNivelB','Menuopcion::guardarMenuNivelB');
 		$menus->get('menunivelb/buscarEditarMenuB/(:any)','Menuopcion::buscarEditarMenuB/$1');
 		$menus->post('menunivelb/actualizarMenuNivelB','Menuopcion::actualizarMenuNivelB');
 		$menus->get('menunivelb/eliminarMenuNivelB/(:any)','Menuopcion::eliminarMenuNivelB/$1');
-		$menus->get('menunivelc','Menuopcion::menunivelc',['filter'=>'autenticar','filter'=>'roladmin']);
+		$menus->get('menunivelc','Menuopcion::menunivelc',['filter'=>'autenticar']);
 		$menus->get('menunivelc/llenarTablaMenuC','Menuopcion::llenarTablaMenuC');
 		$menus->post('menunivelc/guardarMenuNivelC','Menuopcion::guardarMenuNivelC');
 		$menus->get('menunivelc/buscarEditarMenuC/(:any)','Menuopcion::buscarEditarMenuC/$1');
 		$menus->post('menunivelc/actualizarMenuNivelC','Menuopcion::actualizarMenuNivelC');
 		$menus->get('menunivelc/eliminarMenuNivelC/(:any)','Menuopcion::eliminarMenuNivelC/$1');
-		$menus->get('menuniveld','Menuopcion::menuniveld',['filter'=>'autenticar','filter'=>'roladmin']);
+		$menus->get('menuniveld','Menuopcion::menuniveld',['filter'=>'autenticar']);
 		$menus->get('menuniveld/llenarTablaMenuD','Menuopcion::llenarTablaMenuD');
 		$menus->post('menuniveld/guardarMenuNivelD','Menuopcion::guardarMenuNivelD');
 		$menus->get('menuniveld/buscarEditarMenuD/(:any)','Menuopcion::buscarEditarMenuD/$1');
@@ -285,26 +356,33 @@ $routes->group('', ['namespace'=>'App\Controllers\Sistema'], function($sistema){
 	});
 
 	$sistema->group('', function($catalogos){
-		$catalogos->get('areas','Catalogos::catareas');
-		$catalogos->get('areas/llenarTablaAreas','Catalogos::llenarTablaAreas');
-		$catalogos->post('areas/datosGuardarAreas','Catalogos::datosGuardarAreas');
-		$catalogos->get('areas/buscaEditarAreas/(:any)','Catalogos::buscaEditarAreas/$1');
-		$catalogos->post('areas/datosActualizarAreas','Catalogos::datosActualizarAreas');
-		$catalogos->get('areas/datosEliminarAreas/(:any)','Catalogos::datosEliminarAreas/$1');
+		$catalogos->get('catareas','Catalogos::catareas',['filter'=>'roladmin']);
+		$catalogos->get('catareas/llenarTablaAreas','Catalogos::llenarTablaAreas');
+		$catalogos->post('catareas/guardarAreas','Catalogos::guardarAreas');
+		$catalogos->get('catareas/buscaEditarAreas/(:any)','Catalogos::buscaEditarAreas/$1');
+		$catalogos->post('catareas/actualizarAreas','Catalogos::actualizarAreas');
+		$catalogos->get('catareas/eliminarAreas/(:any)','Catalogos::eliminarAreas/$1');
 
-		$catalogos->get('puestos','Catalogos::catpuestos');
-		$catalogos->get('puestos/llenarTablaPuestos','Catalogos::llenarTablaPuestos');
-		$catalogos->post('puestos/datosGuardarPuestos','Catalogos::datosGuardarPuestos');
-		$catalogos->get('puestos/buscarEditarPuestos/(:any)','Catalogos::buscarEditarPuestos/$1');
-		$catalogos->post('puestos/datosActualizarPuestos','Catalogos::datosActualizarPuestos');
-		$catalogos->get('puestos/datosEliminarPuestos/(:any)','Catalogos::datosEliminarPuestos/$1');
+		$catalogos->get('catpuestos','Catalogos::catpuestos',['filter'=>'roladmin']);
+		$catalogos->get('catpuestos/llenarTablaPuestos','Catalogos::llenarTablaPuestos');
+		$catalogos->post('catpuestos/guardarPuestos','Catalogos::guardarPuestos');
+		$catalogos->get('catpuestos/buscarEditarPuestos/(:any)','Catalogos::buscarEditarPuestos/$1');
+		$catalogos->post('catpuestos/actualizarPuestos','Catalogos::actualizarPuestos');
+		$catalogos->get('catpuestos/eliminarPuestos/(:any)','Catalogos::eliminarPuestos/$1');
 
-		$catalogos->get('perfiles','Catalogos::catperfiles');
-		$catalogos->get('perfiles/llenarTablaPerfiles','Catalogos::llenarTablaPerfiles');
-		$catalogos->get('perfiles/armarMenuAsignaPerfiles','Catalogos::armarMenuAsignaPerfiles');
-		$catalogos->post('perfiles/datosGuardarPerfiles','Catalogos::datosGuardarPerfiles');
-		$catalogos->get('perfiles/buscarEditarPerfiles/(:any)','Catalogos::buscarEditarPerfiles/$1');
-		$catalogos->post('perfiles/datosActualizarPerfiles','Catalogos::datosActualizarPerfiles');
+		$catalogos->get('catperfiles','Catalogos::catperfiles',['filter'=>'roladmin']);
+		$catalogos->get('catperfiles/llenarTablaPerfiles','Catalogos::llenarTablaPerfiles');
+		$catalogos->get('catperfiles/armarMenuAsignaPerfiles','Catalogos::armarMenuAsignaPerfiles');
+		$catalogos->post('catperfiles/guardarPerfiles','Catalogos::guardarPerfiles');
+		$catalogos->get('catperfiles/buscarEditarPerfiles/(:any)','Catalogos::buscarEditarPerfiles/$1');
+		$catalogos->post('catperfiles/actualizarPerfiles','Catalogos::actualizarPerfiles');
+
+		$catalogos->get('catestatus','Catalogos::catestatus',['filter'=>'roladmin']);
+		$catalogos->get('catestatus/llenarTablaEstatus','Catalogos::llenarTablaEstatus');
+		$catalogos->post('catestatus/guardarEstatus','Catalogos::guardarEstatus');
+		$catalogos->get('catestatus/buscarEditarEstatus/(:any)','Catalogos::buscarEditarEstatus/$1');
+		$catalogos->post('catestatus/actualizarEstatus','Catalogos::actualizarEstatus');
+		$catalogos->get('catestatus/eliminarEstatus/(:any)','Catalogos::eliminarEstatus/$1');
 
 		$catalogos->get('catalogos/llenarComboAreas','Catalogos::llenarComboAreas');
 		$catalogos->get('catalogos/llenarComboPuestos/(:any)','Catalogos::llenarComboPuestos/$1');
@@ -315,28 +393,29 @@ $routes->group('', ['namespace'=>'App\Controllers\Sistema'], function($sistema){
 		$catalogos->get('catalogos/llenarComboCatColonias/(:any)','Catalogos::llenarComboCatColonias/$1');
 		$catalogos->get('catalogos/llenarCompletarCalles/(:any)','Catalogos::llenarCompletarCalles/$1');
 
-
-		$catalogos->get('catestatus','Catalogos::catestatus');
-		$catalogos->get('catestatus/llenarTablaEstatus','Catalogos::llenarTablaEstatus');
-		$catalogos->post('catestatus/GuardarEstatus','Catalogos::GuardarEstatus');
-		$catalogos->get('catestatus/buscarEditarEstatus/(:any)','Catalogos::buscarEditarEstatus/$1');
-		$catalogos->post('catestatus/actualizarEstatus','Catalogos::actualizarEstatus');
-		$catalogos->get('catestatus/eliminarEstatus/(:any)','Catalogos::eliminarEstatus/$1');
-
-
 	});
 
 	$sistema->group('', function($privilegios){
-		$privilegios->get('asignausuario','Privilegios::asigusuario');
+		$privilegios->get('asignastaff','Privilegios::asignastaff',['filter'=>'autenticar']);
+		$privilegios->get('asignastaff/llenarTablaPerfilStaff','Privilegios::llenarTablaPerfilStaff');
+		$privilegios->post('asignastaff/guardarAsignacionStaff','Privilegios::guardarAsignacionStaff');
+		$privilegios->get('asignastaff/buscarAsignacionStaff/(:any)','Privilegios::buscarAsignacionStaff/$1');
+		$privilegios->post('asignastaff/actualizarPerfilStaff','Privilegios::actualizarPerfilStaff');
+		$privilegios->get('asignastaff/eliminarAsignacionStaff/(:any)','Privilegios::eliminarAsignacionStaff/$1');
+
+		$privilegios->get('asignausuario','Privilegios::asigusuario',['filter'=>'autenticar']);
 		$privilegios->get('asignausuario/llenarTablaPerfilUsuario','Privilegios::llenarTablaPerfilUsuario');
 		$privilegios->get('asignausuario/llenarComboPerfilesDatos','Privilegios::llenarComboPerfilesDatos');
 		$privilegios->get('asignausuario/llenarComboUsuariosDatos','Privilegios::llenarComboUsuariosDatos');
-		$privilegios->get('asignausuario/llenarMenuPerfil/(:any)','Privilegios::llenarMenuPerfil/$1');
 		$privilegios->post('asignausuario/datosGuardarAsignacion','Privilegios::datosGuardarAsignacion');
 		$privilegios->get('asignausuario/buscarEditarAsignacion/(:any)','Privilegios::buscarEditarAsignacion/$1');
 		$privilegios->post('asignausuario/datosActualizarAsignacion','Privilegios::datosActualizarAsignacion');
 		$privilegios->get('asignausuario/datosEliminarAsignacion/(:any)','Privilegios::datosEliminarAsignacion/$1');
 
+		$privilegios->get('privilegios/llenarComboPerfilesStaff','Privilegios::llenarComboPerfilesStaff');
+		$privilegios->get('privilegios/llenarComboStaff','Privilegios::llenarComboStaff');
+		$privilegios->get('privilegios/llenarMenuPerfil/(:any)','Privilegios::llenarMenuPerfil/$1');
+		$privilegios->get('privilegios/llenarComboStaffDatos/(:any)','Privilegios::llenarComboStaffDatos/$1');
 
 	});
 
@@ -350,6 +429,13 @@ $routes->group('', ['namespace'=>'App\Controllers\Sistema'], function($sistema){
 
 
 });
+
+$routes->resource('menunivela', ['controller/Sistema'=>'Menuopcion']);
+$routes->resource('menunivelb', ['controller/Sistema'=>'Menuopcion']);
+$routes->resource('menunivelc', ['controller/Sistema'=>'Menuopcion']);
+$routes->resource('menuniveld', ['controller/Sistema'=>'Menuopcion']);
+$routes->resource('asignastaff', ['controller/Sistema'=>'Privilegios']);
+
 
 /*
  * --------------------------------------------------------------------
