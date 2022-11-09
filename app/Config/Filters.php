@@ -21,6 +21,7 @@ class Filters extends BaseConfig
 		'honeypot' => Honeypot::class,
 		'autenticar'=> \App\Filters\Autenticar::class,
 		'roladmin'=> \App\Filters\RolAdmin::class,
+		'roldashboard'=> \App\Filters\RolDashboard::class,
 	];
 
 	/**
@@ -60,5 +61,22 @@ class Filters extends BaseConfig
 	 *
 	 * @var array
 	 */
-	public $filters = [];
+	public $filters = [
+		'roladmin'=>[
+			'before'=>[
+				'aregusuarios/*',
+				'amodusuarios/*',
+				'aagrcontrato/*',
+				'amodcontrato/*',
+				'atracontrato/*',
+				'aborcontrato/*',
+				'aborusuarios/*',
+				'menunivela/*',
+				'menunivelb/*',
+				'menunivelc/*',
+				'menuniveld/*',
+				'asignastaff/*',
+			],
+		],
+	];
 }
