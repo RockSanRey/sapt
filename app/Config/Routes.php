@@ -290,7 +290,24 @@ $routes->group('', ['namespace'=>'App\Controllers\Administrador'], function($adm
 		$tramites->get('amodcontrato/llenarTablaContratoModificar/(:any)','Tramites::llenarTablaContratoModificar/$1');
 		$tramites->post('amodcontrato/actualizarContratoDetalle','Tramites::actualizarContratoDetalle');
 		$tramites->get('atracontrato','Tramites::atracontrato',['filter'=>'autenticar']);
+		$tramites->get('atracontrato/llenarTablaContratoTransferir/(:any)','Tramites::llenarTablaContratoTransferir/$1');
+		$tramites->get('atracontrato/llenarUbicacionContrato/(:any)','Tramites::llenarUbicacionContrato/$1');
+		$tramites->post('atracontrato/guardarUsuarioTransferir','Tramites::guardarUsuarioTransferir');
+		$tramites->get('atracontrato/llenarUsuarioTransferir/(:any)','Tramites::llenarUsuarioTransferir/$1');
+		$tramites->post('atracontrato/actualizarUsuarioTransferir','Tramites::actualizarUsuarioTransferir');
+		$tramites->post('atracontrato/transferirContratoFinal','Tramites::transferirContratoFinal');
+		$tramites->get('atracontrato/imprimirReciboTransferencia/(:any)','Tramites::imprimirReciboTransferencia/$1');
+		$tramites->get('abajcontrato','Tramites::abajcontrato',['filter'=>'autenticar']);
+		$tramites->get('abajcontrato/llenarTablaContratoBaja/(:any)','Tramites::llenarTablaContratoBaja/$1');
+		$tramites->get('abajcontrato/cargarContratoBaja/(:any)','Tramites::cargarContratoBaja/$1');
+		$tramites->post('abajcontrato/actualizarContratoBaja','Tramites::actualizarContratoBaja');
+		$tramites->get('abajcontrato/acuseReciboBaja/(:any)','Tramites::acuseReciboBaja/$1');
+		$tramites->get('aregconvenio','Tramites::aregconvenio',['filter'=>'autenticar']);
+		$tramites->get('aregconvenio/llenarTablaContratoConvenio/(:any)','Tramites::llenarTablaContratoConvenio/$1');
+		$tramites->get('aregconvenio/buscarUsuarioDeudor/(:any)','Tramites::buscarUsuarioDeudor/$1');
+		$tramites->post('aregconvenio/crearConvenio','Tramites::crearConvenio');
 
+		
 		$tramites->get('aborcontrato','Tramites::aborcontrato',['filter'=>'autenticar']);
 		$tramites->get('aborcontrato/llenarTablaUsuarioContratos/(:any)','Tramites::llenarTablaUsuarioContratos/$1');
 		$tramites->get('aborcontrato/eliminarContratos/(:any)','Tramites::eliminarContratos/$1');
@@ -301,6 +318,7 @@ $routes->group('', ['namespace'=>'App\Controllers\Administrador'], function($adm
 
 		$tramites->get('atramites/autocompletarUsuario/(:any)','Tramites::autocompletarUsuario/$1');
 		$tramites->get('atramites/autocompletarContrato/(:any)','Tramites::autocompletarContrato/$1');
+		$tramites->get('atramites/firmaComiteTramites','Tramites::firmaComiteTramites');
 
 
 	});
@@ -312,6 +330,8 @@ $routes->resource('amodusuarios', ['controllers/Administrador'=>'Tramites']);
 $routes->resource('aagrcontrato', ['controllers/Administrador'=>'Tramites']);
 $routes->resource('amodcontrato', ['controllers/Administrador'=>'Tramites']);
 $routes->resource('atracontrato', ['controllers/Administrador'=>'Tramites']);
+$routes->resource('abajcontrato', ['controllers/Administrador'=>'Tramites']);
+$routes->resource('aregconvenio', ['controllers/Administrador'=>'Tramites']);
 $routes->resource('aborcontrato', ['controllers/Administrador'=>'Tramites']);
 $routes->resource('aborusuarios', ['controllers/Administrador'=>'Tramites']);
 

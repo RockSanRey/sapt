@@ -69,6 +69,8 @@ class Filters extends BaseConfig
 				'aagrcontrato/*',
 				'amodcontrato/*',
 				'atracontrato/*',
+				'abajcontrato/*',
+				'aregconvenio/*',
 				'aborcontrato/*',
 				'aborusuarios/*',
 				'menunivela/*',
