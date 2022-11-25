@@ -11,7 +11,7 @@ class RolAdmin implements FilterInterface
         // Do something here
         log_message('info','[Roles] Comprobando nivel de perfil del usuario.');
         if(session()->get('NIVELCLIEN')=='USUARIO'){
-            log_message('info','[Roles] Se detecto un nivel usuario para el usuario redireccionando.');
+            log_message('info','[Roles] Se detecto un nivel usuario para esta sesion redireccionando.');
             return redirect()->to('dashboard');
         }
     }
