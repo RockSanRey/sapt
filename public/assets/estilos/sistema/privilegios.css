@@ -1,0 +1,64 @@
+.menu-vertical-nivela{
+    padding: 0px;
+    list-style: none;
+}
+
+.menu-vertical-li-nivela{
+    border-top: 1px solid #cfced2;
+	background: #f2f9f7;
+}
+
+.menu-vertical-opcion-nivela{
+    display: block;
+	padding: 5px;
+	text-decoration: none;
+	color: #000;
+    margin-left: 10px;
+}
+.menu-vertical-nivelb{
+    list-style: none;
+	padding: 0px;
+}
+.menu-vertical-li-nivelb{
+    border-top: 1px solid #cfced2;
+	background: #f2f9f7;
+}
+.menu-vertical-opcion-nivelb{
+    display: block;
+	padding: 5px;
+	text-decoration: none;
+	color: #000;
+    margin-left: 20px;
+}
+.menu-vertical-nivelc{
+    list-style: none;
+	padding: 0px;
+}
+.menu-vertical-li-nivelc{
+    border-top: 1px solid #cfced2;
+	background: #f2f9f7;
+}
+.menu-vertical-opcion-nivelc{
+    display: block;
+	padding: 5px;
+	text-decoration: none;
+	color: #000;
+    margin-left: 30px;
+}
+.menu-vertical-niveld{
+    list-style: none;
+	padding: 0px;
+}
+.menu-vertical-li-niveld{
+    border-top: 1px solid #cfced2;
+	background: #f2f9f7;
+}
+.menu-vertical-opcion-niveld{
+    display: block;
+	padding: 5px;
+	text-decoration: none;
+	color: #000;
+    margin-left: 40px;
+}
+
+/* 7k1OjMvNoclJ */
