@@ -709,6 +709,7 @@ function validarMenuA(){
         Swal.fire({
             title: 'Campo Error',
             confirmButtonText: 'Entendido',
+            confirmButtonColor: '#B80C21',
             icon: 'error',
             text: 'Menu Raíz es requerido',
         }).then((result)=>{
@@ -728,6 +729,7 @@ function validarMenuB(){
         Swal.fire({
             title: 'Campo Error',
             confirmButtonText: 'Entendido',
+            confirmButtonColor: '#B80C21',
             icon: 'error',
             text: 'Menu Raíz B es requerido',
         }).then((result)=>{
@@ -747,6 +749,7 @@ function validarMenuC(){
         Swal.fire({
             title: 'Campo Error',
             confirmButtonText: 'Entendido',
+            confirmButtonColor: '#B80C21',
             icon: 'error',
             text: 'Menu Raíz B es requerido',
         }).then((result)=>{
@@ -766,6 +769,7 @@ function validarClave(){
         Swal.fire({
             title: 'Campo Error',
             confirmButtonText: 'Entendido',
+            confirmButtonColor: '#B80C21',
             icon: 'error',
             text: 'Clave es requerido',
         }).then((result)=>{
@@ -778,6 +782,7 @@ function validarClave(){
         Swal.fire({
             title: 'Campo Error',
             confirmButtonText: 'Entendido',
+            confirmButtonColor: '#B80C21',
             icon: 'error',
             text: 'Clave min 4 caracteres',
         }).then((result)=>{
@@ -790,6 +795,7 @@ function validarClave(){
         Swal.fire({
             title: 'Campo Error',
             confirmButtonText: 'Entendido',
+            confirmButtonColor: '#B80C21',
             icon: 'error',
             text: 'Clave máx 12 caracteres',
         }).then((result)=>{
@@ -809,6 +815,7 @@ function validarOrden(){
         Swal.fire({
             title: 'Campo Error',
             confirmButtonText: 'Entendido',
+            confirmButtonColor: '#B80C21',
             icon: 'error',
             text: 'Orden es requerido',
         }).then((result)=>{
@@ -821,6 +828,7 @@ function validarOrden(){
         Swal.fire({
             title: 'Campo Error',
             confirmButtonText: 'Entendido',
+            confirmButtonColor: '#B80C21',
             icon: 'error',
             text: 'Orden debe ser numerico',
         }).then((result)=>{
@@ -840,6 +848,7 @@ function validarHijos(){
         Swal.fire({
             title: 'Campo Error',
             confirmButtonText: 'Entendido',
+            confirmButtonColor: '#B80C21',
             icon: 'error',
             text: 'Dependencia requerido',
         }).then((result)=>{
@@ -859,6 +868,7 @@ function validarIcono(){
         Swal.fire({
             title: 'Campo Error',
             confirmButtonText: 'Entendido',
+            confirmButtonColor: '#B80C21',
             icon: 'error',
             text: 'Ícono es requerido',
         }).then((result)=>{
@@ -880,6 +890,7 @@ function validarReferencia(){
             Swal.fire({
                 title: 'Campo Error',
                 confirmButtonText: 'Entendido',
+                confirmButtonColor: '#B80C21',
                 icon: 'error',
                 text: 'Referencia es max 40 caracteres',
             }).then((result)=>{
@@ -896,6 +907,7 @@ function validarReferencia(){
             Swal.fire({
                 title: 'Campo Error',
                 confirmButtonText: 'Entendido',
+                confirmButtonColor: '#B80C21',
                 icon: 'error',
                 text: 'Referencia es requerido',
             }).then((result)=>{
@@ -916,6 +928,7 @@ function validarTooltip(){
         Swal.fire({
             title: 'Campo Error',
             confirmButtonText: 'Entendido',
+            confirmButtonColor: '#B80C21',
             icon: 'error',
             text: 'Tooltip min 4 caracteres',
         }).then((result)=>{
@@ -928,6 +941,7 @@ function validarTooltip(){
         Swal.fire({
             title: 'Campo Error',
             confirmButtonText: 'Entendido',
+            confirmButtonColor: '#B80C21',
             icon: 'error',
             text: 'Tooltip máx 12 caracteres',
         }).then((result)=>{
@@ -947,6 +961,7 @@ function validarDescripcion(){
         Swal.fire({
             title: 'Campo Error',
             confirmButtonText: 'Entendido',
+            confirmButtonColor: '#B80C21',
             icon: 'error',
             text: 'Descripción es requerido',
         }).then((result)=>{
@@ -959,6 +974,7 @@ function validarDescripcion(){
         Swal.fire({
             title: 'Campo Error',
             confirmButtonText: 'Entendido',
+            confirmButtonColor: '#B80C21',
             icon: 'error',
             text: 'Descripción min 4 caracteres',
         }).then((result)=>{
@@ -971,6 +987,7 @@ function validarDescripcion(){
         Swal.fire({
             title: 'Campo Error',
             confirmButtonText: 'Entendido',
+            confirmButtonColor: '#B80C21',
             icon: 'error',
             text: 'Descripción máx 40 caracteres',
         }).then((result)=>{
