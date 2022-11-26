@@ -238,7 +238,6 @@ const plantillaFormulario = async () => {
         textHijos.addEventListener('change', () => {
             cambioComboHijos(textHijos);
         })
-        return templateForm;
 
     } catch (errorAlert) {
         return Swal.fire({
@@ -292,7 +291,7 @@ const cambioComboHijos = async (textHijos) => {
         textIcono.focus();
     }else if (valorHijos=='NO') {
         capaSeoData.classList.remove('d-none');
-        textReferencia.removeAttribute('readonly','readonly');
+        textReferencia.setAttribute('readonly','readonly');
         textReferencia.value=textClave.value;
         textIcono.focus();
     }else {

@@ -251,6 +251,10 @@ const plantillaFormulario = async () => {
         textMenuB.addEventListener('change', () => {
             llenarListadoMenuC(textMenuB);
         })
+        let textHijos = document.querySelector('#textHijos');
+        textHijos.addEventListener('change', () => {
+            cambioComboHijos(textHijos);
+        })
             
     } catch (errorAlert) {
         return Swal.fire({
@@ -353,6 +357,31 @@ const llenarListadoMenuC = async (textMenuB) => {
             confirmButtonColor: '#f43',
             html: errorAlert.message,
         })
+    }
+}
+
+const cambioComboHijos = async (textHijos) => {
+    let textClave = document.querySelector('#textClave');
+    let textReferencia = document.querySelector('#textReferencia');
+    let textDescripcion = document.querySelector('#textDescripcion');
+    let capaSeoData = document.querySelector('#capaSeoData');
+    let textIcono = document.querySelector('#textIcono');
+    valorHijos=textHijos.value;
+    if(valorHijos=='SI'){
+        capaSeoData.classList.add('d-none');
+        textReferencia.setAttribute('readonly','readonly');
+        textReferencia.value='';
+        textDescripcion.value="";
+        textIcono.focus();
+    }else if (valorHijos=='NO') {
+        capaSeoData.classList.remove('d-none');
+        textReferencia.setAttribute('readonly','readonly');
+        textReferencia.value=textClave.value;
+        textIcono.focus();
+    }else {
+        capaSeoData.classList.add('d-none');
+        textReferencia.removeAttribute('readonly','readonly');
+        textReferencia.value='';
     }
 }
 
