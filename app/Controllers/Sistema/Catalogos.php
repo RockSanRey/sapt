@@ -38,7 +38,7 @@ class Catalogos extends BaseController
         );
         $sesionIniciada=session();
         $log_extra=[
-            'user'=>$sesionIniciada->get('IDUSUA_RESPO'),
+            'user'=>$sesionIniciada->get('IDCLIENTE'),
             'grupo'=>$sesionIniciada->get('NIVELPERF_RESPO'),
         ];
         log_message('info','[AREAS] Cargando modulo catalogos areas para {user} con privilegios {grupo}.',$log_extra);
@@ -55,10 +55,10 @@ class Catalogos extends BaseController
         }
     }
 
-    public function datosGuardarAreas()
+    public function guardarAreas()
     {
         $log_extra=[
-            'user'=>session()->get('IDUSUA_RESPO'),
+            'user'=>session()->get('IDCLIENTE'),
         ];
         log_message('info','[AREAS|Async] Verificando el método de envio');
         if($this->request->getMethod('POST')){
@@ -92,7 +92,7 @@ class Catalogos extends BaseController
             ]);
             log_message('info','[Async] AREAS - Creando variables con arreglo de los campos del formulario');
             $datosParaGuardar=[
-                $captura = session()->get('IDUSUA_RESPO'),
+                $captura = session()->get('IDCLIENTE'),
                 $textArea = $this->request->getPost('textArea'),
                 $textDescrip = $this->request->getPost('textDescripcion'),
                 $textComent = $this->request->getPost('textComentario'),
@@ -127,7 +127,7 @@ class Catalogos extends BaseController
 
                 }else {
                     log_message('info','[Async] AREAS - No se detecto registros duplicados.');
-                    if($retorno=$modeloCatalogos->guardarAreas($datosParaGuardar)){
+                    if($retorno=$modeloCatalogos->guardarDatosAreas($datosParaGuardar)){
                         log_message('info','[Async] AREAS - Los registros se grabaron correctamente, notificando.');
                         $swalMensajes=[
                             'title'=>'Proceso exitoso',
@@ -165,7 +165,7 @@ class Catalogos extends BaseController
             log_message('info','[AREAS|Async] Metodo envio reconocido continua proceso de edicion');
             $modeloCatalogos = new Mcatalogos;
             $datosParaBuscar=[
-                $captura = session()->get('IDUSUA_RESPO'),
+                $captura = session()->get('IDCLIENTE'),
                 $idRegistro = $id,
             ];
             log_message('info','[AREAS|Async] Solicitando datos para renderizado de edición de areas');
@@ -190,7 +190,7 @@ class Catalogos extends BaseController
         }
     }
 
-    public function datosActualizarAreas()
+    public function actualizarAreas()
     {
         log_message('info','[AREAS|Async] Verificando el método de envio para actualizar');
         if($this->request->getMethod('POST')){
@@ -225,7 +225,7 @@ class Catalogos extends BaseController
             ]);
             log_message('info','[AREAS|Async] Creando variables con arreglo de los datos a actualizar');
             $datosParaActualizar=[
-                $captura = session()->get('IDUSUA_RESPO'),
+                $captura = session()->get('IDCLIENTE'),
                 $textArea = $this->request->getPost('textArea'),
                 $textDescrip = $this->request->getPost('textDescripcion'),
                 $textComent = $this->request->getPost('textComentario'),
@@ -246,7 +246,7 @@ class Catalogos extends BaseController
                 log_message('info','[AREAS|Async] Reglas de validacion aceptadas');
                 $modeloCatalogos = new Mcatalogos;
                 log_message('info','[AREAS|Async] Enviando datos al modelo para la actualización');
-                if($modeloCatalogos->actualizarAreas($datosParaActualizar)){
+                if($modeloCatalogos->actualizarDatosAreas($datosParaActualizar)){
                     log_message('info','[AREAS|Async] Los registros se actualizaron correctamente, notificando.');
                     $swalMensajes=[
                         'title'=>'Proceso exitoso',
@@ -276,19 +276,19 @@ class Catalogos extends BaseController
         }
     }
 
-    public function datosEliminarAreas($id)
+    public function eliminarAreas($id)
     {
         log_message('info','[AREAS|Async] Verificando el método de envio para eliminar');
         if($this->request->getMethod('POST')){
             log_message('info','[AREAS|Async] Metodo envio reconocido continua proceso');
             log_message('info','[AREAS|Async] Creando variables con arreglo de los campos del formulario');
             $datosParaEliminar=[
-                $captura = session()->get('IDUSUA_RESPO'),
+                $captura = session()->get('IDCLIENTE'),
                 $textArea = $id,
             ];
             $modeloCatalogos = new Mcatalogos;
             log_message('info','[AREAS|Async] Enviando datos al modelo para eliminar.');
-            if($modeloCatalogos->eliminarAreas($datosParaEliminar)){
+            if($modeloCatalogos->eliminarDatosAreas($datosParaEliminar)){
                 log_message('info','[AREAS|Async] Los registros se eliminaron correctamente, notificando.');
                 $swalMensajes=[
                     'title'=>'Proceso exitoso',
@@ -320,36 +320,24 @@ class Catalogos extends BaseController
 
     public function catpuestos()
     {
-        log_message('info','[PUESTOS] Comprobando sesión iniciada en el sistema.');
-        if(session()->get('logged_in')==1){
-            $id = __FUNCTION__;
-            $respuesta=$this->llamandoParametrosWeb($id);
-            $cadena=array(
-                'titulo'=>$respuesta['TITULO_CONW'].' | SAPT',
-                'tutiloPantalla'=>$respuesta['TITULOPANT_CONW'],
-                'robots'=>$respuesta['ROBOTS_CONW'],
-                'Keyword'=>$respuesta['KEYWORD_CONW'],
-                'descripcion'=>$respuesta['DESCRIPCION_CONW'],
-                'pantalla'=>$id,
-                'sesionIniciada'=>session(),
-            );
-            $sesionIniciada=session();
-            $log_extra=[
-                'user'=>$sesionIniciada->get('IDUSUA_RESPO'),
-                'grupo'=>$sesionIniciada->get('NIVELPERF_RESPO'),
-            ];
-            log_message('info','[PUESTOS] La sesión aun es vigente se comprobando privileios');
-            if($sesionIniciada->get('NIVELPERF_RESPO')=='USUARIO'){
-                log_message('notice','[PUESTOS] Se encontro una sesión de {grupo} de {user} redireccionando a dashboard.',$log_extra);
-                redirect()->to('/dashboard');
-            }else {
-                log_message('info','[PUESTOS] Cargando modulo catalogos para {user} con privilegios {grupo}.',$log_extra);
-                return view('Plantilla/vHeader',$cadena).view('Sistema/Catalogos/vPuestos').view('Plantilla/vFooter');
-            }
-        }else {
-            log_message('info','[PUESTOS] La sesión ha caducado o no existe');
-            return redirect()->to('/expiro');
-        }
+        $id = __FUNCTION__;
+        $respuesta=$this->llamandoParametrosWeb($id);
+        $cadena=array(
+            'titulo'=>$respuesta['TITULO_CONW'].' | SAPT',
+            'tutiloPantalla'=>$respuesta['TITULOPANT_CONW'],
+            'robots'=>$respuesta['ROBOTS_CONW'],
+            'Keyword'=>$respuesta['KEYWORD_CONW'],
+            'descripcion'=>$respuesta['DESCRIPCION_CONW'],
+            'pantalla'=>$id,
+            'sesionIniciada'=>session(),
+        );
+        $sesionIniciada=session();
+        $log_extra=[
+            'user'=>$sesionIniciada->get('IDCLIENTE'),
+            'grupo'=>$sesionIniciada->get('NIVELPERF_RESPO'),
+        ];
+        log_message('info','[PUESTOS] Cargando modulo catalogos para {user} con privilegios {grupo}.',$log_extra);
+        return view('Plantilla/vHeader',$cadena).view('Sistema/Catalogos/vPuestos').view('Plantilla/vFooter');
     }
 
     public function llenarTablaPuestos()
@@ -363,10 +351,10 @@ class Catalogos extends BaseController
 
     }
 
-    public function datosGuardarPuestos()
+    public function guardarPuestos()
     {
         $log_extra=[
-            'user'=>session()->get('IDUSUA_RESPO'),
+            'user'=>session()->get('IDCLIENTE'),
         ];
         log_message('info','[PUESTOS|Async] Verificando el método de envio para proceso de guardar');
         if($this->request->getMethod('POST')){
@@ -415,7 +403,7 @@ class Catalogos extends BaseController
             ]);
             log_message('info','[PUESTOS|Async] Creando variables con arreglo de los campos del formulario');
             $datosParaGuardar=[
-                $captura = session()->get('IDUSUA_RESPO'),
+                $captura = session()->get('IDCLIENTE'),
                 $textArea = $this->request->getPost('textArea'),
                 $textPuesto = $this->request->getPost('textPuesto'),
                 $textDescripH = $this->request->getPost('textDescripcionH'),
@@ -451,7 +439,7 @@ class Catalogos extends BaseController
                     echo json_encode($swalMensajes);
                 }else {
                     log_message('info','[PUESTOS|Async] No se detecto registros duplicados continua proceso de guardar.');
-                    if($retorno=$modeloCatalogos->guardarPuestos($datosParaGuardar)){
+                    if($retorno=$modeloCatalogos->guardarDatosPuestos($datosParaGuardar)){
                         log_message('info','[PUESTOS|Async] Los registros se grabaron correctamente, notificando.');
                         $swalMensajes=[
                             'title'=>'Proceso exitoso',
@@ -489,7 +477,7 @@ class Catalogos extends BaseController
             log_message('info','[PUESTOS|Async] Metodo envio reconocido continua proceso');
             $modeloCatalogos = new Mcatalogos;
             $datosParaBuscar=[
-                $captura = session()->get('IDUSUA_RESPO'),
+                $captura = session()->get('IDCLIENTE'),
                 $idRegistro = $id,
             ];
             log_message('info','[PUESTOS|Async] Solicitando datos para renderizado de edición');
@@ -506,7 +494,7 @@ class Catalogos extends BaseController
         }
     }
 
-    public function datosActualizarPuestos()
+    public function actualizarPuestos()
     {
         log_message('info','[PUESTOS|Async] Verificando el método de envio');
         if($this->request->getMethod('POST')){
@@ -555,7 +543,7 @@ class Catalogos extends BaseController
             ]);
             log_message('info','[PUESTOS|Async] Creando variables con arreglo de los campos del formulario');
             $datosParaActualizar=[
-                $captura = session()->get('IDUSUA_RESPO'),
+                $captura = session()->get('IDCLIENTE'),
                 $textArea = $this->request->getPost('textArea'),
                 $textPuesto = $this->request->getPost('textPuesto'),
                 $textDescripH = $this->request->getPost('textDescripcionH'),
@@ -578,7 +566,7 @@ class Catalogos extends BaseController
                 log_message('info','[PUESTOS|Async] Reglas de validacion aceptadas');
                 $modeloCatalogos = new Mcatalogos;
                 log_message('info','[PUESTOS|Async] Enviando datos para la actualización');
-                if($modeloCatalogos->actualizarPuestos($datosParaActualizar)){
+                if($modeloCatalogos->actualizarDatosPuestos($datosParaActualizar)){
                     log_message('info','[PUESTOS|Async] Los registros se actualizaron correctamente, notificando.');
                     $swalMensajes=[
                         'title'=>'Proceso exitoso',
@@ -609,18 +597,18 @@ class Catalogos extends BaseController
 
     }
 
-    public function datosEliminarPuestos($id)
+    public function eliminarPuestos($id)
     {
         log_message('info','[PUESTOS|Async] Verificando el método de envio');
         if($this->request->getMethod('POST')){
             log_message('info','[PUESTOS|Async] Metodo envio reconocido continua proceso');
             log_message('info','[PUESTOS|Async] Creando variables con arreglo de los campos del formulario');
             $datosParaEliminar=[
-                $captura = session()->get('IDUSUA_RESPO'),
+                $captura = session()->get('IDCLIENTE'),
                 $textArea = $id,
             ];
             $modeloCatalogos = new Mcatalogos;
-            if($modeloCatalogos->eliminarPuestos($datosParaEliminar)){
+            if($modeloCatalogos->eliminarDatosPuestos($datosParaEliminar)){
                 log_message('info','[PUESTOS|Async] Los registros se eliminaron correctamente, notificando.');
                 $swalMensajes=[
                     'title'=>'Proceso exitoso',
@@ -651,36 +639,24 @@ class Catalogos extends BaseController
 
     public function catperfiles()
     {
-        log_message('info','[PERFILES] Comprobando sesión iniciada en el sistema.');
-        if(session()->get('logged_in')==1){
-            $id = __FUNCTION__;
-            $respuesta=$this->llamandoParametrosWeb($id);
-            $cadena=array(
-                'titulo'=>$respuesta['TITULO_CONW'].' | SAPT',
-                'tutiloPantalla'=>$respuesta['TITULOPANT_CONW'],
-                'robots'=>$respuesta['ROBOTS_CONW'],
-                'Keyword'=>$respuesta['KEYWORD_CONW'],
-                'descripcion'=>$respuesta['DESCRIPCION_CONW'],
-                'pantalla'=>$id,
-                'sesionIniciada'=>session(),
-            );
-            $sesionIniciada=session();
-            $log_extra=[
-                'user'=>$sesionIniciada->get('IDUSUA_RESPO'),
-                'grupo'=>$sesionIniciada->get('NIVELPERF_RESPO'),
-            ];
-            log_message('info','[PERFILES] La sesión aun es vigente se comprobando privileios');
-            if($sesionIniciada->get('NIVELPERF_RESPO')=='USUARIO'){
-                log_message('notice','[PERFILES] Se encontro una sesión de {grupo} de {user} redireccionando a dashboard.',$log_extra);
-                redirect()->to('/dashboard');
-            }else {
-                log_message('info','[PERFILES] Cargando modulo catalogos para {user} con privilegios {grupo}.',$log_extra);
-                return view('Plantilla/vHeader',$cadena).view('Sistema/Catalogos/vPerfiles').view('Plantilla/vFooter');
-            }
-        }else {
-            log_message('info','[PERFILES] La sesión ha caducado o no existe');
-            return redirect()->to('/expiro');
-        }
+        $id = __FUNCTION__;
+        $respuesta=$this->llamandoParametrosWeb($id);
+        $cadena=array(
+            'titulo'=>$respuesta['TITULO_CONW'].' | SAPT',
+            'tutiloPantalla'=>$respuesta['TITULOPANT_CONW'],
+            'robots'=>$respuesta['ROBOTS_CONW'],
+            'Keyword'=>$respuesta['KEYWORD_CONW'],
+            'descripcion'=>$respuesta['DESCRIPCION_CONW'],
+            'pantalla'=>$id,
+            'sesionIniciada'=>session(),
+        );
+        $sesionIniciada=session();
+        $log_extra=[
+            'user'=>$sesionIniciada->get('IDCLIENTE'),
+            'grupo'=>$sesionIniciada->get('NIVELPERF_RESPO'),
+        ];
+        log_message('info','[PERFILES] Cargando modulo catalogos para {user} con privilegios {grupo}.',$log_extra);
+        return view('Plantilla/vHeader',$cadena).view('Sistema/Catalogos/vPerfiles').view('Plantilla/vFooter');
     }
 
     public function llenarTablaPerfiles()
@@ -728,11 +704,11 @@ class Catalogos extends BaseController
 
     }
 
-    public function datosGuardarPerfiles()
+    public function guardarPerfiles()
     {
         if(session()->get('logged_in'==1)){
             $log_extra=[
-                'user'=>session()->get('IDUSUA_RESPO'),
+                'user'=>session()->get('IDCLIENTE'),
             ];
             log_message('info','[Async] PERFILES - Verificando el método de envio de datos al servidor');
             if($this->request->getMethod('POST')){
@@ -771,7 +747,7 @@ class Catalogos extends BaseController
                 ]);
                 log_message('info','[Async] PERFILES- Creando variables con arreglo de los campos del formulario');
                 $datosParaGuardar=[
-                    $captura = session()->get('IDUSUA_RESPO'),
+                    $captura = session()->get('IDCLIENTE'),
                     $textArea = $this->request->getPost('textArea'),
                     $textPuesto = $this->request->getPost('textPuesto'),
                     $textComent = $this->request->getPost('textComentario'),
@@ -804,7 +780,7 @@ class Catalogos extends BaseController
                         echo json_encode($swalMensajes);
                     }else {
                         log_message('info','[Async] PERFILES No se detecto registros duplicados.');
-                        if($retorno=$modeloCatalogos->guardarPerfiles($datosParaGuardar)){
+                        if($retorno=$modeloCatalogos->guardarDatosPerfiles($datosParaGuardar)){
                             log_message('info','[Async] PERFILES Los registros se grabaron correctamente, notificando.');
                             $swalMensajes=[
                                 'title'=>'Proceso exitoso',
@@ -861,7 +837,7 @@ class Catalogos extends BaseController
                 log_message('info','[Async] PERFILES Metodo envio reconocido continua proceso busqueda');
                 $modeloCatalogos = new Mcatalogos;
                 $datosParaBuscar=[
-                    $captura = session()->get('IDUSUA_RESPO'),
+                    $captura = session()->get('IDCLIENTE'),
                     $idRegistro = $id,
                 ];
                 log_message('info','[Async] PERFILES Solicitando datos para renderizado de edición');
@@ -896,7 +872,7 @@ class Catalogos extends BaseController
         }
     }
 
-    public function datosActualizarPerfiles()
+    public function actualizarPerfiles()
     {
         if(session()->get('logged_in'==1)){
             log_message('info','[Async] PERFILES Verificando el método de envio para actualizar');
@@ -930,7 +906,7 @@ class Catalogos extends BaseController
                 ]);
                 log_message('info','[Async] PERFILES- Creando variables con arreglo de los campos del formulario');
                 $datosParaActualizar=[
-                    $captura = session()->get('IDUSUA_RESPO'),
+                    $captura = session()->get('IDCLIENTE'),
                     $textPuesto = $this->request->getPost('textPuesto'),
                     $textComent = $this->request->getPost('textComentario'),
                     $menuRoles = $this->request->getPost('menuRoles[]'),
@@ -950,7 +926,7 @@ class Catalogos extends BaseController
                     log_message('info','[Async] Reglas de validacion aceptadas');
                     $modeloCatalogos = new Mcatalogos;
                     log_message('info','[Async] Enviando datos para la actualización');
-                    if($respuestaAviso=$modeloCatalogos->actualizarPerfiles($datosParaActualizar)){
+                    if($respuestaAviso=$modeloCatalogos->actualizarDatosPerfiles($datosParaActualizar)){
                         log_message('info','[Async] Los registros se actualizaron correctamente, notificando.');
                         $swalMensajes=[
                             'title'=>'Proceso exitoso',
@@ -1014,7 +990,7 @@ class Catalogos extends BaseController
             );
             $sesionIniciada=session();
             $log_extra=[
-                'user'=>$sesionIniciada->get('IDUSUA_RESPO'),
+                'user'=>$sesionIniciada->get('IDCLIENTE'),
                 'grupo'=>$sesionIniciada->get('NIVELPERF_RESPO'),
             ];
             log_message('info','[ESTATUS] La sesión aun es vigente se comprobando privileios');
@@ -1052,10 +1028,10 @@ class Catalogos extends BaseController
         }
     }
 
-    public function GuardarEstatus()
+    public function guardarEstatus()
     {
         $log_extra=[
-            'user'=>session()->get('IDUSUA_RESPO'),
+            'user'=>session()->get('IDCLIENTE'),
         ];
         log_message('info','[ESTATUS|Async] Verificando el método de envio');
         if($this->request->getMethod('POST')){
@@ -1096,7 +1072,7 @@ class Catalogos extends BaseController
             ]);
             log_message('info','[ESTATUS|Async] - Creando variables con arreglo de los campos del formulario');
             $datosParaGuardar=[
-                $captura = session()->get('IDUSUA_RESPO'),
+                $captura = session()->get('IDCLIENTE'),
                 $textClave = $this->request->getPost('textClave'),
                 $textDescrip = $this->request->getPost('textDescripcion'),
                 $textRango = $this->request->getPost('textRango'),
@@ -1170,7 +1146,7 @@ class Catalogos extends BaseController
             log_message('info','[ESTATUS|Async] Metodo envio reconocido continua proceso de edicion');
             $modeloCatalogos = new Mcatalogos;
             $datosParaBuscar=[
-                $captura = session()->get('IDUSUA_RESPO'),
+                $captura = session()->get('IDCLIENTE'),
                 $idRegistro = $id,
             ];
             log_message('info','[ESTATUS|Async] Solicitando datos para renderizado de edición de areas');
@@ -1237,7 +1213,7 @@ class Catalogos extends BaseController
             ]);
             log_message('info','[ESTATUS|Async] Creando variables con arreglo de los datos a actualizar');
             $datosParaActualizar=[
-                $captura = session()->get('IDUSUA_RESPO'),
+                $captura = session()->get('IDCLIENTE'),
                 $textClave = $this->request->getPost('textClave'),
                 $textDescrip = $this->request->getPost('textDescripcion'),
                 $textRango = $this->request->getPost('textRango'),
@@ -1296,7 +1272,7 @@ class Catalogos extends BaseController
             log_message('info','[ESTATUS|Async] Metodo envio reconocido continua proceso');
             log_message('info','[ESTATUS|Async] Creando variables con arreglo de los campos del formulario');
             $datosParaEliminar=[
-                $captura = session()->get('IDUSUA_RESPO'),
+                $captura = session()->get('IDCLIENTE'),
                 $textClave = $id,
             ];
             $modeloCatalogos = new Mcatalogos;
