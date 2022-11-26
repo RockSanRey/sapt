@@ -50,3 +50,4 @@
 <link href="/public/assets/estilos/css_frontend/formularios/formularios.css" rel="stylesheet">
 <link href="/public/assets/estilos/css_frontend/mensajes/mensajes.css" rel="stylesheet">
 <link href="/public/assets/estilos/css_frontend/menus/menu.css" rel="stylesheet">
+<link href="/public/assets/estilos/sistema/menuopciones.css" rel="stylesheet">

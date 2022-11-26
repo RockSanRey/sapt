@@ -5,11 +5,16 @@ use App\Controllers\BaseController;
 
 class Menuopcion extends BaseController
 {
+    protected $modeloMenu;
+
+    public function __construct()
+    {
+        $this->modeloMenu = new Mmenuopcion;
+    }
     public function llamandoParametrosWeb($id)
     {
-        $modeloMenu = new Mmenuopcion;
         log_message('info','[MENUOPCION] Solicitando datos para renderizado de parametros web');
-        if($tablaDatos = $modeloMenu->llamandoDatosParametrosWeb($id)){
+        if($tablaDatos = $this->modeloMenu->llamandoDatosParametrosWeb($id)){
             log_message('info','[MENUOPCION] Envio de datos para renderizado de parametros web');
             if(count($tablaDatos)>0){
                 foreach($tablaDatos as $key => $value){
@@ -44,9 +49,8 @@ class Menuopcion extends BaseController
 
     public function llenarTablaMenuA()
     {
-        $modeloMenu = new Mmenuopcion;
         log_message('info','[MENUNIVA|Async] Solicitando datos para renderizado de tabla menu A');
-        if($tablaDatos = $modeloMenu->llenarDatosTablaMenuA()){
+        if($tablaDatos = $this->modeloMenu->llenarDatosTablaMenuA()){
             log_message('info','[MENUNIVA|Async] Envio de datos para renderizado de tabla menu A');
             return $tablaDatos;
         }
@@ -76,7 +80,7 @@ class Menuopcion extends BaseController
                             ],
                         ],
                         'textOrden'=>[
-                            'label'=>'Descripción',
+                            'label'=>'Orden',
                             'rules'=>'required|numeric',
                             'errors'=>[
                                 'required'=>'{field} es requerido.',
@@ -84,7 +88,7 @@ class Menuopcion extends BaseController
                             ],
                         ],
                         'textHijos'=>[
-                            'label'=>'Descripción',
+                            'label'=>'Contiene Opciones',
                             'rules'=>'required|string',
                             'errors'=>[
                                 'required'=>'{field} es requerido.',
@@ -114,12 +118,12 @@ class Menuopcion extends BaseController
                             ],
                         ],
                         'textDescripcion'=>[
-                        'label'=>'Descripción',
-                        'rules'=>'required|max_length[40]|string',
-                        'errors'=>[
-                        'required'=>'{field} es requerido.',
-                        'max_length'=>'{field} dene tener max {param} caracteres',
-                        ],
+                            'label'=>'Descripción',
+                            'rules'=>'required|max_length[40]|string',
+                            'errors'=>[
+                                'required'=>'{field} es requerido.',
+                                'max_length'=>'{field} dene tener max {param} caracteres',
+                            ],
                         ],
                     ]);
                 }else {
@@ -253,9 +257,8 @@ class Menuopcion extends BaseController
                     return json_encode($swalMensajes);
                 }else{
                     log_message('info','[MENUNIVA|Async] Reglas de validacion aceptadas');
-                    $modeloMenu = new Mmenuopcion;
-                    log_message('info','[MENUNIVA|Async] Enviando datos para verificar duplicidad de registros en menu A');
-                    if($datosDuplicados=$modeloMenu->buscarDuplicadosMenuA($datosParaGuardar)){
+                                log_message('info','[MENUNIVA|Async] Enviando datos para verificar duplicidad de registros en menu A');
+                    if($datosDuplicados=$this->modeloMenu->buscarDuplicadosMenuA($datosParaGuardar)){
                         log_message('info','[MENUNIVA|Async] Retorno de datos encontrados notificando esperando respuesta de usuario');
                         $swalMensajes=[
                             'title'=>'Advertencia',
@@ -268,7 +271,7 @@ class Menuopcion extends BaseController
 
                     }else {
                         log_message('info','[MENUNIVA|Async] No se detecto registros duplicados en menu A continua proceso guardado');
-                        if($modeloMenu->guardarDatosMenuNivelA($datosParaGuardar)){
+                        if($this->modeloMenu->guardarDatosMenuNivelA($datosParaGuardar)){
                             log_message('info','[MENUNIVA|Async] Los registros se grabaron correctamente, notificando.');
                             $swalMensajes=[
                                 'title'=>'Proceso exitoso',
@@ -329,13 +332,12 @@ class Menuopcion extends BaseController
         log_message('info','[MENUNIVA|Async] Verificando el método de envio menu A');
         if($this->request->getMethod('POST')){
             log_message('info','[MENUNIVA|Async] Metodo envio reconocido continua proceso menu A');
-            $modeloMenu = new Mmenuopcion;
-            $datosParaBuscar=[
+                $datosParaBuscar=[
                 $captura = session()->get('IDCLIENTE'),
                 $idRegistro = $id,
             ];
             log_message('info','[MENUNIVA|Async] Solicitando datos para renderizado de edición menu A');
-            if($datosEditar=$modeloMenu->buscarDatosEditarMenuA($datosParaBuscar)){
+            if($datosEditar=$this->modeloMenu->buscarDatosEditarMenuA($datosParaBuscar)){
                 log_message('info','[MENUNIVA|Async] Envio de datos para renderizado de inputs');
                 return json_encode($datosEditar);
             }else {
@@ -566,9 +568,8 @@ class Menuopcion extends BaseController
                     return json_encode($swalMensajes);
                 }else{
                     log_message('info','[MENUNIVA|Async] Reglas de validacion aceptadas');
-                    $modeloMenu = new Mmenuopcion;
-                    log_message('info','[MENUNIVA|Async] Enviando datos a modelo para la actualización');
-                    if($modeloMenu->actualizarDatosMenuNivelA($datosParaActualizar)){
+                                log_message('info','[MENUNIVA|Async] Enviando datos a modelo para la actualización');
+                    if($this->modeloMenu->actualizarDatosMenuNivelA($datosParaActualizar)){
                         log_message('info','[MENUNIVA|Async] Los registros se actualizaron correctamente, notificando menu A.');
                         $swalMensajes=[
                             'title'=>'Proceso exitoso',
@@ -630,8 +631,7 @@ class Menuopcion extends BaseController
                     $captura = session()->get('IDCLIENTE'),
                     $textClave = $id,
                 ];
-                $modeloMenu = new Mmenuopcion;
-                if($modeloMenu->eliminarDatosMenuNivelA($datosParaEliminar)){
+                        if($this->modeloMenu->eliminarDatosMenuNivelA($datosParaEliminar)){
                     log_message('info','[MENUNIVA|Async] Los registros se eliminaron correctamente, notificando.');
                     $swalMensajes=[
                         'title'=>'Proceso exitoso',
@@ -705,9 +705,8 @@ class Menuopcion extends BaseController
 
     public function llenarTablaMenuB()
     {
-        $modeloMenu = new Mmenuopcion;
         log_message('info','[MENUNIVB|Async] Solicitando datos para renderizado de tabla menu b');
-        if($tablaDatos = $modeloMenu->llenarDatosTablaMenuB()){
+        if($tablaDatos = $this->modeloMenu->llenarDatosTablaMenuB()){
             log_message('info','[MENUNIVB|Async] Envio de datos para renderizado de tabla menu b');
             return json_encode($tablaDatos);
         }
@@ -932,12 +931,11 @@ class Menuopcion extends BaseController
                         'estatus'=>'invalido',
                     ];
 
-                    echo json_encode($swalMensajes);
+                    return json_encode($swalMensajes);
                 }else{
                     log_message('info','[MENUNIVB|Async] Reglas de validacion aceptadas');
-                    $modeloMenu = new Mmenuopcion;
-                    log_message('info','[MENUNIVB|Async] Enviando datos verificar duplicidad');
-                    if($datosDuplicados=$modeloMenu->buscarDuplicadosMenuB($datosParaGuardar)){
+                                log_message('info','[MENUNIVB|Async] Enviando datos verificar duplicidad');
+                    if($datosDuplicados=$this->modeloMenu->buscarDuplicadosMenuB($datosParaGuardar)){
                         log_message('info','[MENUNIVB|Async] Retorno de datos esperando respuesta');
                         $swalMensajes=[
                             'title'=>'Advertencia',
@@ -946,10 +944,10 @@ class Menuopcion extends BaseController
                             'text'=>'Existen registros con la misma clave, revise sus datos.',
                             'estatus'=>'duplicado',
                         ];
-                        echo json_encode($swalMensajes);
+                        return json_encode($swalMensajes);
                     }else {
                         log_message('info','[MENUNIVB|Async] No se detecto registros duplicados.');
-                        if($retorno=$modeloMenu->guardarDatosMenuNivelB($datosParaGuardar)){
+                        if($retorno=$this->modeloMenu->guardarDatosMenuNivelB($datosParaGuardar)){
                             log_message('info','[MENUNIVB|Async] Los registros se grabaron correctamente, notificando.');
                             $swalMensajes=[
                                 'title'=>'Proceso exitoso',
@@ -958,7 +956,7 @@ class Menuopcion extends BaseController
                                 'text'=>'Los registros se grabaron correctamente.',
                                 'estatus'=>'guardado',
                             ];
-                            echo json_encode($swalMensajes);
+                            return json_encode($swalMensajes);
                         }else {
                             log_message('info','[MENUNIVB|Async] Ocurrio un error al guardar los datos, notificando');
                             $swalMensajes=[
@@ -969,7 +967,7 @@ class Menuopcion extends BaseController
                                 'estatus'=>'error',
                             ];
 
-                            echo json_encode($swalMensajes);
+                            return json_encode($swalMensajes);
                         }
                     }
                 }
@@ -1007,13 +1005,12 @@ class Menuopcion extends BaseController
         log_message('info','[MENUNIVB|Async] Verificando el método de envio menu B');
         if($this->request->getMethod('POST')){
             log_message('info','[MENUNIVB|Async] Metodo envio reconocido continua proceso menu B');
-            $modeloMenu = new Mmenuopcion;
-            $datosParaBuscar=[
+                $datosParaBuscar=[
                 $captura = session()->get('IDCLIENTE'),
                 $idRegistro = $id,
             ];
             log_message('info','[MENUNIVB|Async] Solicitando datos para renderizado de edición menu B');
-            if($datosEditar=$modeloMenu->buscarDatosMenuB($datosParaBuscar)){
+            if($datosEditar=$this->modeloMenu->buscarDatosMenuB($datosParaBuscar)){
                 log_message('info','[MENUNIVB|Async] Envio de datos para renderizado de inputs menu B');
                 return json_encode($datosEditar);
             }else {
@@ -1255,9 +1252,8 @@ class Menuopcion extends BaseController
                     echo json_encode($swalMensajes);
                 }else{
                     log_message('info','[MENUNIVB|Async] Reglas de validacion aceptadas');
-                    $modeloMenu = new Mmenuopcion;
-                    log_message('info','[MENUNIVB|Async] Enviando datos para la actualización');
-                    if($modeloMenu->actualizarDatosMenuNivelB($datosParaActualizar)){
+                                log_message('info','[MENUNIVB|Async] Enviando datos para la actualización');
+                    if($this->modeloMenu->actualizarDatosMenuNivelB($datosParaActualizar)){
                         log_message('info','[MENUNIVB|Async] Los registros se actualizaron correctamente, notificando menu B.');
                         $swalMensajes=[
                             'title'=>'Proceso exitoso',
@@ -1319,8 +1315,7 @@ class Menuopcion extends BaseController
                     $captura = session()->get('IDCLIENTE'),
                     $textClave = $id,
                 ];
-                $modeloMenu = new Mmenuopcion;
-                if($modeloMenu->eliminarDatosMenuNivelB($datosParaEliminar)){
+                        if($this->modeloMenu->eliminarDatosMenuNivelB($datosParaEliminar)){
                     log_message('info','[MENUNIVB|Async] Los registros se eliminaron correctamente de menu B, notificando.');
                     $swalMensajes=[
                         'title'=>'Proceso exitoso',
@@ -1394,9 +1389,8 @@ class Menuopcion extends BaseController
 
     public function llenarTablaMenuC()
     {
-        $modeloMenu = new Mmenuopcion;
         log_message('info','[MENUNIVC|Async] Solicitando datos para renderizado de tabla menu C');
-        if($tablaDatos = $modeloMenu->llenarDatosTablaMenuC()){
+        if($tablaDatos = $this->modeloMenu->llenarDatosTablaMenuC()){
             log_message('info','[MENUNIVC|Async] Envio de datos para renderizado de tabla menu C');
             return json_encode($tablaDatos);
         }
@@ -1645,9 +1639,8 @@ class Menuopcion extends BaseController
                     return json_encode($swalMensajes);
                 }else{
                     log_message('info','[MENUNIVC|Async] Reglas de validacion aceptadas');
-                    $modeloMenu = new Mmenuopcion;
                     log_message('info','[MENUNIVC|Async] Enviando datos verificar duplicidad menu C');
-                    if($datosDuplicados=$modeloMenu->guardarDatosMenuNivelC($datosParaGuardar)){
+                    if($datosDuplicados=$this->modeloMenu->buscarDuplicadosMenuC($datosParaGuardar)){
                         log_message('info','[MENUNIVC|Async] Retorno de datos esperando respuesta de usuario');
                         $swalMensajes=[
                             'title'=>'Advertencia',
@@ -1660,7 +1653,7 @@ class Menuopcion extends BaseController
 
                     }else {
                         log_message('info','[MENUNIVC|Async] No se detecto registros duplicados.');
-                        if($retorno=$modeloMenu->guardarMenuC($datosParaGuardar)){
+                        if($retorno=$this->modeloMenu->guardarDatosMenuNivelC($datosParaGuardar)){
                             log_message('info','[MENUNIVC|Async] Los registros se grabaron correctamente de menu C, notificando.');
                             $swalMensajes=[
                                 'title'=>'Proceso exitoso',
@@ -1717,13 +1710,12 @@ class Menuopcion extends BaseController
         log_message('info','[MENUNIVC|Async] Verificando el método de envio menu C');
         if($this->request->getMethod('POST')){
             log_message('info','[MENUNIVC|Async] Metodo envio reconocido continua proceso menu C');
-            $modeloMenu = new Mmenuopcion;
-            $datosParaBuscar=[
+                $datosParaBuscar=[
                 $captura = session()->get('IDCLIENTE'),
                 $idRegistro = $id,
             ];
             log_message('info','[MENUNIVC|Async] Solicitando datos para renderizado de edición menu C');
-            if($datosEditar=$modeloMenu->buscarDatosMenuC($datosParaBuscar)){
+            if($datosEditar=$this->modeloMenu->buscarDatosMenuC($datosParaBuscar)){
                 log_message('info','[MENUNIVC|Async] Envio de datos para renderizado de inputs menu C');
                 return json_encode($datosEditar);
             }else {
@@ -1958,9 +1950,8 @@ class Menuopcion extends BaseController
                     return json_encode($swalMensajes);
                 }else{
                     log_message('info','[MENUNIVC|Async] Reglas de validacion aceptadas');
-                    $modeloMenu = new Mmenuopcion;
-                    log_message('info','[MENUNIVC|Async] Enviando datos para la actualización');
-                    if($modeloMenu->actualizarDatosMenuNivelC($datosParaActualizar)){
+                                log_message('info','[MENUNIVC|Async] Enviando datos para la actualización');
+                    if($this->modeloMenu->actualizarDatosMenuNivelC($datosParaActualizar)){
                         log_message('info','[MENUNIVC|Async] Los registros se actualizaron correctamente, notificando menu C.');
                         $swalMensajes=[
                             'title'=>'Proceso exitoso',
@@ -2022,8 +2013,7 @@ class Menuopcion extends BaseController
                     $captura = session()->get('IDCLIENTE'),
                     $textClave = $id,
                 ];
-                $modeloMenu = new Mmenuopcion;
-                if($modeloMenu->eliminarDatosMenuNivelC($datosParaEliminar)){
+                        if($this->modeloMenu->eliminarDatosMenuNivelC($datosParaEliminar)){
                     log_message('info','[MENUNIVC|Async] Los registros se eliminaron correctamente de menu B, notificando.');
                     $swalMensajes=[
                         'title'=>'Proceso exitoso',
@@ -2097,9 +2087,8 @@ class Menuopcion extends BaseController
 
     public function llenarTablaMenuD()
     {
-        $modeloMenu = new Mmenuopcion;
         log_message('info','[MENUNIVD|Async] Solicitando datos para renderizado de tabla menu D');
-        if($tablaDatos = $modeloMenu->llenarDatosTablaMenuD()){
+        if($tablaDatos = $this->modeloMenu->llenarDatosTablaMenuD()){
             log_message('info','[MENUNIVD|Async] Envio de datos para renderizado de tabla menu D');
             return json_encode($tablaDatos);
         }
@@ -2369,9 +2358,8 @@ class Menuopcion extends BaseController
                     return json_encode($swalMensajes);
                 }else{
                     log_message('info','[MENUNIVD|Async] Reglas de validacion aceptadas');
-                    $modeloMenu = new Mmenuopcion;
-                    log_message('info','[MENUNIVD|Async] Enviando datos verificar duplicidad menu D');
-                    if($datosDuplicados=$modeloMenu->buscarDuplicadosMenuD($datosParaGuardar)){
+                                log_message('info','[MENUNIVD|Async] Enviando datos verificar duplicidad menu D');
+                    if($datosDuplicados=$this->modeloMenu->buscarDuplicadosMenuD($datosParaGuardar)){
                         log_message('info','[MENUNIVD|Async] Retorno de datos esperando respuesta de usuario');
                         $swalMensajes=[
                             'title'=>'Advertencia',
@@ -2384,7 +2372,7 @@ class Menuopcion extends BaseController
 
                     }else {
                         log_message('info','[MENUNIVD|Async] No se detecto registros duplicados.');
-                        if($retorno=$modeloMenu->guardarDatosMenuNivelD($datosParaGuardar)){
+                        if($retorno=$this->modeloMenu->guardarDatosMenuNivelD($datosParaGuardar)){
                             log_message('info','[MENUNIVD|Async] Los registros se grabaron correctamente de menu D, notificando.');
                             $swalMensajes=[
                                 'title'=>'Proceso exitoso',
@@ -2441,13 +2429,12 @@ class Menuopcion extends BaseController
         log_message('info','[MENUNIVD|Async] Verificando el método de envio menu D');
         if($this->request->getMethod('POST')){
             log_message('info','[MENUNIVD|Async] Metodo envio reconocido continua proceso menu D');
-            $modeloMenu = new Mmenuopcion;
-            $datosParaBuscar=[
+                $datosParaBuscar=[
                 $captura = session()->get('IDCLIENTE'),
                 $idRegistro = $id,
             ];
             log_message('info','[MENUNIVD|Async] Solicitando datos para renderizado de edición menu D');
-            if($datosEditar=$modeloMenu->buscarDatosMenuD($datosParaBuscar)){
+            if($datosEditar=$this->modeloMenu->buscarDatosMenuD($datosParaBuscar)){
                 log_message('info','[MENUNIVD|Async] Envio de datos para renderizado de inputs menu D');
                 return json_encode($datosEditar);
             }else {
@@ -2679,9 +2666,8 @@ class Menuopcion extends BaseController
                     echo json_encode($swalMensajes);
                 }else{
                     log_message('info','[MENUNIVD|Async] Reglas de validacion aceptadas');
-                    $modeloMenu = new Mmenuopcion;
-                    log_message('info','[MENUNIVD|Async] Enviando datos para la actualización');
-                    if($modeloMenu->actualizarDatosMenuNivelD($datosParaActualizar)){
+                                log_message('info','[MENUNIVD|Async] Enviando datos para la actualización');
+                    if($this->modeloMenu->actualizarDatosMenuNivelD($datosParaActualizar)){
                         log_message('info','[MENUNIVD|Async] Los registros se actualizaron correctamente, notificando menu D.');
                         $swalMensajes=[
                             'title'=>'Proceso exitoso',
@@ -2743,8 +2729,7 @@ class Menuopcion extends BaseController
                     $captura = session()->get('IDCLIENTE'),
                     $textClave = $id,
                 ];
-                $modeloMenu = new Mmenuopcion;
-                if($respuestaAviso=$modeloMenu->eliminarDatosMenuNivelD($datosParaEliminar)){
+                        if($respuestaAviso=$this->modeloMenu->eliminarDatosMenuNivelD($datosParaEliminar)){
                     log_message('info','[MENUNIVD|Async] Los registros se eliminaron correctamente de menu D, notificando.');
                     $swalMensajes=[
                         'title'=>'Proceso exitoso',
@@ -2799,9 +2784,8 @@ class Menuopcion extends BaseController
 
     public function llenarComboMenuA()
     {
-        $modeloMenu = new Mmenuopcion;
         log_message('info','[MENUNIVA|Async] Solicitando datos para renderizado de combo menu a');
-        if($tablaDatos = $modeloMenu->llenarDatosComboMenuA()){
+        if($tablaDatos = $this->modeloMenu->llenarDatosComboMenuA()){
             log_message('info','[MENUNIVA|Async] Envio de datos para renderizado de combo menu a');
             return json_encode($tablaDatos);
         }
@@ -2809,9 +2793,8 @@ class Menuopcion extends BaseController
 
     public function llenarComboMenuB($id)
     {
-        $modeloMenu = new Mmenuopcion;
         log_message('info','[MENUNIVB|Async] Solicitando datos para renderizado de combobox menu B');
-        if($tablaDatos = $modeloMenu->llenarDatosComboMenuB($id)){
+        if($tablaDatos = $this->modeloMenu->llenarDatosComboMenuB($id)){
             log_message('info','[MENUNIVB|Async] Envio de datos para renderizado de combobox menu B');
             return json_encode($tablaDatos);
         }else {
@@ -2830,9 +2813,8 @@ class Menuopcion extends BaseController
 
     public function llenarComboMenuC($id)
     {
-        $modeloMenu = new Mmenuopcion;
         log_message('info','[MENUNIVC|Async] Solicitando datos para renderizado de combobox menu C');
-        if($tablaDatos = $modeloMenu->llenarDatosComboMenuC($id)){
+        if($tablaDatos = $this->modeloMenu->llenarDatosComboMenuC($id)){
             log_message('info','[MENUNIVC|Async] Envio de datos para renderizado de combobox menu C');
             return json_encode($tablaDatos);
         }
@@ -2840,9 +2822,8 @@ class Menuopcion extends BaseController
 
     public function llenarComboAMenuC()
     {
-        $modeloMenu = new Mmenuopcion;
         log_message('info','[MENUNIVC|Async] Solicitando datos para renderizado de combo menu a');
-        if($tablaDatos = $modeloMenu->llenarDatosComboAMenuC()){
+        if($tablaDatos = $this->modeloMenu->llenarDatosComboAMenuC()){
             log_message('info','[MENUNIVC|Async] Envio de datos para renderizado de combo menu a');
             return json_encode($tablaDatos);
         }
@@ -2850,9 +2831,8 @@ class Menuopcion extends BaseController
 
     public function llenarComboBMenuD($id)
     {
-        $modeloMenu = new Mmenuopcion;
         log_message('info','[MENUNIVD|Async] Solicitando datos para renderizado de combobox menu B');
-        if($tablaDatos = $modeloMenu->llenarDatosComboBMenuD($id)){
+        if($tablaDatos = $this->modeloMenu->llenarDatosComboBMenuD($id)){
             log_message('info','[MENUNIVD|Async] Envio de datos para renderizado de combobox menu B');
             return json_encode($tablaDatos);
         }else {
@@ -2871,8 +2851,7 @@ class Menuopcion extends BaseController
 
     public function buscarIconos($id)
     {
-        $modeloMenu = new Mmenuopcion;
-        if($listaIconos= $modeloMenu->buscarIconosInput($id)){
+        if($listaIconos= $this->modeloMenu->buscarIconosInput($id)){
             return $listaIconos;
         }else {
             $swalMensajes=[

@@ -173,85 +173,93 @@ const obtenerListado = async () => {
 };
 
 const plantillaFormulario = async () => {
-    let templateForm = document.querySelector('#formMenuCRUD');
-    templateForm.innerHTML=`
-    <div class="form-group">
-        <select name="textMenuA" class="custom-select custom-select-sm" id="textMenuA"></select>
-    </div>
-    <div class="form-group">
-        <select name="textMenuB" class="custom-select custom-select-sm" id="textMenuB">
-            <option value="">---</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <select name="textMenuC" class="custom-select custom-select-sm" id="textMenuC">
-            <option value="">---</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <input type="text" name="textClave" value="" class="form-control form-control-sm col-md-4 col-12" id="textClave" autocomplete="off" maxlength="12" placeholder="Clave">
-    </div>
-    <div class="row">
-        <div class="form-group col">
-            <input type="number" name="textOrden" value="" class="form-control form-control-sm" id="textOrden" autocomplete="off" maxlength="12" placeholder="Orden">
-        </div>
-        <div class="form-group col">
-            <select name="textHijos" class="custom-select custom-select-sm" id="textHijos">
-                <option value="">Seleccione</option>
-                <option value="NO">No tiene</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <input type="text" name="textIcono" value="" class="form-control form-control-sm col-md-8 col-12" id="textIcono" autocomplete="off" maxlength="30" placeholder="Icono CSS">
-        <div id="listaBusqueda" class="autocompletados"></div>
-    </div>
-    <div class="form-group">
-        <input type="text" name="textReferencia" value="" class="form-control form-control-sm col-12" id="textReferencia" autocomplete="off" maxlength="40" placeholder="Referencia">
-    </div>
-    <div class="form-group">
-        <input type="text" name="textTooltip" value="" class="form-control form-control-sm col-12" id="textTooltip" autocomplete="off" maxlength="40" placeholder="Tooltip Ayuda">
-    </div>
-    <div class="form-group">
-        <input type="text" name="textDescripcion" value="" class="form-control form-control-sm col-12" id="textDescripcion" autocomplete="off" maxlength="30" placeholder="Descripción">
-    </div>
-    <div id="capaSeoData">
-        <div class="form-group">
-            <input type="text" name="textSeoTitulo" value="" class="form-control form-control-sm col-12" id="textSeoTitulo" autocomplete="off" maxlength="40" placeholder="Titulo SEO">
-        </div>
-        <div class="form-group">
-            <input type="text" name="textSeoTituloPant" value="" class="form-control form-control-sm col-12" id="textSeoTituloPant" autocomplete="off" maxlength="40" placeholder="Titulo Pantalla SEO">
-        </div>
-        <div class="form-group">
-            <input type="text" name="textSeoRobots" value="" class="form-control form-control-sm col-12" id="textSeoRobots" autocomplete="off" maxlength="40" placeholder="Robots SEO">
-        </div>
-        <div class="form-group">
-            <input type="text" name="textSeoKeyWords" value="" class="form-control form-control-sm col-12" id="textSeoKeyWords" autocomplete="off" maxlength="40" placeholder="Keywords SEO">
-        </div>
-        <div class="form-group">
-            <textarea name="textSeoDescripcion" class="form-control form-control-sm col-12" id="textSeoDescripcion" maxlength="250" placeholder="Descripción SEO"></textarea>
-        </div>
-    </div>
-    `;
-    botonGuardar.setAttribute('style','display:block');
-    botonActualizar.setAttribute('style','display:none');
-    let listaBusqueda = document.querySelector('#listaBusqueda');
-    let textIcono = document.querySelector('#textIcono');
-    textIcono.addEventListener('keyup', () => {
-        listaBusqueda.innerHTML='';
-        completarInputIcono(textIcono.value);
-    })
-    llenarListadoMenuA();
-    let textMenuA = document.querySelector('#textMenuA');
-    textMenuA.addEventListener('change', () => {
-        llenarListadoMenuB(textMenuA);
-    })
-    let textMenuB = document.querySelector('#textMenuB');
-    textMenuB.addEventListener('change', () => {
-        llenarListadoMenuC(textMenuB);
-    })
-    return templateForm;
-
+    try {
+        let templateForm = document.querySelector('#formMenuCRUD');
+        templateForm.innerHTML=`
+            <div class="form-group">
+                <select name="textMenuA" class="custom-select custom-select-sm" id="textMenuA"></select>
+            </div>
+            <div class="form-group">
+                <select name="textMenuB" class="custom-select custom-select-sm" id="textMenuB">
+                    <option value="">---</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <select name="textMenuC" class="custom-select custom-select-sm" id="textMenuC">
+                    <option value="">---</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="text" name="textClave" value="" class="form-control form-control-sm col-md-4 col-12" id="textClave" autocomplete="off" maxlength="12" placeholder="Clave">
+            </div>
+            <div class="row">
+                <div class="form-group col">
+                    <input type="number" name="textOrden" value="" class="form-control form-control-sm" id="textOrden" autocomplete="off" maxlength="12" placeholder="Orden">
+                </div>
+                <div class="form-group col">
+                    <select name="textHijos" class="custom-select custom-select-sm" id="textHijos">
+                        <option value="">Seleccione</option>
+                        <option value="NO">No tiene</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="text" name="textIcono" value="" class="form-control form-control-sm col-md-8 col-12" id="textIcono" autocomplete="off" maxlength="30" placeholder="Icono CSS">
+                <div id="listaBusqueda" class="sys-autocompletados"></div>
+            </div>
+            <div class="form-group">
+                <input type="text" name="textReferencia" value="" class="form-control form-control-sm col-12" id="textReferencia" autocomplete="off" maxlength="40" placeholder="Referencia">
+            </div>
+            <div class="form-group">
+                <input type="text" name="textTooltip" value="" class="form-control form-control-sm col-12" id="textTooltip" autocomplete="off" maxlength="40" placeholder="Tooltip Ayuda">
+            </div>
+            <div class="form-group">
+                <input type="text" name="textDescripcion" value="" class="form-control form-control-sm col-12" id="textDescripcion" autocomplete="off" maxlength="30" placeholder="Descripción">
+            </div>
+            <div id="capaSeoData">
+                <div class="form-group">
+                    <input type="text" name="textSeoTitulo" value="" class="form-control form-control-sm col-12" id="textSeoTitulo" autocomplete="off" maxlength="40" placeholder="Titulo SEO">
+                </div>
+                <div class="form-group">
+                    <input type="text" name="textSeoTituloPant" value="" class="form-control form-control-sm col-12" id="textSeoTituloPant" autocomplete="off" maxlength="40" placeholder="Titulo Pantalla SEO">
+                </div>
+                <div class="form-group">
+                    <input type="text" name="textSeoRobots" value="" class="form-control form-control-sm col-12" id="textSeoRobots" autocomplete="off" maxlength="40" placeholder="Robots SEO">
+                </div>
+                <div class="form-group">
+                    <input type="text" name="textSeoKeyWords" value="" class="form-control form-control-sm col-12" id="textSeoKeyWords" autocomplete="off" maxlength="40" placeholder="Keywords SEO">
+                </div>
+                <div class="form-group">
+                    <textarea name="textSeoDescripcion" class="form-control form-control-sm col-12" id="textSeoDescripcion" maxlength="250" placeholder="Descripción SEO"></textarea>
+                </div>
+            </div>
+        `;
+        botonGuardar.setAttribute('style','display:block');
+        botonActualizar.setAttribute('style','display:none');
+        let textIcono = document.querySelector('#textIcono');
+        textIcono.addEventListener('keyup', (e) => {
+            if(e.keyCode >= 64 && e.keyCode <= 90 || e.keyCode==8){
+                completarInputIcono(textIcono.value);
+            }
+        })
+        llenarListadoMenuA();
+        let textMenuA = document.querySelector('#textMenuA');
+        textMenuA.addEventListener('change', () => {
+            llenarListadoMenuB(textMenuA);
+        })
+        let textMenuB = document.querySelector('#textMenuB');
+        textMenuB.addEventListener('change', () => {
+            llenarListadoMenuC(textMenuB);
+        })
+            
+    } catch (errorAlert) {
+        return Swal.fire({
+            title: 'Error interno',
+            icon: 'error',
+            confirmButtonColor: '#f43',
+            html: errorAlert.message,
+        })
+    }
 }
 
 const llenarListadoMenuA = async () => {
@@ -424,7 +432,7 @@ const buscandoDatosEditar = async (botonEditarEl) => {
                     </div>
                     <div class="form-group">
                         <input type="text" name="textIcono" value="${editando.CLASS_MEND}" class="form-control form-control-sm col-md-8 col-12" id="textIcono" autocomplete="off" maxlength="30" placeholder="Icono CSS">
-                        <div id="listaBusqueda" class="autocompletados"></div>
+                        <div id="listaBusqueda" class="sys-autocompletados"></div>
                     </div>
                     <div class="form-group">
                         <input type="text" name="textReferencia" value="${editando.REFEREN_MEND}" class="form-control form-control-sm col-12" id="textReferencia" autocomplete="off" maxlength="40" placeholder="Referencia">
@@ -455,11 +463,11 @@ const buscandoDatosEditar = async (botonEditarEl) => {
                 `;
                 botonGuardar.setAttribute('style','display:none');
                 botonActualizar.setAttribute('style','display:block');
-                let listaBusqueda = document.querySelector('#listaBusqueda');
                 let textIcono = document.querySelector('#textIcono');
-                textIcono.addEventListener('keyup', () => {
-                    listaBusqueda.innerHTML='';
-                    completarInputIcono(textIcono.value);
+                textIcono.addEventListener('keyup', (e) => {
+                    if(e.keyCode >= 64 && e.keyCode <= 90 || e.keyCode==8){
+                        completarInputIcono(textIcono.value);
+                    }
                 })
                 let textHijos = document.querySelector('#textHijos');
                 seleccionado=editando.CONTOPC_MEND
@@ -633,15 +641,15 @@ const completarInputIcono = async (textIcono) => {
                     listaBusqueda.innerHTML='';
                     const listadoUl = document.createElement('ul');
                     listadoUl.innerHTML='';
-                    listadoUl.classList.add('list-group', 'list-group-flush');
+                    listadoUl.classList.add('sys-autocompletar-list');
                     iconos.forEach(icono => {
                         const listadoItemUl = document.createElement('li');
-                        listadoItemUl.classList.add('list-group-item');
+                        listadoItemUl.classList.add('sys-autocompletar-list-item');
                         listadoItemUl.setAttribute('itemIcono',`${icono.FONTCSS_ICONS}`);
                         listadoItemUl.addEventListener('click', () => {
                             let textIconoNuevo =  document.querySelector('#textIcono');
                             textIconoNuevo.value = icono.FONTCSS_ICONS;
-                            listadoUl.innerHTML='';
+                            listaBusqueda.innerHTML='';
                         })
                         listadoItemUl.innerHTML= `
                         <i class="fas ${icono.FONTCSS_ICONS}"></i> ${icono.FONTCSS_ICONS}

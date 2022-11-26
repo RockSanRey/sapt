@@ -105,15 +105,16 @@ class Mmenuopcion extends Model
             $builder=$db->table('sys_menuniva');
             $builder->insert($setGuardarMenu);
             log_message('notice','[MENUNIVA|Async/Q] {user} creo un nuevo registro {item} en menu nivel A.', $log_extra);
-
-            $buildera=$db->table('sys_controlweb');
-            $buildera->insert($setGuardarSeo);
-            log_message('notice','[MENUNIVA|Async/Q] {user} creo un nuevo registro para control web con {item}.', $log_extra);
+            if($datosParaGuardar[6]=='NO'){
+                $buildera=$db->table('sys_controlweb');
+                $buildera->insert($setGuardarSeo);
+                log_message('notice','[MENUNIVA|Async/Q] {user} creo un nuevo registro para control web con {item}.', $log_extra);
+            }
 
             return true;
 
         } catch (Exception $errorElement) {
-            echo json_encode($errorElement.message());
+            return json_encode($errorElement.message());
         }
 
     }
@@ -146,7 +147,7 @@ class Mmenuopcion extends Model
             ];
 
         } catch (Exception $errorElement) {
-            echo json_encode($errorElement.message());
+            return json_encode($errorElement.message());
         }
     }
 
@@ -225,7 +226,7 @@ class Mmenuopcion extends Model
             return true;
 
         } catch (Exception $errorElement) {
-            echo json_encode($errorElement.message());
+            return json_encode($errorElement.message());
         }
 
     }
@@ -329,9 +330,11 @@ class Mmenuopcion extends Model
             $builder->insert($setGuardarMenu);
             log_message('notice','[MENUNIVB|Async/Q] {user} creo un nuevo registro {item} en menu nivel B.', $log_extra);
 
-            $buildera=$db->table('sys_controlweb');
-            $buildera->insert($setGuardarSeo);
-            log_message('notice','[MENUNIVB|Async/Q] {user} creo un nuevo registro para control web con {item}.', $log_extra);
+            if($datosParaGuardar[7]=='NO'){
+                $buildera=$db->table('sys_controlweb');
+                $buildera->insert($setGuardarSeo);
+                log_message('notice','[MENUNIVB|Async/Q] {user} creo un nuevo registro para control web con {item}.', $log_extra);
+            }
 
             return true;
 
@@ -372,7 +375,7 @@ class Mmenuopcion extends Model
             ];
 
         } catch (Exception $errorElement) {
-            echo json_encode($errorElement.message());
+            return json_encode($errorElement.message());
         }
     }
 
@@ -457,7 +460,7 @@ class Mmenuopcion extends Model
             return true;
 
         } catch (Exception $errorElement) {
-            echo json_encode($errorElement.message());
+            return json_encode($errorElement.message());
         }
 
     }
@@ -566,14 +569,16 @@ class Mmenuopcion extends Model
             $builder->insert($setGuardarMenu);
             log_message('notice','[MENUNIVC|Async/Q] {user} Creo un nuevo registro en {item} de {item2} en menu nivel C.', $log_extra);
 
-            $buildera=$db->table('sys_controlweb');
-            $buildera->insert($setGuardarSeo);
-            log_message('notice','[MENUNIVC|Async/Q] {user} creo un nuevo registro para control web con {item}.', $log_extra);
+            if($datosParaGuardar[8]=='NO'){
+                $buildera=$db->table('sys_controlweb');
+                $buildera->insert($setGuardarSeo);
+                log_message('notice','[MENUNIVC|Async/Q] {user} creo un nuevo registro para control web con {item}.', $log_extra);
+            }
 
             return true;
 
         } catch (Exception $errorElement) {
-            echo json_encode($errorElement.message());
+            return json_encode($errorElement.message());
         }
 
     }
@@ -608,7 +613,7 @@ class Mmenuopcion extends Model
             ];
 
         } catch (Exception $errorElement) {
-            echo json_encode($errorElement.message());
+            return json_encode($errorElement.message());
         }
     }
 
@@ -691,7 +696,7 @@ class Mmenuopcion extends Model
             return true;
 
         } catch (Exception $errorElement) {
-            echo json_encode($errorElement.message());
+            return json_encode($errorElement.message());
         }
 
     }
@@ -810,14 +815,16 @@ class Mmenuopcion extends Model
             $builder->insert($setGuardarMenu);
             log_message('notice','[MENUNIVD|Async/Q] {user} Creo un nuevo registro en {item} de {item2} en menu nivel D.', $log_extra);
 
-            $buildera=$db->table('sys_controlweb');
-            $buildera->insert($setGuardarSeo);
-            log_message('notice','[MENUNIVD|Async/Q] {user} creo un nuevo registro para control web con {item2}.', $log_extra);
+            if($datosParaGuardar[9]=='NO'){
+                $buildera=$db->table('sys_controlweb');
+                $buildera->insert($setGuardarSeo);
+                log_message('notice','[MENUNIVD|Async/Q] {user} creo un nuevo registro para control web con {item2}.', $log_extra);
+            }
 
             return true;
 
         } catch (Exception $errorElement) {
-            echo json_encode($errorElement.message());
+            return json_encode($errorElement.message());
         }
 
     }
@@ -851,7 +858,7 @@ class Mmenuopcion extends Model
             ];
 
         } catch (Exception $errorElement) {
-            echo json_encode($errorElement.message());
+            return json_encode($errorElement.message());
         }
     }
 
@@ -934,7 +941,7 @@ class Mmenuopcion extends Model
             return true;
 
         } catch (Exception $errorElement) {
-            echo json_encode($errorElement.message());
+            return json_encode($errorElement.message());
         }
 
     }

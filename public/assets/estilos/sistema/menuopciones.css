@@ -1,0 +1,27 @@
+.sys-autocompletados
+{
+	overflow: hidden;
+	overflow-y: auto;
+    max-height: 300px;
+	width: 90%;
+    position: absolute;
+    z-index: 1;
+    border-radius: 0px 0px 10px 10px;
+    box-shadow: 5px 5px 5px rgba(1,2,1,.4);
+	background-color: rgba(255, 255, 255, 1);
+}
+
+.sys-autocompletar-list-item
+{
+	background-color: rgba(255,255,255,1);
+	padding: 3px;
+	border-bottom: 1px solid rgba(221,225,226,1);
+	color: #000;
+}
+
+.sys-autocompletar-list-item:hover
+{
+	background-color: rgba(28,91,119,1);
+	color: rgba(209,238,255,1);
+	cursor: pointer;
+}

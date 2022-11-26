@@ -191,7 +191,7 @@ const plantillaFormulario = async () => {
         </div>
         <div class="form-group">
             <input type="text" name="textIcono" value="" class="form-control form-control-sm col-md-8 col-12" id="textIcono" autocomplete="off" maxlength="30" placeholder="Icono CSS">
-            <div id="listaBusqueda" class="autocompletados"></div>
+            <div id="listaBusqueda" class="sys-autocompletados"></div>
         </div>
         <div class="form-group">
             <input type="text" name="textReferencia" value="" class="form-control form-control-sm col-12" id="textReferencia" autocomplete="off" maxlength="40" placeholder="Referencia">
@@ -224,11 +224,11 @@ const plantillaFormulario = async () => {
         capaSeoData.classList.add('d-none');
         botonGuardar.setAttribute('style','display:block');
         botonActualizar.setAttribute('style','display:none');
-        let listaBusqueda = document.querySelector('#listaBusqueda');
         let textIcono = document.querySelector('#textIcono');
-        textIcono.addEventListener('keyup', () => {
-            listaBusqueda.innerHTML='';
-            completarInputIcono(textIcono.value);
+        textIcono.addEventListener('keyup', (e) => {
+            if(e.keyCode >= 64 && e.keyCode <= 90 || e.keyCode==8){
+                completarInputIcono(textIcono.value);
+            }
         })
         llenarListadoMenuA();
         let textMenuA = document.querySelector('#textMenuA');
@@ -278,6 +278,7 @@ const llenarListadoMenuA = async () => {
 }
 
 const cambioComboHijos = async (textHijos) => {
+    let textClave = document.querySelector('#textClave');
     let textReferencia = document.querySelector('#textReferencia');
     let textDescripcion = document.querySelector('#textDescripcion');
     let capaSeoData = document.querySelector('#capaSeoData');
@@ -286,15 +287,18 @@ const cambioComboHijos = async (textHijos) => {
     if(valorHijos=='SI'){
         capaSeoData.classList.add('d-none');
         textReferencia.setAttribute('readonly','readonly');
+        textReferencia.value='';
         textDescripcion.value="";
         textIcono.focus();
     }else if (valorHijos=='NO') {
         capaSeoData.classList.remove('d-none');
         textReferencia.removeAttribute('readonly','readonly');
+        textReferencia.value=textClave.value;
         textIcono.focus();
     }else {
         capaSeoData.classList.add('d-none');
         textReferencia.removeAttribute('readonly','readonly');
+        textReferencia.value='';
     }
 }
 
@@ -418,7 +422,7 @@ const buscandoDatosEditar = async (botonEditarEl) => {
                     </div>
                     <div class="form-group">
                         <input type="text" name="textIcono" value="${editando.CLASS_MENC}" class="form-control form-control-sm col-md-8 col-12" id="textIcono" autocomplete="off" maxlength="30" placeholder="Icono CSS">
-                        <div id="listaBusqueda" class="autocompletados"></div>
+                        <div id="listaBusqueda" class="sys-autocompletados"></div>
                     </div>
                     <div class="form-group">
                         <input type="text" name="textReferencia" value="${editando.REFEREN_MENC}" class="form-control form-control-sm col-12" id="textReferencia" autocomplete="off" maxlength="40" placeholder="Referencia">
@@ -451,11 +455,11 @@ const buscandoDatosEditar = async (botonEditarEl) => {
                 capaSeoData.classList.add('d-none');
                 botonGuardar.setAttribute('style','display:none');
                 botonActualizar.setAttribute('style','display:block');
-                let listaBusqueda = document.querySelector('#listaBusqueda');
                 let textIcono = document.querySelector('#textIcono');
-                textIcono.addEventListener('keyup', () => {
-                    listaBusqueda.innerHTML='';
-                    completarInputIcono(textIcono.value);
+                textIcono.addEventListener('keyup', (e) => {
+                    if(e.keyCode >= 64 && e.keyCode <= 90){
+                        completarInputIcono(textIcono.value);
+                    }
                 })
                 let textHijos = document.querySelector('#textHijos');
                 seleccionado=editando.CONTOPC_MENC
@@ -513,7 +517,9 @@ const buscandoDatosEditar = async (botonEditarEl) => {
 
 const actualizarRegistrosMenu = async () => {
     try {
-        if(validarMenuB() && validarClave() && validarOrden() && validarHijos() && validarIcono() && validarReferencia() && validarTooltip() && validarDescripcion() && validarSeoTitulo() && validarSeoTituloPant() && validarSeoRobot() && validarSeoKeyWords() && validarSeoDescripcion()){
+        if(validarMenuB() && validarClave() && validarOrden() && validarHijos() && validarIcono() && validarReferencia() && 
+        validarTooltip() && validarDescripcion() && validarSeoTitulo() && validarSeoTituloPant() && validarSeoRobot() && 
+        validarSeoKeyWords() && validarSeoDescripcion()){
             const formMenuCRUD = document.querySelector('#formMenuCRUD');
             const actualizaDatos = new FormData(formMenuCRUD);
             fetch('menunivelc/actualizarMenuNivelC', {
@@ -621,35 +627,27 @@ const completarInputIcono = async (textIcono) => {
             .then(iconos => {
                 if(iconos.length > 0){
                     listaBusqueda.innerHTML='';
-                    const ListadoUl = document.createElement('ul');
-                    ListadoUl.innerHTML='';
-                    ListadoUl.classList.add('list-group', 'list-group-flush');
+                    const listadoUl = document.createElement('ul');
+                    listadoUl.innerHTML='';
+                    listadoUl.classList.add('sys-autocompletar-list');
                     iconos.forEach(icono => {
                         const listadoItemUl = document.createElement('li');
-                        listadoItemUl.classList.add('list-group-item');
+                        listadoItemUl.classList.add('sys-autocompletar-list-item');
                         listadoItemUl.setAttribute('itemIcono',`${icono.FONTCSS_ICONS}`);
                         listadoItemUl.addEventListener('click', () => {
                             let textIconoNuevo =  document.querySelector('#textIcono');
                             textIconoNuevo.value = icono.FONTCSS_ICONS;
-                            ListadoUl.innerHTML='';
+                            listaBusqueda.innerHTML='';
                         })
                         listadoItemUl.innerHTML= `
                         <i class="fas ${icono.FONTCSS_ICONS}"></i> ${icono.FONTCSS_ICONS}
                         `;
-                        ListadoUl.appendChild(listadoItemUl);
+                        listadoUl.appendChild(listadoItemUl);
                     })
                     listaBusqueda.appendChild(ListadoUl);
                 }else {
                     listaBusqueda.innerHTML='';
                 }
-            })
-            .catch(function(errorAlert){
-                return Swal.fire({
-                    title: 'Error llamado',
-                    icon: 'error',
-                    confirmButtonColor: '#f43',
-                    html: errorAlert.message,
-                })
             })
         }
 

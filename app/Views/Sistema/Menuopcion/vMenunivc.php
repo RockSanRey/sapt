@@ -8,7 +8,7 @@
         </div>
     </div>
     <div class="card">
-        <div class="card-body bg-white ">
+        <div class="card-body bg-white p-2">
             <!-- Button trigger modal -->
             <div class="text-justify mb-2">
                 Para crear un nuevo registro haz clic en este botón
@@ -49,3 +49,4 @@
 <link href="/public/assets/estilos/css_frontend/formularios/formularios.css" rel="stylesheet">
 <link href="/public/assets/estilos/css_frontend/mensajes/mensajes.css" rel="stylesheet">
 <link href="/public/assets/estilos/css_frontend/menus/menu.css" rel="stylesheet">
+<link href="/public/assets/estilos/sistema/menuopciones.css" rel="stylesheet">

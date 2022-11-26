@@ -143,7 +143,7 @@ const plantillaFormulario = async () => {
             </div>
             <div class="form-group">
                 <input type="text" name="textIcono" value="" class="form-control form-control-sm col-md-8 col-12" id="textIcono" autocomplete="off" maxlength="30" placeholder="Icono CSS">
-                <div id="listaBusqueda" class="autocompletados"></div>
+                <div id="listaBusqueda" class="sys-autocompletados"></div>
             </div>
             <div class="form-group">
                 <input type="text" name="textReferencia" value="" class="form-control form-control-sm col-12" id="textReferencia" autocomplete="off" maxlength="40" placeholder="Referencia">
@@ -177,12 +177,12 @@ const plantillaFormulario = async () => {
         let botonActualizar = document.querySelector('#botonActualizar');
         botonGuardar.setAttribute('style','display:block');
         botonActualizar.setAttribute('style','display:none');
-        let listaBusqueda = document.querySelector('#listaBusqueda');
         let textIcono = document.querySelector('#textIcono');
         let textHijos = document.querySelector('#textHijos');
-        textIcono.addEventListener('keyup', () => {
-            listaBusqueda.innerHTML='';
-            completarInputIcono(textIcono.value);
+        textIcono.addEventListener('keyup', (e) => {
+            if(e.keyCode >= 64 && e.keyCode <= 90 || e.keyCode==8){
+                completarInputIcono(textIcono.value);
+            }
         })
         textHijos.addEventListener('change', () => {
             cambioComboHijos(textHijos);
@@ -200,6 +200,7 @@ const plantillaFormulario = async () => {
 
 const cambioComboHijos = async (textHijos) => {
     try{
+        let textClave = document.querySelector('#textClave');
         let textReferencia = document.querySelector('#textReferencia');
         let textDescripcion = document.querySelector('#textDescripcion');
         let capaSeoData = document.querySelector('#capaSeoData');
@@ -212,7 +213,8 @@ const cambioComboHijos = async (textHijos) => {
             textIcono.focus();
         }else if (valorHijos=='NO') {
             capaSeoData.classList.remove('d-none');
-            textReferencia.removeAttribute('readonly','readonly');
+            textReferencia.setAttribute('readonly','readonly');
+            textReferencia.value=textClave.value;
             textIcono.focus();
         }else {
             capaSeoData.classList.add('d-none');
@@ -246,7 +248,7 @@ const guardarRegistrosMenu = async () => {
                      return Swal.fire({
                          title: respuestas.title,
                          icon: respuestas.icon,
-                         confirmButtonText: `${respuestas.button}`,
+                         confirmButtonText: respuestas.button,
                          confirmButtonColor: '#e9b20e',
                          html: respuestas.text,
                      })
@@ -254,7 +256,7 @@ const guardarRegistrosMenu = async () => {
                      return Swal.fire({
                          title: respuestas.title,
                          icon: respuestas.icon,
-                         confirmButtonText: `${respuestas.button}`,
+                         confirmButtonText: respuestas.button,
                          confirmButtonColor: '#51BB0F',
                          html: respuestas.text,
                      }).then((result) => {
@@ -301,7 +303,7 @@ const buscandoDatosEditar = async (botonEditarEl) => {
                     </div>
                     <div class="form-group">
                         <input type="text" name="textIcono" value="${menuEdit.CLASS_MENA}" class="form-control form-control-sm col-md-8 col-12" id="textIcono" autocomplete="off" maxlength="30" placeholder="Icono CSS">
-                        <div id="listaBusqueda" class="autocompletados"></div>
+                        <div id="listaBusqueda" class="sys-autocompletados"></div>
                     </div>
                     <div class="form-group">
                         <input type="text" name="textReferencia" value="${menuEdit.REFEREN_MENA}" class="form-control form-control-sm col-12" id="textReferencia" autocomplete="off" maxlength="40" placeholder="Referencia">
@@ -334,11 +336,11 @@ const buscandoDatosEditar = async (botonEditarEl) => {
                 capaSeoData.classList.add('d-none');
                 botonGuardar.setAttribute('style','display:none');
                 botonActualizar.setAttribute('style','display:block');
-                let listaBusqueda = document.querySelector('#listaBusqueda');
                 let textIcono = document.querySelector('#textIcono');
-                textIcono.addEventListener('keyup', () => {
-                    listaBusqueda.innerHTML='';
-                    completarInputIcono(textIcono.value);
+                textIcono.addEventListener('keyup', (e) => {
+                    if(e.keyCode >= 64 && e.keyCode <= 90 || e.keyCode==8){
+                        completarInputIcono(textIcono.value);
+                    }
                 })
                 let textHijos = document.querySelector('#textHijos');
                 seleccionado=menuEdit.CONTOPC_MENA
@@ -413,7 +415,7 @@ const actualizarRegistrosMenu =async () => {
                     return Swal.fire({
                         title: respuestas.title,
                         icon: respuestas.icon,
-                        confirmButtonText: `${respuestas.button}`,
+                        confirmButtonText: respuestas.button,
                         confirmButtonColor: '#e9b20e',
                         html: respuestas.text,
                     })
@@ -421,7 +423,7 @@ const actualizarRegistrosMenu =async () => {
                     return Swal.fire({
                         title: respuestas.title,
                         icon: respuestas.icon,
-                        confirmButtonText: `${respuestas.button}`,
+                        confirmButtonText: respuestas.button,
                         confirmButtonColor: '#51BB0F',
                         html: respuestas.text,
                     }).then((result) => {
@@ -466,7 +468,7 @@ const eliminarRegistrosMenu = async (botonEliminarEl) => {
                         return Swal.fire({
                             title: respuestas.title,
                             icon: respuestas.icon,
-                            confirmButtonText: `${respuestas.button}`,
+                            confirmButtonText: respuestas.button,
                             confirmButtonColor: '#e9b20e',
                             html: respuestas.text,
                         })
@@ -475,7 +477,7 @@ const eliminarRegistrosMenu = async (botonEliminarEl) => {
                         return Swal.fire({
                             title: respuestas.title,
                             icon: respuestas.icon,
-                            confirmButtonText: `${respuestas.button}`,
+                            confirmButtonText: respuestas.button,
                             confirmButtonColor: '#51BB0F',
                             html: respuestas.text,
                         })
@@ -512,15 +514,15 @@ const completarInputIcono = async (textIcono) => {
                     listaBusqueda.innerHTML='';
                     const listadoUl = document.createElement('ul');
                     listadoUl.innerHTML='';
-                    listadoUl.classList.add('list-group', 'list-group-flush');
+                    listadoUl.classList.add('sys-autocompletar-list');
                     iconos.forEach(icono => {
                         const listadoItemUl = document.createElement('li');
-                        listadoItemUl.classList.add('list-group-item');
+                        listadoItemUl.classList.add('sys-autocompletar-list-item');
                         listadoItemUl.setAttribute('itemIcono',`${icono.FONTCSS_ICONS}`);
                         listadoItemUl.addEventListener('click', () => {
                             let textIconoNuevo =  document.querySelector('#textIcono');
                             textIconoNuevo.value = icono.FONTCSS_ICONS;
-                            listadoUl.innerHTML='';
+                            listaBusqueda.innerHTML='';
                         })
                         listadoItemUl.innerHTML= `
                         <i class="fas ${icono.FONTCSS_ICONS}"></i> ${icono.FONTCSS_ICONS}
