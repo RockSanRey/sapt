@@ -111,7 +111,7 @@ const buscarContratoInformacion = async (textIdContrato) => {
             return Swal.fire({
                 title: 'Validación',
                 icon: 'error',
-                confirmButtonColor: '#f43',
+                confirmButtonColor: '#9C0000',
                 confirmButtonText: 'Completar',
                 html: 'Debe ingresar el usuario a buscar',
             })
