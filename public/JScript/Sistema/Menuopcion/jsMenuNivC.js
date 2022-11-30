@@ -643,7 +643,7 @@ const completarInputIcono = async (textIcono) => {
                         `;
                         listadoUl.appendChild(listadoItemUl);
                     })
-                    listaBusqueda.appendChild(ListadoUl);
+                    listaBusqueda.appendChild(listadoUl);
                 }else {
                     listaBusqueda.innerHTML='';
                 }
