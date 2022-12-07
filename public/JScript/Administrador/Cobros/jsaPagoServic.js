@@ -1344,7 +1344,7 @@ const modificarTotalesDeuda = async (inputCheckboxClicker) => {
         let textAbono = document.querySelector('#textAbono');
         let labelAbono = document.querySelector('#labelAbono');
         let labelRestante = document.querySelector('#labelRestante');
-        fetch(`regconvenio/buscarTotalesConcepto/${idBusqueda}`)
+        fetch(`apagoservic/modificarTotalesConcepto/${idBusqueda}`)
         .then(respRender =>  respRender.json())
         .then(respuestas => {
             respuestas.forEach(totales => {

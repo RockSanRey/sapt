@@ -548,6 +548,31 @@ class Macobros extends Model
 
     }
 
+    public function modificarDatosTotalesConcepto($id)
+    {
+        try {
+
+            $parametro=explode('_', $id);
+
+            $builder=$this->dbBuild->table('sys_clientes_detalles');
+            $builder->select('TOTAL_DETA');
+            $builder->where('USUARIO_DETA', $parametro[0]);
+            $builder->where('CONTRATO_DETA', $parametro[1]);
+            $builder->where('CODIGO_DETA', $parametro[2]);
+            $builder->where('ESTATUS_DETA', 'ADEU');
+            $resultado=$builder->get();
+
+            if($resultado->getNumRows()>0){
+                return $resultado->getResultArray();
+            }
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+
     public function realizarDatosPagoParcialCuenta($datosParaCompletar)
     {
         try {

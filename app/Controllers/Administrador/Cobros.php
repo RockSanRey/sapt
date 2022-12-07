@@ -359,6 +359,26 @@ class Cobros extends BaseController
         }
     }
 
+    public function modificarTotalesConcepto($id)
+    {
+        log_message('info','[PAGOSERVICIO|Async] Modificando datos para actualizar totales');
+        if($tablaDatos = $this->modeloCobros->modificarDatosTotalesConcepto($id)){
+            log_message('info','[PAGOSERVICIO|Async] Envio de datos para renderizado de totales');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[PAGOSERVICIO|Async] Ocurrio un error al solicitar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los tados para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
     public function realizarPagoParcialCuenta()
     {
         log_message('info','[PAGOSERVICIO|Async] Verificando el método de envio para continuar proceso guardar');
