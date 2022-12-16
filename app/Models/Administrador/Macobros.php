@@ -747,57 +747,6 @@ class Macobros extends Model
 
     }
     
-    public function buscarDatosUsuariosTotal()
-    {
-        try {
-
-            $builder=$this->dbBuild->table('sys_clientes_contratos');
-            $builder->select("COUNT(DISTINCT(CONTRATO_CCONT)) AS TOTALES, DESCRIPCION_CTARI, DESCUENTO_CCONT");
-            $builder->join('cat_contratosTarifas','DESCUENTO_CCONT=CLAVE_CTARI');
-            $builder->where('ESTATUS_CCONT','ACTI');
-            $builder->groupBy('DESCUENTO_CCONT');
-            $builder->orderBy('DESCRIPCION_CTARI','DESC');
-            $resultados0=$builder->get();
-
-            if($resultados0->getNumRows()>0){
-                log_message('info','[CREARCARGO|Async/Q] Generando datos desde consulta para obtener total contratos tarifa');
-                return $resultados0->getResultArray();
-            }
-
-
-        } catch (Exception $errorElement) {
-            return json_encode($errorElement.message());
-        }
-
-    }
-
-    public function verificarDatosMesCorriente($id)
-    {
-        try {
-            $parametros = explode('_',$id);
-            $log_extra=[
-                'user'=>$parametros[0],
-            ];
-            $builder=$this->dbBuild->table('sys_clientes_contratos');
-            $builder->select("CONCAT(CONTRATO_CCONT,'_',CLIENTE_CCONT) AS CONTRATOS");
-            $builder->where('DESCUENTO_CCONT',$parametros[1]);
-            $builder->where('ESTATUS_CCONT','ACTI');
-            $resultado=$builder->get();
-
-            if($resultado->getNumRows()>0){
-                log_message('info','[CREARCARGO|Async/Q] Generando datos desde consulta agregar mes corriente faltante');
-                foreach($resultado->getResultArray() as $filas){
-                    $contratosArray[]=$filas['CONTRATOS'];
-                }
-            }
-            return [$contratosArray];
-
-        } catch (Exception $errorElement) {
-            return json_encode($errorElement.message());
-        }
-
-    }
-
     public function agregandoDatosCargos($datosModificar)
     {
         try {
@@ -952,6 +901,114 @@ class Macobros extends Model
 
     }
 
+    public function agregandoDatosRecargos($datosModificar)
+    {
+        try {
+            $parametros = explode('_',$datosModificar[0]);
+            $log_extra=[
+                'user'=>$parametros[3],
+            ];
+
+            log_message('info','[CREARECARGO|Async/Q] Comprobando atrasos en pagos de servicios para {user}', $log_extra);
+            $buildera=$this->dbBuild->table('sys_clientes_detalles');
+            $buildera->select('CODIGO_DETA');
+            $buildera->where('USUARIO_DETA', $parametros[3]);
+            $buildera->where('CONTRATO_DETA', $parametros[2]);
+            $buildera->where('CODIGO_DETA <',date('Ym').$datosModificar[1]);
+            $buildera->like('CODIGO_DETA',$datosModificar[1],'before');
+            $buildera->where('ESTATUS_DETA','ADEU');
+            $resultado0=$buildera->get();
+
+            if($resultado0->getNumRows()>0){
+                log_message('info','[CREARECARGO|Async/Q] Se detectaron adeudos comprobando si se aplico recargos para {user}', $log_extra);
+                foreach ($resultado0->getResultArray() as $value) {
+                    $mesRecargos=$value['CODIGO_DETA'];
+
+                    $builderb=$this->dbBuild->table('sys_clientes_detalles');
+                    $builderb->select('CODIGO_DETA','ESTATUS_DETA');
+                    $builderb->where('CODIGO_DETA', substr($mesRecargos,0,6).'RSA');
+                    $builderb->where('USUARIO_DETA', $parametros[3]);
+                    $builderb->where('CONTRATO_DETA', $parametros[2]);
+                    $builderb->whereIn('ESTATUS_DETA', ['ADEU','PAGA']);
+                    $resultado1=$builderb->get();
+
+                    if(!$resultado1->getNumRows()>0){
+                        log_message('info','[CREARECARGO|Async/Q] No se encontraron recargos aplicados para {user} en '.$mesRecargos, $log_extra);
+                        $builderc=$this->dbBuild->query("
+                            INSERT INTO sys_clientes_detalles(
+                                `FECHACAP_DETA`,
+                                `HORACAP_DETA`,
+                                `CAPTURA_DETA`,
+                                `USUARIO_DETA`,
+                                `CONTRATO_DETA`,
+                                `CODIGO_DETA`,
+                                `CANTIDAD_DETA`,
+                                `COSTO_DETA`,
+                                `TOTAL_DETA`,
+                                `IDMODIF_DETA`,
+                                `FMODIF_DETA`,
+                                `ESTATUS_DETA`
+                            )
+                            SELECT
+                                curdate(),
+                                curtime(),
+                                '".$parametros[0]."',
+                                '".$parametros[3]."',
+                                '".$parametros[2]."',
+                                CLAVE_CONC,
+                                '1',
+                                COSTO_CONC,
+                                COSTO_CONC,
+                                '".$parametros[0]."',
+                                curdate(),
+                                'ADEU'
+                            FROM cat_conceptos
+                            WHERE
+                            CLAVE_CONC = '".substr($mesRecargos,0,6)."RSA' AND
+                            ESTATUS_CONC='ACTI'
+                        ");
+                        log_message('info','[CREARECARGO|Async/Q] Creando recargos para {user} de '.substr($mesRecargos,0,6), $log_extra);
+
+                    }
+
+                }
+                return true;
+
+            }else{
+                log_message('info','[CREARECARGO|Async/Q] No se detectaron adeudos para {user}', $log_extra);
+                return true;
+            }
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+    }
+
+    public function mostrarDatosResumenRecargos()
+    {
+        try {
+            $db= \Config\Database::connect();
+
+            $builder=$db->table('sys_clientes_detalles');
+            $builder->select("CODIGO_DETA, DESCUENTO_CCONT, COUNT(CONTRATO_DETA) AS CREADOS, SUM(TOTAL_DETA) AS PORPAGAR");
+            $builder->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_DETA');
+            $builder->where('FECHACAP_DETA',date('Y-m-d'));
+            $builder->like('CODIGO_DETA','RSA','before');
+            $builder->where('ESTATUS_DETA','ADEU');
+            $builder->groupBy('DESCUENTO_CCONT');
+            $resultados0=$builder->get();
+
+            if($resultados0->getNumRows()>0){
+                log_message('info','[CREARECARGO|Async/Q] Generando datos para obtener total recargos aplicados');
+                return $resultados0->getResultArray();
+            }
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+
 
 
 
@@ -1049,6 +1106,56 @@ class Macobros extends Model
 
     }
 
+    public function buscarContratosActivos()
+    {
+        try {
+
+            $builder=$this->dbBuild->table('sys_clientes_contratos');
+            $builder->select("COUNT(DISTINCT(CONTRATO_CCONT)) AS TOTALES, DESCRIPCION_CTARI, DESCUENTO_CCONT");
+            $builder->join('cat_contratosTarifas','DESCUENTO_CCONT=CLAVE_CTARI');
+            $builder->where('ESTATUS_CCONT','ACTI');
+            $builder->groupBy('DESCUENTO_CCONT');
+            $builder->orderBy('DESCRIPCION_CTARI','DESC');
+            $resultados0=$builder->get();
+
+            if($resultados0->getNumRows()>0){
+                log_message('info','[ACOBROS|Async/Q] Generando datos desde consulta para obtener total contratos tarifa');
+                return $resultados0->getResultArray();
+            }
+
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function arregloDatosContratosTotales($id)
+    {
+        try {
+            $parametros = explode('_',$id);
+            $log_extra=[
+                'user'=>$parametros[0],
+            ];
+            $builder=$this->dbBuild->table('sys_clientes_contratos');
+            $builder->select("CONCAT(CONTRATO_CCONT,'_',CLIENTE_CCONT) AS CONTRATOS");
+            $builder->where('DESCUENTO_CCONT',$parametros[1]);
+            $builder->where('ESTATUS_CCONT','ACTI');
+            $resultado=$builder->get();
+
+            if($resultado->getNumRows()>0){
+                log_message('info','[ACOBROS|Async/Q] Generando datos desde consulta agregar mes corriente faltante');
+                foreach($resultado->getResultArray() as $filas){
+                    $contratosArray[]=$filas['CONTRATOS'];
+                }
+            }
+            return [$contratosArray];
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
 
 
 

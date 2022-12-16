@@ -518,49 +518,6 @@ class Cobros extends BaseController
         return view('Plantilla/vHeader',$cadena).view('Administrador/Cobros/vCreaCargo').view('Plantilla/vFooter');        
     }
 
-    public function buscarUsuariosTotal()
-    {
-        log_message('info','[CREACARGO|Async] Solicitando datos para modificar concepto en detalles');
-        if($tablaDatos=$this->modeloCobros->buscarDatosUsuariosTotal()){
-            $retorno=[
-                $idCapturista=session()->get('IDCLIENTE'),
-                $tablaDatos,
-            ];
-            return json_encode($retorno);
-        }else {
-            log_message('info','[CREACARGO|Async] Ocurrio un error al solicitar los datos, notificando');
-            $swalMensajes=[
-                'title'=>'Error Servidor',
-                'button'=>'Ok',
-                'icon'=>'error',
-                'text'=>'Ocurro un error al consultar los tados para renderizado notificando.',
-                'estatus'=>'error',
-            ];
-
-            return json_encode($swalMensajes);
-        }
-    }
-
-    public function verificarMesCorriente($id)
-    {
-        log_message('info','[CREACARGO|Async] Solicitando datos para modificar concepto en detalles');
-        if($tablaDatos=$this->modeloCobros->verificarDatosMesCorriente($id)){
-            return json_encode($tablaDatos);
-        }else {
-            log_message('info','[CREACARGO|Async] Ocurrio un error al solicitar los datos, notificando');
-            $swalMensajes=[
-                'title'=>'Error Servidor',
-                'button'=>'Ok',
-                'icon'=>'error',
-                'text'=>'Ocurro un error al consultar los tados para renderizado notificando.',
-                'estatus'=>'error',
-            ];
-
-            return json_encode($swalMensajes);
-        }
-
-    }
-
     public function agregandoCargos($id)
     {
         $tarifa=explode('_',$id);
@@ -670,6 +627,96 @@ class Cobros extends BaseController
         }
     }
 
+    public function acrearecargo()
+    {
+        $id = __FUNCTION__;
+        $respuesta=$this->llamandoParametrosWeb($id);
+        $cadena=array(
+            'titulo'=>'SAPT | '.$respuesta['TITULO_CONW'],
+            'tutiloPantalla'=>$respuesta['TITULOPANT_CONW'],
+            'robots'=>$respuesta['ROBOTS_CONW'],
+            'Keyword'=>$respuesta['KEYWORD_CONW'],
+            'descripcion'=>$respuesta['DESCRIPCION_CONW'],
+            'pantalla'=>'acrearecargo',
+            'sesionIniciada'=>session(),
+        );
+        $sesionIniciada=session();
+        $log_extra=[
+            'user'=>$sesionIniciada->get('IDCLIENTE'),
+            'grupo'=>$sesionIniciada->get('NIVELCLIEN'),
+        ];
+        log_message('info','[CREARECARGO] Cargando modulo crearecargo para {user} con privilegios {grupo}.',$log_extra);
+        return view('Plantilla/vHeader',$cadena).view('Administrador/Cobros/vCreaRecargo').view('Plantilla/vFooter');        
+    }
+
+    public function agregandoRecargos($id)
+    {
+        $tarifa=explode('_',$id);
+        log_message('info','[CREARECARGO|Async] Comprobar tarifa que tiene aplicado');
+        if($tarifa[1]=='TARNOR'){
+            $datosModificar=[
+                $idClaves=$id,
+                $claveDeuda='CSA',
+            ];
+        }
+        if($tarifa[1]=='TARMAY'){
+            $datosModificar=[
+                $idClaves=$id,
+                $claveDeuda='CSAD',
+            ];
+        }
+        if($tarifa[1]=='TARNEG'){
+            $datosModificar=[
+                $idClaves=$id,
+                $claveDeuda='CSAN',
+            ];
+        }
+        if($tarifa[1]=='TARESP'){
+            $datosModificar=[
+                $idClaves=$id,
+                $claveDeuda='CSAE',
+            ];
+        }
+        if($tablaDatos=$this->modeloCobros->agregandoDatosRecargos($datosModificar)){
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[CREARECARGO|Async] Ocurrio un error al solicitar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los tados para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+
+    }
+
+    public function mostrarResumenRecargos()
+    {
+        log_message('info','[CREARECARGO|Async] Solicitando datos para modificar concepto en detalles');
+        if($tablaDatos=$this->modeloCobros->mostrarDatosResumenRecargos()){
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[CREARECARGO|Async] Ocurrio un error al solicitar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los tados para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+
+
+
+
 
 
     public function autoCompletarUsuario($id)
@@ -732,6 +779,50 @@ class Cobros extends BaseController
             return json_encode($swalMensajes);
         }
     }
+
+    public function buscarContratosActivos()
+    {
+        log_message('info','[ACOBROS|Async] Solicitando datos para modificar concepto en detalles');
+        if($tablaDatos=$this->modeloCobros->buscarContratosActivos()){
+            $retorno=[
+                $idCapturista=session()->get('IDCLIENTE'),
+                $tablaDatos,
+            ];
+            return json_encode($retorno);
+        }else {
+            log_message('info','[ACOBROS|Async] Ocurrio un error al solicitar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los tados para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function arregloContratosTotales($id)
+    {
+        log_message('info','[ACOBROS|Async] Solicitando datos para modificar concepto en detalles');
+        if($tablaDatos=$this->modeloCobros->arregloDatosContratosTotales($id)){
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[ACOBROS|Async] Ocurrio un error al solicitar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los tados para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+
+    }
+
 
 
 

@@ -11,8 +11,8 @@
     </div>
     <div class="card">
         <div class="card-body bg-white p-2">
-            <div id="inicialCargosUsuarios"></div>
-            <div id="avanceProgresoCargos"></div>
+            <div id="inicialRecargosUsuarios"></div>
+            <div id="avanceProgresoRecargos"></div>
             <div id="avisoModificadoUser"></div>
         </div>
         <div class="card-footer bg-white">
@@ -25,6 +25,6 @@
 <script src="/public/assets/datepicker/es.js"></script>
 <link href="/public/assets/datepicker/datepicker.min.css" rel="stylesheet">
 <link href="/public/assets/datepicker/datepicker-bs4.min.css" rel="stylesheet">
-<script src="/public/JScript/Administrador/Cobros/jsaCreaCargo.js"></script>
+<script src="/public/JScript/Administrador/Cobros/jsaCreaRecargo.js"></script>
 <script src="/public/assets/sweetalert/sweetalert2.all.min.js"></script>
 <link href="/public/assets/estilos/css_frontend/formularios/formularios.css" rel="stylesheet">
