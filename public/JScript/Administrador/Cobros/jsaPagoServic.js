@@ -78,7 +78,7 @@ const completarBusquedaUsuarios = async (textUsuario) => {
         }else{
             let idBusqueda = textUsuario.value;
             userListComplete.innerHTML=cargaAnimacion;
-            fetch(`apagoservic/autoCompletarUsuario/${idBusqueda}`)
+            fetch(`acobros/autoCompletarUsuario/${idBusqueda}`)
             .then(respRender => respRender.json())
             .then(respuestas => {
                 if(respuestas.length > 0){
@@ -132,7 +132,7 @@ const buscarUsuarioInformacion = async (textIdUsuario) => {
             let datosUsuarioPago = document.querySelector('#datosUsuarioPago');
             let buscadorUsuarioPago = document.querySelector('#buscadorUsuarioPago');
             let datosUsuarioDetalle = document.querySelector('#datosUsuarioDetalle');
-            fetch(`apagoservic/cargarUsuarioGenerales/${idBusqueda}`)
+            fetch(`acobros/cargarUsuarioGenerales/${idBusqueda}`)
             .then(respRender => respRender.json())
             .then(respuestas => {
                 if(respuestas.estatus=='error'){
@@ -145,7 +145,24 @@ const buscarUsuarioInformacion = async (textIdUsuario) => {
                         confirmButtonColor: '#9C0000',
                         html: respuestas.text,
                     })
+                }else if(respuestas[0]==null || respuestas[1]==null){
+                    buscadorUsuarioPago.innerHTML='';
+                    datosUsuarioPago.innerHTML='';
+                    datosUsuarioPago.innerHTML=`
+                        <div class="row">
+                            <div class="form-group col-md-12 col-12"><div class="form-control form-control-sm"><small>Usuario:</small> <b>No hay datos disponibles</b></div></div>
+                        </div>
+                        <div class="form-group col-md-4 col-12 btn-group">
+                            <button type="button" class="btn btn-sm btn-secondary mb-3" id="botonResetear">Limpiar</button>
+                        </div>
                     
+                    `;
+                    botonResetear.addEventListener('click', () => {
+                        datosUsuarioPago.innerHTML='';
+                        datosUsuarioDetalle.innerHTML='';
+                        labelsParciales.innerHTML='';
+                        buscadorUsuarios();
+                    })
                 }else{
                     buscadorUsuarioPago.innerHTML='';
                     respuestas[0].forEach(usuario => {
@@ -1344,7 +1361,7 @@ const modificarTotalesDeuda = async (inputCheckboxClicker) => {
         let textAbono = document.querySelector('#textAbono');
         let labelAbono = document.querySelector('#labelAbono');
         let labelRestante = document.querySelector('#labelRestante');
-        fetch(`apagoservic/modificarTotalesConcepto/${idBusqueda}`)
+        fetch(`acobros/modificarTotalesConcepto/${idBusqueda}`)
         .then(respRender =>  respRender.json())
         .then(respuestas => {
             respuestas.forEach(totales => {
@@ -1489,10 +1506,10 @@ const pagarDeudaParcial = async () => {
             Swal.fire({
                 title: 'Cobrar',
                 icon: 'question',
-                confirmButtonColor: '#0A8000',
+                confirmButtonColor: '#009C06',
                 confirmButtonText: 'Si, Cobrar',
                 showCancelButton: true,
-                cancelButtonColor: '#d33',
+                cancelButtonColor: '#9C0000',
                 cancelButtonText: 'No, mejor no',
                 html: '¿Desea hacer el cobro de este servicio?',
             })

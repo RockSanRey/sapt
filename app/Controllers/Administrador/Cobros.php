@@ -49,26 +49,6 @@ class Cobros extends BaseController
         return view('Plantilla/vHeader',$cadena).view('Administrador/Cobros/vPagoServic').view('Plantilla/vFooter');        
     }
 
-    public function cargarUsuarioGenerales($id)
-    {
-        log_message('info','[PAGOSERVICIO|Async] Solicitando datos para renderizado de completar usuarios');
-        if($tablaDatos = $this->modeloCobros->cargarDatosUsuarioGenerales($id)){
-            log_message('info','[PAGOSERVICIO|Async] Envio de datos para renderizado de completar usuarios');
-            return json_encode($tablaDatos);
-        }else {
-            log_message('info','[PAGOSERVICIO|Async] Ocurrio un error al consultar los datos, notificando');
-            $swalMensajes=[
-                'title'=>'Error Servidor',
-                'button'=>'Ok',
-                'icon'=>'error',
-                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
-                'estatus'=>'error',
-            ];
-
-            return json_encode($swalMensajes);
-        }
-    }
-
     public function cargarDeudasDetalle($id)
     {
         log_message('info','[PAGOSERVICIO] Comprobando sesión iniciada en el sistema.');
@@ -359,26 +339,6 @@ class Cobros extends BaseController
         }
     }
 
-    public function modificarTotalesConcepto($id)
-    {
-        log_message('info','[PAGOSERVICIO|Async] Modificando datos para actualizar totales');
-        if($tablaDatos = $this->modeloCobros->modificarDatosTotalesConcepto($id)){
-            log_message('info','[PAGOSERVICIO|Async] Envio de datos para renderizado de totales');
-            return json_encode($tablaDatos);
-        }else {
-            log_message('info','[PAGOSERVICIO|Async] Ocurrio un error al solicitar los datos, notificando');
-            $swalMensajes=[
-                'title'=>'Error Servidor',
-                'button'=>'Ok',
-                'icon'=>'error',
-                'text'=>'Ocurro un error al consultar los tados para renderizado notificando.',
-                'estatus'=>'error',
-            ];
-
-            return json_encode($swalMensajes);
-        }
-    }
-
     public function realizarPagoParcialCuenta()
     {
         log_message('info','[PAGOSERVICIO|Async] Verificando el método de envio para continuar proceso guardar');
@@ -415,12 +375,300 @@ class Cobros extends BaseController
         }
     }
 
+    public function apagoespecia()
+    {
+        $id = __FUNCTION__;
+        $respuesta=$this->llamandoParametrosWeb($id);
+        $cadena=array(
+            'titulo'=>'SAPT | '.$respuesta['TITULO_CONW'],
+            'tutiloPantalla'=>$respuesta['TITULOPANT_CONW'],
+            'robots'=>$respuesta['ROBOTS_CONW'],
+            'Keyword'=>$respuesta['KEYWORD_CONW'],
+            'descripcion'=>$respuesta['DESCRIPCION_CONW'],
+            'pantalla'=>'apagoespecia',
+            'sesionIniciada'=>session(),
+        );
+        $sesionIniciada=session();
+        $log_extra=[
+            'user'=>$sesionIniciada->get('IDCLIENTE'),
+            'grupo'=>$sesionIniciada->get('NIVELCLIEN'),
+        ];
+        log_message('info','[PAGOESPECIAL] Cargando modulo pagoespecia para {user} con privilegios {grupo}.',$log_extra);
+        return view('Plantilla/vHeader',$cadena).view('Administrador/Cobros/vPagoEspecia').view('Plantilla/vFooter');        
+    }
 
+    public function cargarDeudasEspeciales($id)
+    {
+        log_message('info','[PAGOESPECIAL] Comprobando sesión iniciada en el sistema.');
+        if(session()->get('logged_in')==1){
+            log_message('info','[PAGOESPECIAL|Async] Consultando datos para llenar lista de deudas.');
+            $tarifa=explode('_',$id);
+            log_message('info','[PAGOESPECIAL|Async] Comprobar tarifa que tiene aplicado');
+            if($tarifa[2]=='TARNOR'){
+                $datosRevisar=[
+                    $idCapturista=session()->get('IDCLIENTE'),
+                    $idClaves=$id,
+                    $claveDeuda='CSA',
+                ];
+            }
+            if($tarifa[2]=='TARMAY'){
+                $datosRevisar=[
+                    $idCapturista=session()->get('IDCLIENTE'),
+                    $idClaves=$id,
+                    $claveDeuda='CSAD',
+                ];
+            }
+            if($tarifa[2]=='TARNEG'){
+                $datosRevisar=[
+                    $idCapturista=session()->get('IDCLIENTE'),
+                    $idClaves=$id,
+                    $claveDeuda='CSAN',
+                ];
+            }
+            if($tarifa[2]=='TARESP'){
+                $datosRevisar=[
+                    $idCapturista=session()->get('IDCLIENTE'),
+                    $idClaves=$id,
+                    $claveDeuda='CSAE',
+                ];
+            }
+            if($tablaDatos=$this->modeloCobros->cargarDatosDeudasEspeciales($datosRevisar)){
+                return json_encode($tablaDatos);
+            }else {
+                log_message('info','[PAGOESPECIAL|Async] Ocurrio un error al solicitar los datos, notificando');
+                $swalMensajes=[
+                    'title'=>'Error Servidor',
+                    'button'=>'Ok',
+                    'icon'=>'error',
+                    'text'=>'Ocurro un error al consultar los tados para renderizado notificando.',
+                    'estatus'=>'error',
+                ];
 
+                return json_encode($swalMensajes);
+            }
+        }else {
+            log_message('info','[PAGOESPECIAL] La sesión ha caducado o no existe');
+            $swalMensajes=[
+                'title'=>'Sin sesión',
+                'button'=>'Iniciar sesión',
+                'icon'=>'error',
+                'text'=>'La sesión ha caducado o no existe.',
+                'estatus'=>'error',
+            ];
 
+            return json_encode($swalMensajes);
+        }
+    }
+    
+    public function realizarAjusteParcial()
+    {
+        log_message('info','[PAGOESPECIAL|Async] Verificando el método de envio para continuar proceso guardar');
+        if($this->request->getMethod('POST')){
+            $log_extra=[
+                'user'=>session()->get('IDCLIENTE'),
+            ];
+            $campoJson=json_decode($this->request->getBody());
+            $datosParaAgregar=[
+                $captura = session()->get('IDCLIENTE'),
+                $textMovimiento = $campoJson->textMovimiento,
+                $textTotal = $campoJson->textTotal,
+                $textMetodo = $campoJson->textMetodo,
+                $textRecibo = $campoJson->textRecibo,
+                $textCambio = $campoJson->textCambio,
+                $abonos = $campoJson->abonos,
+            ];
+            log_message('notice','[PAGOESPECIAL|Async] {user} esta intentando actualizar conceptos en detalles.', $log_extra);
+            if($datosTabla=$this->modeloCobros->realizarDatosAjusteParcial($datosParaAgregar)){
+                log_message('info','[PAGOESPECIAL|Async] Los registros se actualizaron correctamente, notificando.');
+                return json_encode($datosTabla);
+            }else {
+                log_message('info','[PAGOESPECIAL|Async] Ocurrio un error al guardar los datos, notificando');
+                $swalMensajes=[
+                    'title'=>'Error Servidor',
+                    'button'=>'Ok',
+                    'icon'=>'error',
+                    'text'=>'Ocurro un error al guardar los datos.',
+                    'estatus'=>'error',
+                ];
 
+                return json_encode($swalMensajes);
+            }
+        }
+    }
 
+    public function acreacargo()
+    {
+        $id = __FUNCTION__;
+        $respuesta=$this->llamandoParametrosWeb($id);
+        $cadena=array(
+            'titulo'=>'SAPT | '.$respuesta['TITULO_CONW'],
+            'tutiloPantalla'=>$respuesta['TITULOPANT_CONW'],
+            'robots'=>$respuesta['ROBOTS_CONW'],
+            'Keyword'=>$respuesta['KEYWORD_CONW'],
+            'descripcion'=>$respuesta['DESCRIPCION_CONW'],
+            'pantalla'=>'acreacargo',
+            'sesionIniciada'=>session(),
+        );
+        $sesionIniciada=session();
+        $log_extra=[
+            'user'=>$sesionIniciada->get('IDCLIENTE'),
+            'grupo'=>$sesionIniciada->get('NIVELCLIEN'),
+        ];
+        log_message('info','[CREACARGO] Cargando modulo creacargo para {user} con privilegios {grupo}.',$log_extra);
+        return view('Plantilla/vHeader',$cadena).view('Administrador/Cobros/vCreaCargo').view('Plantilla/vFooter');        
+    }
 
+    public function buscarUsuariosTotal()
+    {
+        log_message('info','[CREACARGO|Async] Solicitando datos para modificar concepto en detalles');
+        if($tablaDatos=$this->modeloCobros->buscarDatosUsuariosTotal()){
+            $retorno=[
+                $idCapturista=session()->get('IDCLIENTE'),
+                $tablaDatos,
+            ];
+            return json_encode($retorno);
+        }else {
+            log_message('info','[CREACARGO|Async] Ocurrio un error al solicitar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los tados para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function verificarMesCorriente($id)
+    {
+        log_message('info','[CREACARGO|Async] Solicitando datos para modificar concepto en detalles');
+        if($tablaDatos=$this->modeloCobros->verificarDatosMesCorriente($id)){
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[CREACARGO|Async] Ocurrio un error al solicitar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los tados para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+
+    }
+
+    public function agregandoCargos($id)
+    {
+        $tarifa=explode('_',$id);
+        log_message('info','[CREACARGO|Async] Comprobar tarifa que tiene aplicado');
+        if($tarifa[1]=='TARNOR'){
+            $datosModificar=[
+                $idClaves=$id,
+                $claveDeuda='CSA',
+            ];
+        }
+        if($tarifa[1]=='TARMAY'){
+            $datosModificar=[
+                $idClaves=$id,
+                $claveDeuda='CSAD',
+            ];
+        }
+        if($tarifa[1]=='TARNEG'){
+            $datosModificar=[
+                $idClaves=$id,
+                $claveDeuda='CSAN',
+            ];
+        }
+        if($tarifa[1]=='TARESP'){
+            $datosModificar=[
+                $idClaves=$id,
+                $claveDeuda='CSAE',
+            ];
+        }
+        if($tablaDatos=$this->modeloCobros->agregandoDatosCargos($datosModificar)){
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[CREACARGO|Async] Ocurrio un error al solicitar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los tados para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+
+    }
+
+    public function agregandoCargosSelec($id)
+    {
+        $tarifa=explode('_',$id);
+        log_message('info','[CREACARGO|Async] Comprobar tarifa que tiene aplicado');
+        if($tarifa[1]=='TARNOR'){
+            $datosModificar=[
+                $idClaves=$id,
+                $claveDeuda='CSA',
+            ];
+        }
+        if($tarifa[1]=='TARMAY'){
+            $datosModificar=[
+                $idClaves=$id,
+                $claveDeuda='CSAD',
+            ];
+        }
+        if($tarifa[1]=='TARNEG'){
+            $datosModificar=[
+                $idClaves=$id,
+                $claveDeuda='CSAN',
+            ];
+        }
+        if($tarifa[1]=='TARESP'){
+            $datosModificar=[
+                $idClaves=$id,
+                $claveDeuda='CSAE',
+            ];
+        }
+        if($tablaDatos=$this->modeloCobros->agregandoDatosCargosSelec($datosModificar)){
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[CREACARGO|Async] Ocurrio un error al solicitar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los tados para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+
+    }
+
+    public function mostrarResumenCargos()
+    {
+        log_message('info','[CREACARGO|Async] Solicitando datos para modificar concepto en detalles');
+        if($tablaDatos=$this->modeloCobros->mostrarDatosResumenCargos()){
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[CREACARGO|Async] Ocurrio un error al solicitar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los tados para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
 
 
 
@@ -445,6 +693,45 @@ class Cobros extends BaseController
         
     }
 
+    public function cargarUsuarioGenerales($id)
+    {
+        log_message('info','[ACOBROS|Async] Solicitando datos para renderizado de completar usuarios');
+        if($tablaDatos = $this->modeloCobros->cargarDatosUsuarioGenerales($id)){
+            log_message('info','[ACOBROS|Async] Envio de datos para renderizado de completar usuarios');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[ACOBROS|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function modificarTotalesConcepto($id)
+    {
+        log_message('info','[ACOBROS|Async] Modificando datos para actualizar totales');
+        if($tablaDatos = $this->modeloCobros->modificarDatosTotalesConcepto($id)){
+            log_message('info','[ACOBROS|Async] Envio de datos para renderizado de totales');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[ACOBROS|Async] Ocurrio un error al solicitar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los tados para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
 
 
 
