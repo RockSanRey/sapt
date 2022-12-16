@@ -928,6 +928,29 @@ class Macobros extends Model
         }
     }
 
+    public function mostrarDatosResumenCargos()
+    {
+        try {
+
+            $builder=$this->dbBuild->table('sys_clientes_detalles');
+            $builder->select("CODIGO_DETA, DESCUENTO_CCONT, COUNT(CONTRATO_DETA) AS CREADOS, SUM(TOTAL_DETA) AS PORPAGAR, DESCRIPCION_CTARI");
+            $builder->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_DETA');
+            $builder->join('cat_contratosTarifas','CLAVE_CTARI=DESCUENTO_CCONT');
+            $builder->where('FECHACAP_DETA',date('Y-m-d'));
+            $builder->where('ESTATUS_DETA','ADEU');
+            $builder->groupBy('DESCUENTO_CCONT');
+            $resultados0=$builder->get();
+
+            if($resultados0->getNumRows()>0){
+                log_message('info','[CREARCARGO|Async/Q] Generando datos desde consulta para obtener datos total contratos');
+                return $resultados0->getResultArray();
+            }
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
 
 
 
