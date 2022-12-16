@@ -260,6 +260,8 @@ $routes->group('', ['namespace'=>'App\Controllers\Administrador'], function($adm
 		$catalogos->get('acatalogos/llenarComboCatExpedicion','Catalogos::llenarComboCatExpedicion');
 		$catalogos->get('acatalogos/llenarComboCatPermisos','Catalogos::llenarComboCatPermisos');
 		$catalogos->get('acatalogos/llenarComboCatTarifa','Catalogos::llenarComboCatTarifa');
+		$catalogos->get('acatalogos/llenarComboConceptos','Catalogos::llenarComboConceptos');
+		$catalogos->get('acatalogos/llenarComboAnticipos/(:any)','Catalogos::llenarComboAnticipos/$1');
 
 	});
 
@@ -306,8 +308,6 @@ $routes->group('', ['namespace'=>'App\Controllers\Administrador'], function($adm
 		$tramites->get('aregconvenio/llenarTablaContratoConvenio/(:any)','Tramites::llenarTablaContratoConvenio/$1');
 		$tramites->get('aregconvenio/buscarUsuarioDeudor/(:any)','Tramites::buscarUsuarioDeudor/$1');
 		$tramites->post('aregconvenio/crearConvenio','Tramites::crearConvenio');
-
-		
 		$tramites->get('aborcontrato','Tramites::aborcontrato',['filter'=>'autenticar']);
 		$tramites->get('aborcontrato/llenarTablaUsuarioContratos/(:any)','Tramites::llenarTablaUsuarioContratos/$1');
 		$tramites->get('aborcontrato/eliminarContratos/(:any)','Tramites::eliminarContratos/$1');
@@ -320,6 +320,33 @@ $routes->group('', ['namespace'=>'App\Controllers\Administrador'], function($adm
 		$tramites->get('atramites/autocompletarContrato/(:any)','Tramites::autocompletarContrato/$1');
 		$tramites->get('atramites/firmaComiteTramites','Tramites::firmaComiteTramites');
 
+	});
+
+	$admins->group('', function($cobros){
+		$cobros->get('apagoservic','Cobros::apagoservic',['filter'=>'autenticar']);
+		$cobros->get('apagoservic/cargarDeudasDetalle/(:any)','Cobros::cargarDeudasDetalle/$1');
+		$cobros->get('apagoservic/cargarHistoricoPagado/(:any)','Cobros::cargarHistoricoPagado/$1');
+		$cobros->post('apagoservic/agregarConceptosDetalle','Cobros::agregarConceptosDetalle');
+		$cobros->get('apagoservic/eliminarDetallesPago/(:any)','Cobros::eliminarDetallesPago/$1');
+		$cobros->get('apagoservic/buscarCooperacion/(:any)','Cobros::buscarCooperacion/$1');
+		$cobros->post('apagoservic/modificarCoperacion','Cobros::modificarCoperacion');
+		$cobros->get('apagoservic/buscarTotalPago/(:any)','Cobros::buscarTotalPago/$1');
+		$cobros->post('apagoservic/realizarPagoCuenta','Cobros::realizarPagoCuenta');
+		$cobros->get('apagoservic/modificarTotalesConcepto/(:any)','Cobros::modificarTotalesConcepto/$1');
+		$cobros->post('apagoservic/realizarPagoParcialCuenta','Cobros::realizarPagoParcialCuenta');
+		$cobros->get('apagoespecia','Cobros::apagoespecia',['filter'=>'autenticar']);
+		$cobros->get('apagoespecia/cargarDeudasEspeciales/(:any)','Cobros::cargarDeudasEspeciales/$1');
+		$cobros->post('apagoespecia/realizarAjusteParcial','Cobros::realizarAjusteParcial');
+		$cobros->get('acreacargo','Cobros::acreacargo',['filter'=>'autenticar']);
+		$cobros->get('acreacargo/buscarUsuariosTotal','Cobros::buscarUsuariosTotal');
+		$cobros->get('acreacargo/verificarMesCorriente/(:any)','Cobros::verificarMesCorriente/$1');
+		$cobros->get('acreacargo/agregandoCargos/(:any)','Cobros::agregandoCargos/$1');
+		$cobros->get('acreacargo/agregandoCargosSelec/(:any)','Cobros::agregandoCargosSelec/$1');
+		$cobros->get('acreacargo/mostrarResumenCargos','Cobros::mostrarResumenCargos');
+		
+		$cobros->get('acobros/autoCompletarUsuario/(:any)','Cobros::autoCompletarUsuario/$1');
+		$cobros->get('acobros/cargarUsuarioGenerales/(:any)','Cobros::cargarUsuarioGenerales/$1');
+		$cobros->get('acobros/modificarTotalesConcepto/(:any)','Cobros::modificarTotalesConcepto/$1');
 
 	});
 
@@ -334,6 +361,13 @@ $routes->resource('abajcontrato', ['controllers/Administrador'=>'Tramites']);
 $routes->resource('aregconvenio', ['controllers/Administrador'=>'Tramites']);
 $routes->resource('aborcontrato', ['controllers/Administrador'=>'Tramites']);
 $routes->resource('aborusuarios', ['controllers/Administrador'=>'Tramites']);
+$routes->resource('atramites', ['controllers/Administrador'=>'Tramites']);
+
+$routes->resource('apagoservic', ['controllers/Administrador'=>'Cobros']);
+$routes->resource('apagoespecia', ['controllers/Administrador'=>'Cobros']);
+$routes->resource('acreacargo', ['controllers/Administrador'=>'Cobros']);
+$routes->resource('acobros', ['controllers/Administrador'=>'Cobros']);
+
 
 $routes->group('', ['namespace'=>'App\Controllers\Sistema'], function($sistema){
 
