@@ -365,6 +365,23 @@ class Mcatalogos extends Model
 
     }
 
+    public function eliminarDatosPerfil($datosParaEliminar)
+    {
+        $log_extra=[
+            'user'=>$datosParaEliminar[0],
+            'item'=>$datosParaEliminar[1],
+        ];
+        $db= \Config\Database::connect();
+        $builder=$db->table('cat_perfiles');
+        $builder->where('CLAVE_PERF',$datosParaEliminar[1]);
+        $builder->where('ESTATUS_PERF','ACTI');
+        $builder->delete();
+        log_message('notice','[PUESTOS|Async/Q] Usuario {user} eliminó el perfil {item} de la base de datos.',$log_extra);
+        $buildera=$db->query('ALTER TABLE `cat_perfiles` AUTO_INCREMENT = 1;');
+        log_message('notice','[PUESTOS|Async/Q] Reindexando tabla tras eliminación.');
+        return true;
+    }
+
     public function armarDatosMenuAsignaPerfiles()
     {
         try {

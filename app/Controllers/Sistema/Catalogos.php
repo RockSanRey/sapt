@@ -973,6 +973,39 @@ class Catalogos extends BaseController
         }
     }
 
+    public function eliminarPerfil($id)
+    {
+        log_message('info','[PERFILES|Async] Metodo envio reconocido continua proceso');
+        log_message('info','[PERFILES|Async] Creando variables con arreglo de los campos del formulario');
+        $datosParaEliminar=[
+            $captura = session()->get('IDCLIENTE'),
+            $textArea = $id,
+        ];
+        $modeloCatalogos = new Mcatalogos;
+        if($modeloCatalogos->eliminarDatosPerfil($datosParaEliminar)){
+            log_message('info','[PERFILES|Async] Los registros se eliminaron correctamente, notificando.');
+            $swalMensajes=[
+                'title'=>'Proceso exitoso',
+                'button'=>'Ok',
+                'icon'=>'success',
+                'text'=>'Los registros se eliminaron correctamente.',
+                'estatus'=>'eliminado',
+            ];
+            return json_encode($swalMensajes);
+        }else {
+            log_message('info','[PERFILES|Async] Ocurrio un error al guardar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al eliminar los datos.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
     public function catestatus()
     {
         log_message('info','[ESTATUS] Comprobando sesión iniciada en el sistema.');

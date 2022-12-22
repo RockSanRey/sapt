@@ -32,7 +32,7 @@ const obtenerListado = async () => {
                     <th>Clave</th>
                     <th>Opciones</th>
                     <th>F Modif</th>
-                    <th>Acciones</th>
+                    <th colspan="2">Acciones</th>
                 </thead>
             `;
             const cuerpoTablaListaPerfiles = document.createElement('tbody');
@@ -74,9 +74,6 @@ const obtenerListado = async () => {
                 botonEditarEl.addEventListener('click',() => {
                     buscandoDatosEditar(botonEditarEl);
                 });
-                const filaBoton = document.createElement('td');
-                filaBoton.appendChild(botonEditarEl);
-                filasTablaListaPerfiles.appendChild(filaBoton);
                 const botonEliminarEl = document.createElement('button');
                 botonEliminarEl.classList.add('btn','btn-danger','btn-sm');
                 botonEliminarEl.setAttribute('dataelim',perfil.idTablePk);
@@ -153,7 +150,7 @@ const guardarRegistrosPerfiles = async () => {
                     return Swal.fire({
                         title: respuestas.title,
                         icon: respuestas.icon,
-                        confirmButtonText: `${respuestas.button}`,
+                        confirmButtonText: respuestas.button,
                         confirmButtonColor: '#e9b20e',
                         html: respuestas.text,
                     })
@@ -161,7 +158,7 @@ const guardarRegistrosPerfiles = async () => {
                     return Swal.fire({
                         title: respuestas.title,
                         icon: respuestas.icon,
-                        confirmButtonText: `${respuestas.button}`,
+                        confirmButtonText: respuestas.button,
                         confirmButtonColor: '#51BB0F',
                         html: respuestas.text,
                     }).then((result) => {
@@ -235,7 +232,7 @@ const actualizarRegistroPerfiles = async () => {
                     return Swal.fire({
                         title: respuestas.title,
                         icon: respuestas.icon,
-                        confirmButtonText: `${respuestas.button}`,
+                        confirmButtonText: respuestas.button,
                         confirmButtonColor: '#e9b20e',
                         html: respuestas.text,
                     })
@@ -243,7 +240,7 @@ const actualizarRegistroPerfiles = async () => {
                     return Swal.fire({
                         title: respuestas.title,
                         icon: respuestas.icon,
-                        confirmButtonText: `${respuestas.button}`,
+                        confirmButtonText: respuestas.button,
                         confirmButtonColor: '#51BB0F',
                         html: respuestas.text,
                     }).then((result) => {
@@ -605,7 +602,7 @@ const armarMenuPerfilEditar = async (rolesSelecionados) => {
 
 }
 
-function eliminarRegistros(botonEliminarEl){
+function eliminarRegistrosPerfiles(botonEliminarEl){
     try {
         let idRegistro = botonEliminarEl.attributes.dataelim.value
         Swal.fire({
@@ -619,15 +616,15 @@ function eliminarRegistros(botonEliminarEl){
         })
         .then((result)=>{
             if(result.isConfirmed){
-                fetch(`perfiles/datosEliminarPerfil/${idRegistro}`)
+                fetch(`catperfiles/eliminarPerfil/${idRegistro}`)
                 .then(respuestaEl=>respuestaEl.json())
                 .then(eliminado=>{
                     if(eliminado.estatus=='eliminado'){
-                        botonEliminarEl.parentNode.parentNode.remove();
+                        botonEliminarEl.parentNode.parentNode.parentNode.remove();
                         return Swal.fire({
                             title: eliminado.title,
                             icon: eliminado.icon,
-                            confirmButtonText: `${eliminado.button}`,
+                            confirmButtonText: eliminado.button,
                             confirmButtonColor: '#2AB500',
                             html: eliminado.text,
                         })
