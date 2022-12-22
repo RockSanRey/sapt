@@ -343,7 +343,7 @@ const guardarBajaContrato = async () => {
                 showCancelButton: true,
                 confirmButtonColor: '#0A8000',
                 confirmButtonText: 'Si, dar de baja',
-                cancelButtonColor: '#d33',
+                cancelButtonColor: '#9C0000',
                 cancelButtonText: 'No, mejor reviso',
                 html: '¿De verdad se dará de baja el contrato?',
             })
@@ -416,7 +416,7 @@ const imprimiendoAcuse = async (textModificacion) => {
         let fechaHoy = new Date();
         let fechaImpress = fechaHoy.getFullYear()+'-'+('0'+(fechaHoy.getMonth()+1)).slice(-2)+'-'+('0'+(fechaHoy.getDate())).slice(-2)+' '+('0'+(fechaHoy.getHours())).slice(-2)+':'+('0'+(fechaHoy.getMinutes())).slice(-2)+':'+('0'+(fechaHoy.getSeconds())).slice(-2);
 
-        fetch(`abajcontrato/acuseReciboBaja/${idBusqueda}`)
+        fetch(`areportes/imprimirAcuseBaja/${idBusqueda}`)
         .then(respRender => respRender.json())
         .then(respuestas => {
             const tablaAcuseBaja = document.createElement('table');
@@ -429,7 +429,7 @@ const imprimiendoAcuse = async (textModificacion) => {
             let titularBaja = '';
 
             respuestas[0].forEach(bajas => {
-                let fechaSplit = bajas.FBAJA_BAJA.split('-');
+                let fechaSplit = bajas.FBAJA_CBAJA.split('-');
                 let contador = parseInt(fechaSplit[1]-1)
                 let mesesArray = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
                 let mesMuestra = '';
@@ -445,12 +445,12 @@ const imprimiendoAcuse = async (textModificacion) => {
                         </tr>
                         <tr>
                             <td colspan="12">
-                                <div style="text-align: right; padding:10px; font-weight:bolder;">FOLIO: ${bajas.FOLIO_BAJA}</div>
+                                <div style="text-align: right; padding:10px; font-weight:bolder;">FOLIO: ${bajas.FOLIO_CBAJA}</div>
                             </td>
                         </tr>
                         <tr>
                             <td colspan="12">
-                                <div style="text-align: left; padding:10px; font-weight:bolder;">Contrato: ${bajas.CONTRATO_BAJA}</div>
+                                <div style="text-align: left; padding:10px; font-weight:bolder;">Contrato: ${bajas.CONTRATO_CBAJA}</div>
                             </td>
                         </tr>
                         <tr>
@@ -458,8 +458,8 @@ const imprimiendoAcuse = async (textModificacion) => {
                                 <div style="text-align: justify; padding:10px;">
                                     Por medio del presente documento queda escrito que el día ${fechaSplit[2]} de ${mesMuestra} de 
                                     ${fechaSplit[0]} en las instalaciones del pozo de agua potable de Teltipan de Juárez  del C. 
-                                    ${bajas.NOMBRE} con numero de contrato ${bajas.CONTRATO_BAJA} solicita la <strong>Baja Temporal</strong> 
-                                    de su contrato por motivo de ${bajas.OBSERVACIONES_BAJA}, manifiesta que a esta fecha no presenta 
+                                    ${bajas.NOMBRE} con numero de contrato ${bajas.CONTRATO_CBAJA} solicita la <strong>Baja Temporal</strong> 
+                                    de su contrato por motivo de ${bajas.OBSERVACIONES_CBAJA}, manifiesta que a esta fecha no presenta 
                                     adeudos de ningún tipo en el Sistema de Agua Potable Teltipán.
                                 </div>
                             </td>
@@ -475,12 +475,12 @@ const imprimiendoAcuse = async (textModificacion) => {
                         </tr>
                         <tr>
                             <td colspan="12">
-                                <div style="text-align: right; padding:10px; font-weight:bolder;">FOLIO: ${bajas.FOLIO_BAJA}</div>
+                                <div style="text-align: right; padding:10px; font-weight:bolder;">FOLIO: ${bajas.FOLIO_CBAJA}</div>
                             </td>
                         </tr>
                         <tr>
                             <td colspan="12">
-                                <div style="text-align: left; padding:10px; font-weight:bolder;">Contrato: ${bajas.CONTRATO_BAJA}</div>
+                                <div style="text-align: left; padding:10px; font-weight:bolder;">Contrato: ${bajas.CONTRATO_CBAJA}</div>
                             </td>
                         </tr>
                         <tr>
@@ -488,8 +488,8 @@ const imprimiendoAcuse = async (textModificacion) => {
                                 <div style="text-align: justify; padding:10px;">
                                     Por medio del presente documento queda escrito que el día ${fechaSplit[2]} de ${mesMuestra} de 
                                     ${fechaSplit[0]} en las instalaciones del pozo de agua potable de Teltipan de Juárez  del C. 
-                                    ${bajas.NOMBRE} con numero de contrato ${bajas.CONTRATO_BAJA} solicita la <strong>Baja Definitiva</strong> 
-                                    de su contrato por motivo de ${bajas.OBSERVACIONES_BAJA}, manifiesta que a esta fecha no presenta 
+                                    ${bajas.NOMBRE} con numero de contrato ${bajas.CONTRATO_CBAJA} solicita la <strong>Baja Definitiva</strong> 
+                                    de su contrato por motivo de ${bajas.OBSERVACIONES_CBAJA}, manifiesta que a esta fecha no presenta 
                                     adeudos de ningún tipo en el Sistema de Agua Potable Teltipán.
                                 </div>
                             </td>
@@ -502,7 +502,7 @@ const imprimiendoAcuse = async (textModificacion) => {
                     <td colspan="3"></td>
                     <td colspan="6" style="border-top: 1px solid rgb(20,179,237); padding-bottom:100px;">
                         <div style="text-align:center; font-size:14px;">${bajas.NOMBRE}</div>
-                        <div style="text-align:center; font-size:12px;">Usuario/a}</div>
+                        <div style="text-align:center; font-size:12px;">Usuario/a</div>
                     </td>
                     <td colspan="3"></td>
                 </tr>

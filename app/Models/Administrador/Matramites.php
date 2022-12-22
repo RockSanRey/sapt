@@ -1882,13 +1882,13 @@ class Matramites extends Model
             $builderb->update($setBajaUbicacion);
             log_message('notice','[BAJCONTRATO|Async] {captur} ha actualizado la baja de la ubicacion {arg1}.',$log_extra);
             
-            $buildere=$this->dbBuild->table('sys_clientes_bajas');
-            $buildere->selectMax('(CONSECUTIVO_BAJA)+1','CONSECUTIVO_BAJA');
-            $buildere->where('ESTATUS_BAJA','ACTI');
+            $buildere=$this->dbBuild->table('sys_clientes_contratosBajas');
+            $buildere->selectMax('(CONSECUTIVO_CBAJA)+1','CONSECUTIVO_CBAJA');
+            $buildere->where('ESTATUS_CBAJA','ACTI');
             $resultado0=$buildere->get();
             if($resultado0->getNumRows()>0){
                 foreach($resultado0->getResultArray() as $filas){
-                    $secuenciaOrden=$filas['CONSECUTIVO_BAJA'];
+                    $secuenciaOrden=$filas['CONSECUTIVO_CBAJA'];
                 }
                 if($secuenciaOrden==''){
                     $secuenciaOrden=1;
@@ -1896,21 +1896,21 @@ class Matramites extends Model
             }
             $folioBaja=date('Ymd').str_pad($secuenciaOrden, 6, '0', STR_PAD_LEFT);
             $setReciboBaja=[
-                'FECHACAP_BAJA'=>date('Y-m-d'),
-                'HORACAP_BAJA'=>date('H:i:s'),
-                'CAPTURA_BAJA'=>$datosParaGuardar[0],
-                'FOLIO_BAJA'=>$folioBaja,
-                'CONSECUTIVO_BAJA'=>str_pad($secuenciaOrden, 6, '0', STR_PAD_LEFT),
-                'USUARIO_BAJA'=>$parametro[0],
-                'CONTRATO_BAJA'=>$parametro[1],
-                'FBAJA_BAJA'=>date('Y-m-d'),
-                'IDBAJA_BAJA'=>$datosParaGuardar[0],
-                'OBSERVACIONES_BAJA'=>$datosParaGuardar[3],
-                'IDMODIF_BAJA'=>$datosParaGuardar[0],
-                'FMODIF_BAJA'=>date('Y-m-d'),
-                'ESTATUS_BAJA'=>'ACTI',
+                'FECHACAP_CBAJA'=>date('Y-m-d'),
+                'HORACAP_CBAJA'=>date('H:i:s'),
+                'CAPTURA_CBAJA'=>$datosParaGuardar[0],
+                'FOLIO_CBAJA'=>$folioBaja,
+                'CONSECUTIVO_CBAJA'=>str_pad($secuenciaOrden, 6, '0', STR_PAD_LEFT),
+                'USUARIO_CBAJA'=>$parametro[0],
+                'CONTRATO_CBAJA'=>$parametro[1],
+                'FBAJA_CBAJA'=>date('Y-m-d'),
+                'IDBAJA_CBAJA'=>$datosParaGuardar[0],
+                'MOTIVBAJA_CBAJA'=>$datosParaGuardar[3],
+                'IDMODIF_CBAJA'=>$datosParaGuardar[0],
+                'FMODIF_CBAJA'=>date('Y-m-d'),
+                'ESTATUS_CBAJA'=>'ACTI',
             ];
-            $builderf=$this->dbBuild->table('sys_clientes_bajas');
+            $builderf=$this->dbBuild->table('sys_clientes_contratosBajas');
             $builderf->insert($setReciboBaja);
             log_message('notice','[BAJCONTRATO|Async] {captur} ha creado un recibo de baja para {arg1}.',$log_extra);
             
@@ -1926,12 +1926,12 @@ class Matramites extends Model
         try {
             $parametro=explode('_', $id);
 
-            $builder=$this->dbBuild->table('sys_clientes_bajas');
-            $builder->select("FOLIO_BAJA, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE, SEXO_CLIEN, CONTRATO_BAJA, FBAJA_BAJA, OBSERVACIONES_BAJA, ESTATUS_CCONT");
-            $builder->join('sys_clientes','IDUSUA_CLIEN=USUARIO_BAJA');
+            $builder=$this->dbBuild->table('sys_clientes_contratosBajas');
+            $builder->select("FOLIO_BAJA, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE, SEXO_CLIEN, CONTRATO_CBAJA, FBAJA_CBAJA, OBSERVACIONES_CBAJA, ESTATUS_CCONT");
+            $builder->join('sys_clientes','IDUSUA_CLIEN=USUARIO_CBAJA');
             $builder->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
-            $builder->where('USUARIO_BAJA', $parametro[0]);
-            $builder->where('CONTRATO_BAJA', $parametro[1]);
+            $builder->where('USUARIO_CBAJA', $parametro[0]);
+            $builder->where('CONTRATO_CBAJA', $parametro[1]);
             $builder->groupBy('IDUSUA_CLIEN');
             $resultado0=$builder->get();
             if($resultado0->getNumRows()>0){
@@ -1952,10 +1952,10 @@ class Matramites extends Model
             $builderc->select("IDUSUA_CLIEN, CONTRATO_CCONT, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE,
             ESTADO_ESTA, NOMBRE_MUNIC,CODIPOST_CODPOS, COLONIA_CODPOS, CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES,
             DESCRIPCION_CONT, TIPO_CCONT, PERMISO_CCONT, DESCUENTO_CCONT, FECHACAP_CCONT, FBAJA_CCONT, IDBAJA_CCONT,
-            CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS RESPONS, FOLIO_BAJA, ESTATUS_CCONT");
+            CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS RESPONS, FOLIO_CBAJA, ESTATUS_CCONT");
             $builderc->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
             $builderc->join('sys_responsables','IDUSUA_RESPO=IDBAJA_CCONT');
-            $builderc->join('sys_clientes_bajas','CONTRATO_BAJA=CONTRATO_CCONT');
+            $builderc->join('sys_clientes_contratosBajas','CONTRATO_CBAJA=CONTRATO_CCONT');
             $builderc->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
             $builderc->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
             $builderc->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
@@ -2194,6 +2194,134 @@ class Matramites extends Model
             $builderg=$db->query('ALTER TABLE `sys_clientes_ubicaciones` AUTO_INCREMENT = 1;');
             log_message('notice','[BORUSUARIOS|Async/Q] Reindexando tabla tras eliminación.');
 
+            return true;
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+    }
+
+    public function autoDatosCompletarBajasTem($id)
+    {
+        try {
+
+            $builder=$this->dbBuild->table('sys_clientes_contratosBajas');
+            $builder->select("CONCAT(`USUARIO_CBAJA`,'_',CONTRATO_CBAJA) AS IDCONTRATO,
+            CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS CLIENTE, CONTRATO_CBAJA, FBAJA_CBAJA");
+            $builder->join('sys_clientes','IDUSUA_CLIEN=USUARIO_CBAJA');
+            $builder->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_CBAJA');
+            $builder->like('CONTRATO_CBAJA',$id,'after');
+            $builder->where('ESTATUS_CBAJA','ACTI');
+            $builder->where('ESTATUS_CCONT','INAC');
+            $builder->groupBy('CONTRATO_CBAJA');
+            $resultado=$builder->get();
+            
+            if($resultado->getNumRows()>0){
+                log_message('info','[AACTCONTRATO|Async/Q] Generando datos desde consulta para continuar renderizado de tabla contratos');
+                return $resultado->getResultArray();
+            }
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function buscarDatosEditarBajas($id)
+    {
+        try {
+            $parametro=explode('_',$id);
+            $builder=$this->dbBuild->table('sys_clientes_contratosBajas');
+            $builder->select("CONCAT(FOLIO_CBAJA,'_',`USUARIO_CBAJA`,'_',CONTRATO_CBAJA,'_',UBICA_CCONT) AS IDCONTRATO,
+            CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS CLIENTE, CONTRATO_CBAJA, ESTATUS_CCONT,
+            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS DIRECCION, MOTIVBAJA_CBAJA,
+            CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS COMITE");
+            $builder->join('sys_clientes','IDUSUA_CLIEN=USUARIO_CBAJA');
+            $builder->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_CBAJA');
+            $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
+            $builder->join('sys_responsables','IDUSUA_RESPO=IDBAJA_CBAJA');
+            $builder->where('USUARIO_CBAJA',$parametro[0]);
+            $builder->where('CONTRATO_CBAJA',$parametro[1]);
+            $builder->where('ESTATUS_CBAJA','ACTI');
+            $builder->groupBy('CONTRATO_CBAJA');
+            $resultado=$builder->get();
+            
+            if($resultado->getNumRows()>0){
+                log_message('info','[AACTCONTRATO|Async/Q] Generando datos desde consulta para continuar renderizado de tabla contratos');
+                return $resultado->getResultArray();
+            }
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function reactivarBajasContratoBaja($datosParaGuardar)
+    {
+        try {
+            $parametro=explode('_',$datosParaGuardar[1]);
+            $log_extra=[
+                'captur'=>$datosParaGuardar[0],
+                'argu'=>$parametro[0],
+                'user'=>$parametro[1],
+                'arg1'=>$parametro[2],
+            ];
+            $setBajaUsuario=[
+                'FMODIF_CLIEN'=>date('Y-m-d'),
+                'IDMODIF_CLIEN'=>$datosParaGuardar[0],
+                'ESTATUS_CLIEN'=>$datosParaGuardar[2],
+            ];
+            $builder=$this->dbBuild->table('sys_clientes');
+            $builder->where('IDUSUA_CLIEN',$parametro[1]);
+            $builder->where('ESTATUS_CLIEN','INAC');
+            $builder->set($setBajaUsuario);
+            $builder->update($setBajaUsuario);
+            log_message('notice','[AACTCONTRATO|Async] {captur} ha activado la baja de {user}.',$log_extra);
+
+            $setBajaContrato = [
+                'FMODIF_CCONT'=>date('Y-m-d'),
+                'IDMODIF_CCONT'=>$datosParaGuardar[0],
+                'ESTATUS_CCONT'=>$datosParaGuardar[2],
+            ];
+            $buildera=$this->dbBuild->table('sys_clientes_contratos');
+            $buildera->where('CLIENTE_CCONT',$parametro[1]);
+            $buildera->where('CONTRATO_CCONT',$parametro[2]);
+            $buildera->where('ESTATUS_CCONT','INAC');
+            $buildera->set($setBajaContrato);
+            $buildera->update($setBajaContrato);
+            log_message('notice','[AACTCONTRATO|Async] {captur} ha activado la baja del contrato {argu}.',$log_extra);
+
+            $setBajaUbicacion=[
+                'FMODIF_UBIC'=>date('Y-m-d'),
+                'IDMODIF_UBIC'=>$datosParaGuardar[0],
+                'ESTATUS_UBIC'=>$datosParaGuardar[2],
+            ];
+            $builderb=$this->dbBuild->table('sys_clientes_ubicaciones');
+            $builderb->where('IDUSUA_UBIC',$parametro[1]);
+            $builderb->where('IDUBIC_UBIC',$parametro[3]);
+            $builderb->where('ESTATUS_UBIC','INAC');
+            $builderb->set($setBajaUbicacion);
+            $builderb->update($setBajaUbicacion);
+            log_message('notice','[AACTCONTRATO|Async] {captur} ha activado la baja de la ubicacion de {user}.',$log_extra);
+            
+            $setReciboBaja=[
+                'FREAC_CBAJA'=>date('Y-m-d'),
+                'IDREAC_CBAJA'=>$datosParaGuardar[0],
+                'MOTIVREAC_CBAJA'=>$datosParaGuardar[3],
+                'IDMODIF_CBAJA'=>$datosParaGuardar[0],
+                'FMODIF_CBAJA'=>date('Y-m-d'),
+                'ESTATUS_CBAJA'=>'REAC',
+            ];
+            $builderc=$this->dbBuild->table('sys_clientes_contratosBajas');
+            $builderc->where('FOLIO_CBAJA',$parametro[0]);
+            $builderc->where('USUARIO_CBAJA',$parametro[1]);
+            $builderc->where('CONTRATO_CBAJA',$parametro[2]);
+            $builderc->where('ESTATUS_CBAJA','ACTI');
+            $builderc->set($setReciboBaja);
+            $builderc->update($setReciboBaja);
+            log_message('notice','[AACTCONTRATO|Async] {captur} ha reactivado baja para {user}.',$log_extra);
+            
             return true;
 
         } catch (Exception $errorElement) {

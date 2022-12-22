@@ -1974,6 +1974,115 @@ class Tramites extends BaseController
         }
     }
 
+    public function aactcontrato()
+    {
+        $id = __FUNCTION__;
+        $respuesta=$this->llamandoParametrosWeb($id);
+        $cadena=array(
+            'titulo'=>'SAPT | '.$respuesta['TITULO_CONW'],
+            'tutiloPantalla'=>$respuesta['TITULOPANT_CONW'],
+            'robots'=>$respuesta['ROBOTS_CONW'],
+            'Keyword'=>$respuesta['KEYWORD_CONW'],
+            'descripcion'=>$respuesta['DESCRIPCION_CONW'],
+            'pantalla'=>'aactcontrato',
+            'sesionIniciada'=>session(),
+        );
+        $sesionIniciada=session();
+        $log_extra=[
+            'user'=>$sesionIniciada->get('IDCLIENTE'),
+            'grupo'=>$sesionIniciada->get('NIVELCLIEN'),
+        ];
+        log_message('info','[AACTCONTRATO] Cargando modulo actcontrato para {user} con privilegios {grupo}.',$log_extra);
+        return view('Plantilla/vHeader',$cadena).view('Administrador/Tramites/vActContrato').view('Plantilla/vFooter');
+    }
+
+    public function autoCompletarBajasTem($id)
+    {
+        log_message('info','[AACTCONTRATO|Async] Solicitando datos para renderizado de bajas tempotales');
+        if($tablaDatos = $this->modeloTramites->autoDatosCompletarBajasTem($id)){
+            log_message('info','[AACTCONTRATO|Async] Envio de datos para renderizado de bajas tempotales');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[AACTCONTRATO|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function buscarEditarBajas($id)
+    {
+        log_message('info','[AACTCONTRATO|Async] Solicitando datos para renderizado reactivar bajas');
+        if($tablaDatos = $this->modeloTramites->buscarDatosEditarBajas($id)){
+            log_message('info','[AACTCONTRATO|Async] Envio de datos para renderizado reactivar bajas');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[AACTCONTRATO|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function reactivarContratoBaja()
+    {
+        $log_extra=[
+            'user'=>session()->get('IDCLIENTE'),
+        ];
+        log_message('info','[AGRCONTRATO|Async] Verificando el método de envio para continuar proceso asignacion');
+        if($this->request->getMethod('POST')){
+            log_message('info','[AGRCONTRATO|Async] Metodo envio reconocido continua proceso asignacion');
+            log_message('info','[AGRCONTRATO|Async] Creando variables con arreglo de los campos del formulario');
+            $camposJson=json_decode($this->request->getBody());
+            $datosParaGuardar=[
+                $captura = session()->get('IDCLIENTE'),
+                $textIdContrato = $camposJson->textIdContrato,
+                $textEstatus = $camposJson->textEstatus,
+                $textMotivo = $camposJson->textMotivo,
+            ];
+            log_message('notice','[AGRCONTRATO|Async] {user} esta intentando asignar contrato a usuario.', $log_extra);
+            if($this->modeloTramites->reactivarBajasContratoBaja($datosParaGuardar)){
+                log_message('info','[AGRCONTRATO|Async] Los registros se grabaron correctamente, notificando.');
+                $swalMensajes=[
+                    'title'=>'Reactivado',
+                    'button'=>'Ok',
+                    'icon'=>'success',
+                    'text'=>'El contrato se ha reactivado correctamente.',
+                    'estatus'=>'activado',
+                ];
+
+                return json_encode($swalMensajes);
+            }else {
+                log_message('info','[AGRCONTRATO|Async] Ocurrio un error al guardar los datos, notificando');
+                $swalMensajes=[
+                    'title'=>'Error Servidor',
+                    'button'=>'Ok',
+                    'icon'=>'error',
+                    'text'=>'Ocurro un error al guardar los datos.',
+                    'estatus'=>'error',
+                ];
+
+                return json_encode($swalMensajes);
+            }
+        }
+        else {
+            log_message('info','[AGRCONTRATO|Async] Metodo envio no reconocido termina proceso');
+            return false;
+        }
+    }
+
     public function aregconvenio()
     {
         $id = __FUNCTION__;
