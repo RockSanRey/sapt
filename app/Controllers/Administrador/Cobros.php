@@ -61,6 +61,7 @@ class Cobros extends BaseController
                     $idCapturista=session()->get('IDCLIENTE'),
                     $idClaves=$id,
                     $claveDeuda='CSA',
+                    $claveCondo='CONDNR',
                 ];
             }
             if($tarifa[2]=='TARMAY'){
@@ -68,6 +69,7 @@ class Cobros extends BaseController
                     $idCapturista=session()->get('IDCLIENTE'),
                     $idClaves=$id,
                     $claveDeuda='CSAD',
+                    $claveCondo='CONDAM',
                 ];
             }
             if($tarifa[2]=='TARNEG'){
@@ -608,10 +610,10 @@ class Cobros extends BaseController
 
     }
 
-    public function mostrarResumenCargos()
+    public function mostrarResumenCargos($id)
     {
         log_message('info','[CREACARGO|Async] Solicitando datos para modificar concepto en detalles');
-        if($tablaDatos=$this->modeloCobros->mostrarDatosResumenCargos()){
+        if($tablaDatos=$this->modeloCobros->mostrarDatosResumenCargos($id)){
             return json_encode($tablaDatos);
         }else {
             log_message('info','[CREACARGO|Async] Ocurrio un error al solicitar los datos, notificando');

@@ -176,7 +176,7 @@ const iniciarProcesoCargos = async (botonProcesoCreaCargos) => {
                             }
 
                         }
-                        fetch(`acreacargo/mostrarResumenCargos`)
+                        fetch(`acreacargo/mostrarResumenCargos/${textMes.value}`)
                         .then(respRenderB => respRenderB.json())
                         .then(respuestas1 => {
                             avisoModificadoUser.innerHTML='';
