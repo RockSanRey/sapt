@@ -40,12 +40,6 @@
     </div>
 </div>
 
-<script src="/public/assets/jsPdf/jspdf.min.js"></script>
-<script src="/public/assets/datepicker/datepicker-full.min.js"></script>
-<script src="/public/assets/datepicker/es.js"></script>
-<link href="/public/assets/datepicker/datepicker.min.css" rel="stylesheet">
-<link href="/public/assets/datepicker/datepicker-bs4.min.css" rel="stylesheet">
-<script src="/public/assets/jsPdf/JsBarcode.all.min.js"></script>
 <script src="/public/JScript/Administrador/Tramites/jsaActContrato.js"></script>
 <script src="/public/assets/sweetalert/sweetalert2.all.min.js"></script>
 <link href="/public/assets/estilos/css_frontend/formularios/formularios.css" rel="stylesheet">
