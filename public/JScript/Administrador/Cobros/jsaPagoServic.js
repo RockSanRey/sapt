@@ -1685,7 +1685,7 @@ const imprimirReciboPago = async (botonImprimirRecibo) => {
         `;
         let fechaHoy = new Date();
         let fechaImpress = fechaHoy.getFullYear()+'-'+('0'+(fechaHoy.getMonth()+1)).slice(-2)+'-'+('0'+(fechaHoy.getDate())).slice(-2)+' '+('0'+(fechaHoy.getHours())).slice(-2)+':'+('0'+(fechaHoy.getMinutes())).slice(-2)+':'+('0'+(fechaHoy.getSeconds())).slice(-2);
-        fetch(`pagoservicio/imprimirComprobantePago/${idBusqueda}`)
+        fetch(`areportes/imprimirComprobantePago/${idBusqueda}`)
         .then(respRender => respRender.json())
         .then(respuestas => {
             respuestas[0].forEach(usuarios => {
@@ -2047,7 +2047,7 @@ const crearReciboPago = async (botonExportarPdf) => {
             compress: true,
         });
 
-        fetch(`pagoservicio/imprimirComprobantePago/${idBusqueda}`)
+        fetch(`areportes/imprimirComprobantePago/${idBusqueda}`)
         .then(respRender => respRender.json())
         .then(respuestas => {
             let logoSistema = new Image();
@@ -2247,13 +2247,6 @@ const crearReciboPago = async (botonExportarPdf) => {
         })
     }
 }
-
-
-
-
-
-
-
 
 
 
