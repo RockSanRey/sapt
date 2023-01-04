@@ -38,8 +38,6 @@ const plantillaBusqueda = async () => {
         butonBuscarUsuario.addEventListener('click', () => {
             buscarContratosActivos(textIdUsuario);
         })
-        let datosUsuarioDetalle = document.querySelector('#datosUsuarioDetalle');
-        datosUsuarioDetalle.classList.remove('tabla-contenedor');
 
     } catch (errorAlert) {
         return Swal.fire({
@@ -151,17 +149,26 @@ const buscarContratosActivos = async  (textIdUsuario) => {
                     `;
                     filaTablaDetallesContratos.appendChild(columnaDetallesContratos);
                     const columnaAcciones = document.createElement('td');
-                    const botonVerContrato = document.createElement('button');
-                    botonVerContrato.classList.add('btn','btn-success','btn-sm');
-                    botonVerContrato.setAttribute('dataimprimir',usuarios.idTablePk);
-                    botonVerContrato.setAttribute('id','botonEditarSel');
-                    botonVerContrato.innerHTML = '<i class="fa fa-print"></i>';
-                    botonVerContrato.addEventListener('click',() => {
-                        reimprimirContrato(botonVerContrato);
+                    const botonExportContrato = document.createElement('button');
+                    botonExportContrato.classList.add('btn','btn-danger','btn-sm');
+                    botonExportContrato.setAttribute('dataexport',usuarios.idTablePk);
+                    botonExportContrato.setAttribute('id','botonExportSel');
+                    botonExportContrato.innerHTML = '<i class="fa fa-file-pdf"></i>';
+                    botonExportContrato.addEventListener('click',() => {
+                        exportarContrato(botonExportContrato);
+                    });
+                    const botonImprimContrato = document.createElement('button');
+                    botonImprimContrato.classList.add('btn','btn-success','btn-sm');
+                    botonImprimContrato.setAttribute('dataimprimir',usuarios.idTablePk);
+                    botonImprimContrato.setAttribute('id','botonImprimSel');
+                    botonImprimContrato.innerHTML='<i class="fa fa-print"></i>';
+                    botonImprimContrato.addEventListener('click',() => {
+                        reimprimirContrato(botonImprimContrato);
                     });
                     const grupoAcciones = document.createElement('div');
                     grupoAcciones.classList.add('btn-group');
-                    grupoAcciones.appendChild(botonVerContrato);
+                    grupoAcciones.appendChild(botonExportContrato);
+                    grupoAcciones.appendChild(botonImprimContrato);
                     columnaAcciones.appendChild(grupoAcciones);
                     filaTablaDetallesContratos.appendChild(columnaAcciones);
                     cuerpoTablaDetallesUsuario.appendChild(filaTablaDetallesContratos);
@@ -185,140 +192,144 @@ const buscarContratosActivos = async  (textIdUsuario) => {
     }
 }
 
-const reimprimirContrato = async (botonVerContrato) => {
+const exportarContrato = async (botonExportContrato) => {
     try{
         Swal.fire({
-            title: 'Imprmimir',
+            title: 'Exportar',
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#009C06',
-            confirmButtonText: 'Si, imprimir',
+            confirmButtonText: 'Si, exportar',
             cancelButtonColor: '#9C0000',
             cancelButtonText: 'No, mejor no',
-            html: '¿Desea imprimir los datos este usuario?',
+            html: '¿Desea exportar los datos este contrato?',
         })
         .then((result)=> {
             if(result.isConfirmed){
-                let idBusqueda = botonVerContrato.attributes.dataimprimir.value;
-                botonVerContrato.innerHTML = cargaAnimacion;
+                let idBusqueda = botonExportContrato.attributes.dataexport.value;
+                botonExportContrato.innerHTML = cargaAnimacion;
                 const docImprimir = new jsPDF({
                     orientation: 'p',
                     unit: 'mm',
                     format: 'letter',
                     compress: true
                 });
-                fetch(`aimpcontrato/reimprimirContrato/${idBusqueda}`)
+                fetch(`areportes/imprimirContrato/${idBusqueda}`)
                 .then(respuestaRender => respuestaRender.json())
                 .then(respuestas => {
-                    botonVerContrato.innerHTML = '<i class="fa fa-print"></i>';
+                    botonExportContrato.innerHTML = '<i class="fa fa-file-pdf"></i>';
                     let nombreArchivo = '';
                     let logoSistema = new Image();
                     logoSistema.src = 'public/assets/imagen/logotipos/logo_sapt_color_300.png';
                     let fechaHoy = new Date();
                     let fechaImpress = fechaHoy.getFullYear()+'-'+('0'+(fechaHoy.getMonth()+1)).slice(-2)+'-'+('0'+(fechaHoy.getDate())).slice(-2)+' '+('0'+(fechaHoy.getHours())).slice(-2)+':'+('0'+(fechaHoy.getMinutes())).slice(-2)+':'+('0'+(fechaHoy.getSeconds())).slice(-2);
                     //let base64Image = document.querySelector('#codigo_qr').attributes.src.value;
-                    docImprimir.addImage(logoSistema, 'png', 12,12, 30,30);
+                    docImprimir.addImage(logoSistema, 'png', 12,12, 20,20);
                     docImprimir.setDrawColor(20,179,237);
-                    docImprimir.rect(10, 10, 195, 32);
-                    docImprimir.rect(10, 10, 35, 32);
-                    docImprimir.rect(155, 10, 50, 8);
-                    docImprimir.rect(155, 18, 50, 8);
-                    docImprimir.rect(155, 26, 50, 8);
-                    docImprimir.rect(155, 34, 50, 8);
-                    docImprimir.rect(10, 45, 195, 32);
-                    docImprimir.rect(10, 45, 125, 8);
-                    docImprimir.rect(135, 45, 70, 8);
-                    docImprimir.rect(10, 53, 90, 8);
-                    docImprimir.rect(100, 53, 60, 8);
-                    docImprimir.rect(160, 53, 45, 8);
-                    docImprimir.rect(10, 61, 105, 8);
-                    docImprimir.rect(115, 61, 90, 8);
-                    docImprimir.rect(95, 69, 40, 8);
-                    docImprimir.rect(135, 69, 30, 8);
-                    docImprimir.rect(165, 69, 40, 8);
-                    docImprimir.line(30, 244, 100, 244);
-                    docImprimir.line(130, 244, 190, 244);
-                    docImprimir.setFontSize(12);
-                    docImprimir.text('SISTEMA DE AGUA POTABLE',100,15, 'center');
-                    docImprimir.text('COMITE DE ADMINISTRACION DE AGUA POTABLE',100,20, 'center');
+                    docImprimir.rect(10, 10, 195, 24);
+                    docImprimir.rect(10, 10, 25, 24);
+                    docImprimir.rect(150, 10, 55, 6);
+                    docImprimir.rect(150, 16, 55, 6);
+                    docImprimir.rect(150, 22, 55, 6);
+                    docImprimir.rect(150, 28, 55, 6);
+                    docImprimir.rect(10, 37, 195, 24);
+                    docImprimir.rect(10, 37, 125, 6);
+                    docImprimir.rect(135, 37, 70, 6);
+                    docImprimir.rect(10, 43, 90, 6);
+                    docImprimir.rect(100, 43, 63, 6);
+                    docImprimir.rect(163, 43, 42, 6);
+                    docImprimir.rect(10, 49, 105, 6);
+                    docImprimir.rect(115, 49, 90, 6);
+                    docImprimir.rect(10, 55, 80, 6);
+                    docImprimir.rect(90, 55, 40, 6);
+                    docImprimir.rect(130, 55, 35, 6);
+                    docImprimir.rect(165, 55, 40, 6);
+                    docImprimir.line(30, 219, 100, 219);
+                    docImprimir.line(130, 219, 190, 219);
                     docImprimir.setFontSize(10);
-                    docImprimir.text('CERRADA ABASOLO S/N TELTIPAN DE JUÁREZ',100,25, 'center');
-                    docImprimir.text('MUNICIPIO DE TLAXCOAPAN, HIDALGO',100,30, 'center');
+                    docImprimir.text('SISTEMA DE AGUA POTABLE',95,15, 'center');
+                    docImprimir.text('COMITE DE ADMINISTRACION DE AGUA POTABLE',95,20, 'center');
+                    docImprimir.setFontSize(8);
+                    docImprimir.text('CERRADA ABASOLO S/N TELTIPAN DE JUÁREZ',95,24, 'center');
+                    docImprimir.text('MUNICIPIO DE TLAXCOAPAN, HIDALGO',95,28, 'center');
                     docImprimir.setFontSize(6);
-                    docImprimir.text('Contrato:',156,12, 'left');
-                    docImprimir.text('Fecha:',156,20, 'left');
-                    docImprimir.text('Hora:',156,28, 'left');
-                    docImprimir.text('Impresión:',156,36, 'left');
-                    docImprimir.text('Cliente:',11,47, 'left');
-                    docImprimir.text('Tipo Contrato:',136,47, 'left');
-                    docImprimir.text('Calle y Numero:',11,55, 'left');
-                    docImprimir.text('Colonia:',101,55, 'left');
-                    docImprimir.text('Cod. Postal:',161,55, 'left');
-                    docImprimir.text('Municipio:',11,63, 'left');
-                    docImprimir.text('Estado:',116,63, 'left');
-                    docImprimir.text('Telefono(s):',11,71, 'left');
-                    docImprimir.text('Impedimento:',96,71, 'left');
-                    docImprimir.text('Permiso:',136,71, 'left');
-                    docImprimir.text('Tarifa:',166,71, 'left');
+                    docImprimir.text('Contrato:',151,12, 'left');
+                    docImprimir.text('Fecha:',151,18, 'left');
+                    docImprimir.text('Hora:',151,24, 'left');
+                    docImprimir.text('Impresión:',151,30, 'left');
+                    docImprimir.text('Cliente:',11,39, 'left');
+                    docImprimir.text('Tipo Contrato:',136,39, 'left');
+                    docImprimir.text('Calle y Numero:',11,46, 'left');
+                    docImprimir.text('Colonia:',101,46, 'left');
+                    docImprimir.text('Cod. Postal:',164,46, 'left');
+                    docImprimir.text('Municipio:',11,51, 'left');
+                    docImprimir.text('Estado:',116,51, 'left');
+                    docImprimir.text('Telefono(s):',11,57, 'left');
+                    docImprimir.text('Impedimento:',91,57, 'left');
+                    docImprimir.text('Permiso:',131,57, 'left');
+                    docImprimir.text('Tarifa:',166,57, 'left');
                     docImprimir.setFontSize(10);
-                    docImprimir.text('CONDICIONES: Este contrato queda sujeto a las condiciones que se estipulan en las siguientes clausulas:',12,85, 'left');
-                    docImprimir.text('1. Toda persona que desee conectarse a la red de agua potable, debera solicitarla por escrito al comité de administracion para su analisis y la factibilidad de su autorizacion.',12,90, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
-                    docImprimir.text('2. Una vez autorizada la peticion, el interesado se obliga a tener listo el registro con las caracteristicas establecidas para tal fin y cubrir la cuota vigente por concepto de contrato.',12,99, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
-                    docImprimir.text('3. Los dias de cobro por el consumo de agua potable, seran los dias domingo en un horario de 8:00 a 11:00 Hrs.',12,108, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
-                    docImprimir.text('4. El usuario debera pagar la cuota mensual vigente por el servicio de agua potable, misma que en asamblea general de vecinos determine de acuerdo a las necesidades imperantes.',12,114, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
-                    docImprimir.text('5. Todo padre o madre de familia tiene la obligacion de pagar oportunamente la cuota mensual correspondiente por el servicio de agua potable.',12,123, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
-                    docImprimir.text('6. En caso de que el equipo de bombeo se encuentre en malas condiciones, es obligacion de los usuarios aportar una cuota extra, cuyo monto sera calculado de acuerdo al gasto principal realizado.',12,132, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
-                    docImprimir.text('7. Todo usuario que se atrase en el pago mensual, se vera obligado a pagar como sancion el equivalente a un dia de salario minimo.',12,141, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
-                    docImprimir.text('8. Todo usuario que por diversos motivos se les haya cortado el servicio de agua potable, para su reconexion debera pagar el equivalente a cuatro dias de salario minimo.',12,150, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
-                    docImprimir.text('9. Si la red interna del usuario se encuentra en malas condiciones propiciando fugas y/o tiraderos de agua, ademas de repararla por su propia cuenta sera sancionado con el equivalente a dos dias de salario minimo.',12,160, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
-                    docImprimir.text('10. Todo usuario que se le haya cortado el servicio de agua potable y que se le demuestre que por propia cuenta reconecto el servicio, se le cortara el servico y no podra reconectarse hasta pagar la sancion equivalente a siete dias de salario minimo.',12,169, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
-                    docImprimir.text('11. Todo usuario que reincida en cualquiera de los casos anteriores, su sancion subira al doble y por tercera reincidencia, la sancion se triplicara.',12,181, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
-                    docImprimir.text('12. Todo usuario que no se presente a las asambleas que el comité de administracion convoque, sera sancionado con la cuota vigente para tal caso; por segunda falta la sancion sera el doble y por tercera inasistencia corte del servicio y no se podra reconectar hasta haber',12,190, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
-                    docImprimir.text('13. Todo usuario que proporcione servicio de agua a personas que tengan adeudos rezagados, el servicio cortado o personas que no hayan hecho su contrato, se les hara un llamado y si hacen caso omiso, se les cortara el servicio aunque esten al corriente en sus pagos.',12,203, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
-                    docImprimir.text('EL PRESIDENTE DEL COMITÉ DE ADMINISTRACION DEL SISTEMA DE AGUA POTABLE',60,222, {align: 'center', maxWidth: 90, lineHeightFactor: 1.0});
-                    docImprimir.text('EL USUARIO',160,224, {align: 'center', maxWidth: 50, lineHeightFactor: 1.0});
-                    docImprimir.text('Nombre y Firma',60,248, 'center');
-                    docImprimir.text('Nombre y Firma',160,248, 'center');
+                    docImprimir.text('CONDICIONES: Este contrato queda sujeto a las condiciones que se estipulan en las siguientes clausulas:',12,68, 'left');
+                    docImprimir.text('1. Toda persona que desee conectarse a la red de agua potable, debera solicitarla por escrito al comité de administracion para su analisis y la factibilidad de su autorizacion.',12,73, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
+                    docImprimir.text('2. Una vez autorizada la peticion, el interesado se obliga a tener listo el registro con las caracteristicas establecidas para tal fin y cubrir la cuota vigente por concepto de contrato.',12,82, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
+                    docImprimir.text('3. Los dias de cobro por el consumo de agua potable, seran los dias domingo en un horario de 8:00 a 11:00 Hrs.',12,91, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
+                    docImprimir.text('4. El usuario debera pagar la cuota mensual vigente por el servicio de agua potable, misma que en asamblea general de vecinos determine de acuerdo a las necesidades imperantes.',12,96, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
+                    docImprimir.text('5. Todo padre o madre de familia tiene la obligacion de pagar oportunamente la cuota mensual correspondiente por el servicio de agua potable.',12,104, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
+                    docImprimir.text('6. En caso de que el equipo de bombeo se encuentre en malas condiciones, es obligacion de los usuarios aportar una cuota extra, cuyo monto sera calculado de acuerdo al gasto principal realizado.',12,112, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
+                    docImprimir.text('7. Todo usuario que se atrase en el pago mensual, se vera obligado a pagar como sancion el equivalente a un dia de salario minimo.',12,120, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
+                    docImprimir.text('8. Todo usuario que por diversos motivos se les haya cortado el servicio de agua potable, para su reconexion debera pagar el equivalente a cuatro dias de salario minimo.',12,128, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
+                    docImprimir.text('9. Si la red interna del usuario se encuentra en malas condiciones propiciando fugas y/o tiraderos de agua, ademas de repararla por su propia cuenta sera sancionado con el equivalente a dos dias de salario minimo.',12,136, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
+                    docImprimir.text('10. Todo usuario que se le haya cortado el servicio de agua potable y que se le demuestre que por propia cuenta reconecto el servicio, se le cortara el servico y no podra reconectarse hasta pagar la sancion equivalente a siete dias de salario minimo.',12,144, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
+                    docImprimir.text('11. Todo usuario que reincida en cualquiera de los casos anteriores, su sancion subira al doble y por tercera reincidencia, la sancion se triplicara.',12,155, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
+                    docImprimir.text('12. Todo usuario que no se presente a las asambleas que el comité de administracion convoque, sera sancionado con la cuota vigente para tal caso; por segunda falta la sancion sera el doble y por tercera inasistencia corte del servicio y no se podra reconectar hasta haber',12,163, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
+                    docImprimir.text('13. Todo usuario que proporcione servicio de agua a personas que tengan adeudos rezagados, el servicio cortado o personas que no hayan hecho su contrato, se les hara un llamado y si hacen caso omiso, se les cortara el servicio aunque esten al corriente en sus pagos.',12,175, {align: 'justify', maxWidth: 190, lineHeightFactor: 1.0});
+                    docImprimir.text('EL PRESIDENTE DEL COMITÉ DE ADMINISTRACION DEL SISTEMA DE AGUA POTABLE',60,191, {align: 'center', maxWidth: 90, lineHeightFactor: 1.0});
+                    docImprimir.text('EL USUARIO',160,191, {align: 'center', maxWidth: 50, lineHeightFactor: 1.0});
+                    docImprimir.text('Nombre y Firma',60,222, 'center');
+                    docImprimir.text('Nombre y Firma',160,222, 'center');
 
-                    docImprimir.rect(10, 80, 195, 185);
-                    respuestas.forEach(contrato => {
+                    docImprimir.rect(10, 64, 195, 165);
+                    respuestas[0].forEach(contrato => {
                         let permisoLabel = '';
                         let descuentoLabel = '';
-                        if(contrato.PERMISO_CCONT=='SIPERM'){
-                            permisoLabel='Si Permiso';
-                        }else {
-                            permisoLabel='No Permiso';
-                        }
-                        if(contrato.DESCUENTO_CCONT=='SINDES'){
-                            descuentoLabel='T. Completa';
-                        }else{
-                            descuentoLabel='T. Descuento';
-                        }
                         docImprimir.setFontSize(12);
-                        docImprimir.text(contrato.CONTRATO_CCONT,203,17, 'right');
-                        docImprimir.text(contrato.FECHACAP_CCONT,203,25, 'right');
-                        docImprimir.text(contrato.HORACAP_CCONT,203,33, 'right');
-                        docImprimir.text(fechaImpress,203,41, 'right');
-                        docImprimir.text(contrato.NOMBRE,17,51, 'left');
-                        docImprimir.text(contrato.DESCRIPCION_CONT,143,51, 'left');
-                        docImprimir.text(contrato.CALLES,17,59, 'left');
-                        docImprimir.text(contrato.COLONIA_CODPOS,106,59, 'left');
-                        docImprimir.text(contrato.CODIPOST_CODPOS,166,59, 'left');
-                        docImprimir.text(contrato.NOMBRE_MUNIC,16,67, 'left');
-                        docImprimir.text(contrato.ESTADO_ESTA,120,67, 'left');
-                        docImprimir.text(contrato.TELEFONO_CLIEN+' '+contrato.MOVIL_CLIEN,16,76, 'left');
-                        docImprimir.text(permisoLabel,139,76, 'left');
-                        docImprimir.text(descuentoLabel,169,76, 'left');
+                        docImprimir.text(contrato.CONTRATO_CCONT,203,15, 'right');
+                        docImprimir.text(contrato.FECHACAP_CCONT,203,21, 'right');
+                        docImprimir.text(contrato.HORACAP_CCONT,203,27, 'right');
+                        docImprimir.text(fechaImpress,203,33, 'right');
+                        docImprimir.text(contrato.NOMBRE,160,218, 'center');
+                        docImprimir.setFontSize(11);
+                        docImprimir.text(contrato.NOMBRE,19,42, 'left');
+                        docImprimir.text(contrato.DESCRIPCION_CONT,151,42, 'left');
+                        docImprimir.text(contrato.CALLES,26,48, 'left');
+                        docImprimir.text(contrato.COLONIA_CODPOS,109,48, 'left');
+                        docImprimir.text(contrato.CODIPOST_CODPOS,176,48, 'left');
+                        docImprimir.text(contrato.NOMBRE_MUNIC,21,54, 'left');
+                        docImprimir.text(contrato.ESTADO_ESTA,123,54, 'left');
+                        docImprimir.text(contrato.TELEFONO_CLIEN+' '+contrato.MOVIL_CLIEN,16,60, 'left');
+                        docImprimir.text(contrato.DESCRIPCION_CPERM,140,60, 'left');
+                        docImprimir.text(contrato.DESCRIPCION_CTARI,172,60, 'left');
                         JsBarcode('#codigo_qr', contrato.CODBARR_CLIEN, {
                             displayValue: false,
                             format: 'CODE128',
                             width: 1,
                         });
                         let codigo_qr = document.querySelector('img#codigo_qr');
-                        docImprimir.addImage(codigo_qr.src, 'jpeg', 50,35, 50,5);
+                        docImprimir.addImage(codigo_qr.src, 'jpeg', 165,230, 40,8);
 
                         nombreArchivo = contrato.CONTRATO_CCONT;
 
+                    })
+                    respuestas[1].forEach(comite => {
+                        docImprimir.text(comite.NOMBRE,60,218, 'center');
+                    })
+                    let alturasello = 235
+                    docImprimir.setFontSize(6);
+                    docImprimir.text('Cadena Original',10,235, 'left');
+                    docImprimir.text('Sello Digital',10,243, 'left');
+                    respuestas[2].forEach(sello => {
+                        docImprimir.text(sello.SELLODIGA,30,alturasello, {align: 'left', maxWidth: 125, lineHeightFactor: 1.0});
+                        alturasello=alturasello+8
                     })
                     docImprimir.save('Contrato '+nombreArchivo+'.pdf');
                 });
@@ -336,3 +347,244 @@ const reimprimirContrato = async (botonVerContrato) => {
     }
 }
 
+const reimprimirContrato = async (botonImprimContrato) => {
+    try {
+        Swal.fire({
+            title: 'Imprimir',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#009C06',
+            confirmButtonText: 'Si, imprimir',
+            cancelButtonColor: '#9C0000',
+            cancelButtonText: 'No, mejor no',
+            html: '¿Desea imprimir los datos este contrato?',
+        })
+        .then((result)=> {
+            if(result.isConfirmed){
+                let idBusqueda = botonImprimContrato.attributes.dataimprimir.value;
+                let datosContratoDetalle = document.querySelector('#datosContratoDetalle');
+                datosContratoDetalle.innerHTML=`
+                    <style>
+                        @font-face {
+                            font-family: 'Montserrat';
+                            src: url('public/assets/estilos/css_frontend/Montserrat/Montserrat-Regular.ttf') format('truetype');
+                            font-style: normal;
+                            font-weight: normal;
+                        }
+                    </style>
+                    <img src="public/assets/imagen/logotipos/logo_sapt_trans_300.png" style="position: absolute; margin: 150px 20%; width: 400px; height:400px;" />
+                `;
+                botonImprimContrato.innerHTML = cargaAnimacion;
+                let fechaHoy = new Date();
+                let fechaImpress = fechaHoy.getFullYear()+'-'+('0'+(fechaHoy.getMonth()+1)).slice(-2)+'-'+('0'+(fechaHoy.getDate())).slice(-2)+' '+('0'+(fechaHoy.getHours())).slice(-2)+':'+('0'+(fechaHoy.getMinutes())).slice(-2)+':'+('0'+(fechaHoy.getSeconds())).slice(-2);
+                let cabeceraContrato = '';
+                let detalleContrato = '';
+                let comiteTramite = '';
+                let usuarioTramite = '';
+                let sellosDigital = '';
+                let codigoBarra = '';
+                fetch(`areportes/imprimirContrato/${idBusqueda}`)
+                .then(respuestaRender => respuestaRender.json())
+                .then(respuestas => {
+                    botonImprimContrato.innerHTML = '<i class="fa fa-print"></i>';
+                    respuestas[0].forEach(contrato => {
+                        usuarioTramite=contrato.NOMBRE;
+                        cabeceraContrato=`
+                            <tr>
+                                <td rowspan="4" colspan="1" style="border: 1px solid rgb(20,179,237);"><img src="public/assets/imagen/logotipos/logo_sapt_color_300.png" style="width:80px; height:80px; margin: auto;"/></td>
+                                <td rowspan="4" colspan="9" style="text-align: center; border: 1px solid rgb(20,179,237);">
+                                    <div style="text-align: center; font-size: 14px;">SISTEMA DE AGUA POTABLE COMITE DE ADMINISTRACION DE AGUA POTABLE</div>
+                                    <div style="text-align: center; font-size: 10px;">CERRADA ABASOLO S/N TELTIPAN DE JUÁREZ MUNICIPIO DE TLAXCOAPAN, HIDALGO</div>
+                                </td>
+                                <td colspan="2" style="border: 1px solid rgb(20,179,237);">
+                                    <div style="position: absolute; margin-left:3px; font-size:6px;">Contrato:</div>
+                                    <div style="float: right; margin-right: 5px; font-size:14px;">${contrato.CONTRATO_CCONT}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="border: 1px solid rgb(20,179,237)">
+                                    <div style="position: absolute; margin-left:3px; font-size:6px;">Fecha:</div>
+                                    <div style="float: right; margin-right: 5px; font-size:14px;">${contrato.FECHACAP_CCONT}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="border: 1px solid rgb(20,179,237)">
+                                    <div style="position: absolute; margin-left:3px; font-size:6px;">Hora:</div>
+                                    <div style="float: right; margin-right: 5px; font-size:14px;">${contrato.HORACAP_CCONT}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="border: 1px solid rgb(20,179,237)">
+                                    <div style="position: absolute; margin-left:3px; font-size:6px;">Fecha Impresión:</div>
+                                    <div style="float: right; margin-right: 5px; font-size:14px;">${fechaImpress}</div>
+                                </td>
+                            </tr>
+                        
+                        `;
+                        detalleContrato=`
+                            <tr>
+                                <td colspan="8" style="border: 1px solid rgb(20,179,237)">
+                                    <div style="position: absolute; margin-left:3px; font-size:6px;">Cliente:</div>
+                                    <div style="text-align: center; font-size:14px;">${contrato.NOMBRE}</div>
+                                </td>
+                                <td colspan="4" style="border: 1px solid rgb(20,179,237)">
+                                    <div style="position: absolute; margin-left:3px; font-size:6px;">Tipo Contrato:</div>
+                                    <div style="text-align: center; font-size:14px;">${contrato.DESCRIPCION_CONT}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" style="border: 1px solid rgb(20,179,237)">
+                                    <div style="position: absolute; margin-left:3px; font-size:6px;">Calle y Numero:</div>
+                                    <div style="text-align: center; font-size:14px;">${contrato.CALLES}</div>
+                                </td>
+                                <td colspan="4" style="border: 1px solid rgb(20,179,237)">
+                                    <div style="position: absolute; margin-left:3px; font-size:6px;">Colonia:</div>
+                                    <div style="text-align: center; font-size:14px;">${contrato.COLONIA_CODPOS}</div>
+                                </td>
+                                <td colspan="3" style="border: 1px solid rgb(20,179,237)">
+                                    <div style="position: absolute; margin-left:3px; font-size:6px;">Cod. Postal:</div>
+                                    <div style="text-align: center; font-size:14px;">${contrato.CODIPOST_CODPOS}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="border: 1px solid rgb(20,179,237)">
+                                    <div style="position: absolute; margin-left:3px; font-size:6px;">Telefono(s):</div>
+                                    <div style="text-align: center; font-size:14px;">${contrato.TELEFONO_CLIEN} - ${contrato.MOVIL_CLIEN}</div>
+                                </td>
+                                <td colspan="3" style="border: 1px solid rgb(20,179,237)">
+                                    <div style="position: absolute; margin-left:3px; font-size:6px;">Impedimento:</div>
+                                    <div style="text-align: center; font-size:14px;">-</div>
+                                </td>
+                                <td colspan="3" style="border: 1px solid rgb(20,179,237)">
+                                    <div style="position: absolute; margin-left:3px; font-size:6px;">Permiso:</div>
+                                    <div style="text-align: center; font-size:14px;">${contrato.DESCRIPCION_CPERM}</div>
+                                </td>
+                                <td colspan="2" style="border: 1px solid rgb(20,179,237)">
+                                    <div style="position: absolute; margin-left:3px; font-size:6px;">Tarifa:</div>
+                                    <div style="text-align: center; font-size:14px;">${contrato.DESCRIPCION_CTARI}</div>
+                                </td>
+                            </tr>
+                        `;
+                        codigoBarra = contrato.CODBARR_CLIEN;
+                    })
+                    respuestas[1].forEach(comite => {
+                        comiteTramite = comite.NOMBRE;
+                    })
+                    respuestas[2].forEach(sello => {
+                        sellosDigital+=`<div style="max-width:430px;word-wrap:break-word;padding-botton:10px;">${sello.SELLODIGA}</div>`;
+                    })
+                    const tablaAcuseContrato = document.createElement('table');
+                    tablaAcuseContrato.setAttribute('border','0');
+                    tablaAcuseContrato.setAttribute('cellspacing','0');
+                    tablaAcuseContrato.setAttribute('cellpadding','0');
+                    tablaAcuseContrato.setAttribute('style','width: 100%; font-family: Montserrat;');
+                    tablaAcuseContrato.innerHTML=`
+                        <tr>
+                            <td width="8.33%"></td>
+                            <td width="8.33%"></td>
+                            <td width="8.33%"></td>
+                            <td width="8.33%"></td>
+                            <td width="8.33%"></td>
+                            <td width="8.33%"></td>
+                            <td width="8.33%"></td>
+                            <td width="8.33%"></td>
+                            <td width="8.33%"></td>
+                            <td width="8.33%"></td>
+                            <td width="8.33%"></td>
+                            <td width="8.33%"></td>
+                        </tr>
+                        ${cabeceraContrato}
+                        <tr>
+                            <td colspan="12" style="padding:5px;"></td>
+                        </tr>
+                        ${detalleContrato}
+                        <tr>
+                            <td colspan="12" style="padding:5px;"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="12" style="padding:5px; border-top: 1px solid rgb(20,179,237); border-left: 1px solid rgb(20,179,237); border-right: 1px solid rgb(20,179,237);">
+                                <div style="text-align:justify; font-size:14px;">CONDICIONES: Este contrato queda sujeto a las condiciones que se estipulan en las siguientes clausulas:</div>
+                                <ol style="width:100%;max-width:750px;padding-left:25px;padding-right:25px;font-size:14px;">
+                                    <li style="text-aling:justify;max-width:730px;">Toda persona que desee conectarse a la red de agua potable, debera solicitarla por escrito al comité de administracion para su analisis y la factibilidad de su autorizacion.</li>
+                                    <li style="text-aling:justify;max-width:730px;">Una vez autorizada la peticion, el interesado se obliga a tener listo el registro con las caracteristicas establecidas para tal fin y cubrir la cuota vigente por concepto de contrato.</li>
+                                    <li style="text-aling:justify;max-width:730px;">Los dias de cobro por el consumo de agua potable, seran los dias domingo en un horario de 8:00 a 11:00 Hrs.</li>
+                                    <li style="text-aling:justify;max-width:730px;">El usuario debera pagar la cuota mensual vigente por el servicio de agua potable, misma que en asamblea general de vecinos determine de acuerdo a las necesidades imperantes.</li>
+                                    <li style="text-aling:justify;max-width:730px;">Todo padre o madre de familia tiene la obligacion de pagar oportunamente la cuota mensual correspondiente por el servicio de agua potable.</li>
+                                    <li style="text-aling:justify;max-width:730px;">En caso de que el equipo de bombeo se encuentre en malas condiciones, es obligacion de los usuarios aportar una cuota extra, cuyo monto sera calculado de acuerdo al gasto principal realizado.</li>
+                                    <li style="text-aling:justify;max-width:730px;">Todo usuario que se atrase en el pago mensual, se vera obligado a pagar como sancion el equivalente a un dia de salario minimo.</li>
+                                    <li style="text-aling:justify;max-width:730px;">Todo usuario que por diversos motivos se les haya cortado el servicio de agua potable, para su reconexion debera pagar el equivalente a cuatro dias de salario minimo.</li>
+                                    <li style="text-aling:justify;max-width:730px;">Si la red interna del usuario se encuentra en malas condiciones propiciando fugas y/o tiraderos de agua, ademas de repararla por su propia cuenta sera sancionado con el equivalente a dos dias de salario minimo.</li>
+                                    <li style="text-aling:justify;max-width:730px;">Todo usuario que se le haya cortado el servicio de agua potable y que se le demuestre que por propia cuenta reconecto el servicio, se le cortara el servico y no podra reconectarse hasta pagar la sancion equivalente a siete dias de salario minimo.</li>
+                                    <li style="text-aling:justify;max-width:730px;">Todo usuario que reincida en cualquiera de los casos anteriores, su sancion subira al doble y por tercera reincidencia, la sancion se triplicara.</li>
+                                    <li style="text-aling:justify;max-width:730px;">Todo usuario que no se presente a las asambleas que el comité de administracion convoque, sera sancionado con la cuota vigente para tal caso; por segunda falta la sancion sera el doble y por tercera inasistencia corte del servicio y no se podra reconectar hasta haber.</li>
+                                    <li style="text-aling:justify;max-width:730px;">Todo usuario que proporcione servicio de agua a personas que tengan adeudos rezagados, el servicio cortado o personas que no hayan hecho su contrato, se les hara un llamado y si hacen caso omiso, se les cortara el servicio aunque esten al corriente en sus pagos.</li>
+                                </ol>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="1" style="border-left: 1px solid rgb(20,179,237);"></td>
+                            <td colspan="4" style="font-size:12px;text-align: center;">EL PRESIDENTE DEL COMITÉ DE ADMINISTRACION DEL SISTEMA DE AGUA POTABLE</td>
+                            <td colspan="2" style=""></td>
+                            <td colspan="4" style="font-size:12px;text-align: center;">EL USUARIO</td>
+                            <td colspan="1" style="border-right: 1px solid rgb(20,179,237);"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="1" style="border-left: 1px solid rgb(20,179,237);"></td>
+                            <td colspan="4" style="padding:30px;"></td>
+                            <td colspan="2" style=""></td>
+                            <td colspan="4" style="padding:30px;"></td>
+                            <td colspan="1" style="border-right: 1px solid rgb(20,179,237);"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="1" style="border-left: 1px solid rgb(20,179,237);"></td>
+                            <td colspan="4" style="text-align: center;border-bottom: 1px solid rgb(20,179,237);">${comiteTramite}</td>
+                            <td colspan="2" style=""></td>
+                            <td colspan="4" style="text-align: center;border-bottom: 1px solid rgb(20,179,237);">${usuarioTramite}</td>
+                            <td colspan="1" style="border-right: 1px solid rgb(20,179,237);"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="1" style="border-left: 1px solid rgb(20,179,237);"></td>
+                            <td colspan="4" style="font-size:12px;text-align: center;">Nombre y firma</td>
+                            <td colspan="2" style=""></td>
+                            <td colspan="4" style="font-size:12px;text-align: center;">Nombre y firma</td>
+                            <td colspan="1" style="border-right: 1px solid rgb(20,179,237);"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="12" style="border-left: 1px solid rgb(20,179,237);border-right: 1px solid rgb(20,179,237);border-bottom: 1px solid rgb(20,179,237); padding:10px;"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="12" style="padding:10px;"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="1" style="font-size:8px;"><div style="margin-bottom:10px;">Cadena Original</div><div style="margin-bottom:10px;">Sello digital</div></td>
+                            <td colspan="8" style="font-size:8px;">${sellosDigital}</td>
+                            <td colspan="3" style=""><img id="barcode"/></td>
+                        </tr>
+                    `;
+                    datosContratoDetalle.appendChild(tablaAcuseContrato);
+                    JsBarcode("#barcode", `${codigoBarra}`, {
+                        format: "CODE128",
+                        lineColor: "#14b3ed",
+                        background: "#FFF",
+                        width: 2,
+                        height: 40,
+                        displayValue: false
+                    });
+                    let ventImpri = window.open('', 'popimpr');
+                    ventImpri.document.write(datosContratoDetalle.innerHTML);
+                    ventImpri.document.close();
+                    ventImpri.print();
+                    ventImpri.close();
+                })
+    
+            }
+        })
+    } catch (errorAlert) {
+        return Swal.fire({
+            title: 'Error interno',
+            icon: 'error',
+            confirmButtonColor: '#f43',
+            html: errorAlert.message,
+        })
+    }
+}

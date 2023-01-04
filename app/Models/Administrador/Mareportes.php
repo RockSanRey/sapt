@@ -52,36 +52,6 @@ class Mareportes extends Model
         }
     }
 
-    public function reimprimirDatosContrato($id)
-    {
-        try {
-            $parametro=explode('_',$id);
-            $builder=$this->dbBuild->table('sys_clientes');
-            $builder->select("FECHACAP_CCONT, HORACAP_CCONT, IDUSUA_CLIEN, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE, CODBARR_CLIEN, EMAIL_CLIEN,
-            FNACIM_CLIEN, SEXO_CLIEN, TELEFONO_CLIEN, MOVIL_CLIEN, ESTADO_ESTA, NOMBRE_MUNIC,
-            CODIPOST_CODPOS, COLONIA_CODPOS, CONCAT(CALLE_CLIEN,' ',NEXTE_CLIEN,' ',NINTE_CLIEN) AS CALLES, CONTRATO_CCONT, DESCRIPCION_CONT, PERMISO_CCONT, DESCUENTO_CCONT");
-            $builder->join('sys_clientes_contratos','IDUSUA_CLIEN=CLIENTE_CCONT');
-            $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
-            $builder->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
-            $builder->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
-            $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
-            $builder->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
-            $builder->where('IDUSUA_CLIEN',$parametro[1]);
-            $builder->where('CONTRATO_CCONT',$parametro[0]);
-            $builder->where('CLVCOLON_CODPOS=COLONIA_UBIC');
-            $builder->where('ESTATUS_CLIEN','ACTI');
-            $resultado=$builder->get();
-    
-            if($resultado->getNumRows()>0){
-                log_message('info','[AIMPCONTRATO|Async/Q] Generando datos desde consulta para continuar edición de usuario');
-                return $resultado->getResultArray();
-    
-            }
-        } catch (Exception $errorElement) {
-            return json_encode($errorElement.message());
-        }
-    }
-
     public function autoDatosCompletarBajas($id)
     {
         try {
@@ -512,6 +482,104 @@ class Mareportes extends Model
 
 
 
+
+
+    public function imprimirDatosContrato($id)
+    {
+        try {
+            $parametro=explode('_',$id);
+            $builder=$this->dbBuild->table('sys_clientes');
+            $builder->select("FECHACAP_CCONT, HORACAP_CCONT, IDUSUA_CLIEN, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE, CODBARR_CLIEN, EMAIL_CLIEN,
+            FNACIM_CLIEN, SEXO_CLIEN, TELEFONO_CLIEN, MOVIL_CLIEN, ESTADO_ESTA, NOMBRE_MUNIC,
+            CODIPOST_CODPOS, COLONIA_CODPOS, CONCAT(CALLE_CLIEN,' ',NEXTE_CLIEN,' ',NINTE_CLIEN) AS CALLES, CONTRATO_CCONT, 
+            DESCRIPCION_CONT, DESCRIPCION_CTARI, DESCRIPCION_CPERM");
+            $builder->join('sys_clientes_contratos','IDUSUA_CLIEN=CLIENTE_CCONT');
+            $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
+            $builder->join('cat_contratosTarifas','CLAVE_CTARI=DESCUENTO_CCONT');
+            $builder->join('cat_contratosPermisos','CLAVE_CPERM=PERMISO_CCONT');
+            $builder->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
+            $builder->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
+            $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
+            $builder->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->where('IDUSUA_CLIEN',$parametro[1]);
+            $builder->where('CONTRATO_CCONT',$parametro[0]);
+            $builder->where('CLVCOLON_CODPOS=COLONIA_UBIC');
+            $builder->where('ESTATUS_CLIEN','ACTI');
+            $resultado=$builder->get();
+            if($resultado->getNumRows()>0){
+                log_message('info','[AREPORTES|Async/Q] Generando datos desde consulta para detalles de contrato');
+                $contrato=$resultado->getResultArray();
+            }
+
+            $buildera=$this->dbBuild->table('sys_responsables');
+            $buildera->select("CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS NOMBRE, DESCRIPHOM_PUESTO");
+            $buildera->join('cat_puestos','CLAVE_PUESTO=PERFIL_RESPO');
+            $buildera->whereIn('PERFIL_RESPO',['COMIPRESI']);
+            $buildera->where('ESTATUS_RESPO','ACTI');
+            $buildera->groupBy('IDUSUA_RESPO');
+            $resultado0=$buildera->get();
+            if($resultado0->getNumRows()>0){
+                log_message('info','[AREPORTES|Async/Q] Generando datos desde consulta para datos comite');
+                $comite=$resultado0->getResultArray();
+            }
+
+            $builderb=$this->dbBuild->table('sys_clientes');
+            $builderb->select("IDUSUA_CLIEN,CODBARR_CLIEN,FECHACAP_CCONT,HORACAP_CCONT,CONTRATO_CCONT,
+            CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE,ESTADO_ESTA,NOMBRE_MUNIC,
+            CODIPOST_CODPOS,COLONIA_CODPOS,CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES,
+            MODO_CCONT,TIPO_CCONT,PERMISO_CCONT,DESCUENTO_CCONT,
+            CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS RESPONS");
+            $builderb->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
+            $builderb->join('sys_responsables','IDUSUA_RESPO=CAPTURA_CCONT');
+            $builderb->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
+            $builderb->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
+            $builderb->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
+            $builderb->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builderb->where('CLVCOLON_CODPOS=COLONIA_UBIC');
+            $builderb->where('CLIENTE_CCONT',$parametro[1]);
+            $builderb->where('CONTRATO_CCONT',$parametro[0]);
+            $builderb->groupBy('CONTRATO_CCONT');
+            $builderb->orderBy('CONTRATO_CCONT');
+            $resultado2=$builderb->get();
+
+            if($resultado2->getNumRows()>0){
+                foreach($resultado2->getResultArray() as $filas){
+                    $campA=$filas['IDUSUA_CLIEN'];
+                    $campB=$filas['CODBARR_CLIEN'];
+                    $campC=$filas['FECHACAP_CCONT'];
+                    $campD=$filas['HORACAP_CCONT'];
+                    $campE=$filas['CONTRATO_CCONT'];
+                    $campF=$filas['NOMBRE'];
+                    $campG=$filas['ESTADO_ESTA'];
+                    $campH=$filas['NOMBRE_MUNIC'];
+                    $campI=$filas['CODIPOST_CODPOS'];
+                    $campJ=$filas['COLONIA_CODPOS'];
+                    $campK=$filas['CALLES'];
+                    $campL=$filas['MODO_CCONT'];
+                    $campM=$filas['TIPO_CCONT'];
+                    $campN=$filas['PERMISO_CCONT'];
+                    $campO=$filas['DESCUENTO_CCONT'];
+                    $campP=$filas['RESPONS'];
+                }
+                $arreglo=[
+                    ['SELLODIGA'=>$campA.'|'.$campB.'|'.$campC.'|'.$campD.'|'.$campE.'|'.$campF.'|'.$campG.'|'.$campH.'|'.$campI.'|'.$campJ
+                    .'|'.$campK.'|'.$campL.'|'.$campM.'|'.$campN.'|'.$campO.'|'.$campP],
+                    ['SELLODIGA'=>base64_encode($campA.'|'.$campB.'|'.$campC.'|'.$campD.'|'.$campE.'|'.$campF.'|'.$campG.'|'.$campH.'|'.
+                    $campI.'|'.$campJ.'|'.$campK.'|'.$campL.'|'.$campM.'|'.$campN.'|'.$campO.'|'.$campP)],
+                ];
+            }
+
+
+            return [
+                $contrato,
+                $comite,
+                $arreglo,
+            ];
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+    }
 
     public function imprimirDatosComprobantePago($id)
     {

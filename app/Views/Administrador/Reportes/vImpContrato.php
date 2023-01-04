@@ -11,7 +11,7 @@
         <div class="card-body bg-white p-2">
             <div id="busquedaUsuarios"></div>
             <div id="datosContatosActivos"></div>
-            <table id="datosUsuarioDetalle" class="d-none"></table>
+            <div id="datosContratoDetalle" class="d-none"></div>
             <img id="codigo_qr" class="d-none" />
         </div>
         <div class="card-footer bg-white">

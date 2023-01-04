@@ -69,26 +69,6 @@ class Reportes extends BaseController
         }
     }
 
-    public function reimprimirContrato($id)
-    {
-        log_message('info','[AIMPCONTRATO|Async] Solicitando datos para renderizado de contratos activos');
-        if($tablaDatos = $this->modeloReportes->reimprimirDatosContrato($id)){
-            log_message('info','[AIMPCONTRATO|Async] Envio de datos para renderizado de contratos activos');
-            return json_encode($tablaDatos);
-        }else {
-            log_message('info','[AIMPCONTRATO|Async] Ocurrio un error al consultar los datos, notificando');
-            $swalMensajes=[
-                'title'=>'Error Servidor',
-                'button'=>'Ok',
-                'icon'=>'error',
-                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
-                'estatus'=>'error',
-            ];
-
-            return json_encode($swalMensajes);
-        }
-    }
-
     public function areimpbajas()
     {
         $id = __FUNCTION__;
@@ -525,6 +505,27 @@ class Reportes extends BaseController
 
     
     
+
+    public function imprimirContrato($id)
+    {
+        log_message('info','[AREPORTES|Async] Solicitando datos para renderizado de contratos activos');
+        if($tablaDatos = $this->modeloReportes->imprimirDatosContrato($id)){
+            log_message('info','[AREPORTES|Async] Envio de datos para renderizado de contratos activos');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[AREPORTES|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
     public function imprimirComprobantePago($id)
     {
         log_message('info','[AREPORTES|Async] Solicitando datos para renderizado de comprobate pagos');

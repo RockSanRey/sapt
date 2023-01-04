@@ -113,7 +113,6 @@ const reimprimirReciboPago = async (botonReimprimirRecibo) => {
                 	font-style: normal;
                 	font-weight: normal;
                 }
-
             </style>
             <img src="public/assets/imagen/logotipos/logo_sapt_trans_300.png" style="position: absolute; margin: 60px 20%; width: 400px; height:400px;" />
         `;
