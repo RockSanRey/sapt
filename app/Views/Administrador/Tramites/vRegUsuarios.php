@@ -2,26 +2,19 @@
     <h5 class="text-center"><?=$tutiloPantalla;?></h5>
     <div class="card mb-2">
         <div class="card-body p-2">
-            <p class="card-text text-justify fuente-14p">
+            <div class="card-text text-justify fuente-14p">
                 <?php if(isset($descripcion)):?>
                     <?=$descripcion;?>
                 <?php endif;?>
-            </p>
-            <!-- Button trigger modal -->
-            <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#formRegistroDatos">
-                <i class="fas fa-pencil-alt"></i> Nuevo Usuario
-            </button>
+            </div>
         </div>
     </div>
     <div class="card">
         <div class="card-body bg-white p-2">
-            <div class="card-text text-justify fuente-14p popup-hover">En este listado se muestran los usuarios registrados del mes actual.
-                <div class="popup-info">
-                    Si requieres modificar usuarios y no aparecen en el listado deberás ir a Mod. Usuarios, o si vas a agregar un usuario
-                    para transferir un dominio debes ir a Trans. Dominio
-                </div>
-            </div>
+            <div id="iniciaUsuarios"></div>
             <div id="listadoUsuariosMes"></div>
+            <div id="datosContratoDetalle" class="d-none"></div>
+            <img id="codigo_qr" class="d-none" />
         </div>
         <div class="card-footer bg-white p-2 fuente-12p">
             <small>Modificar datos usuarios <a href="amodusuarios" class="link">aquí</a></small><br/>
@@ -39,7 +32,6 @@
             <div class="modal-body bg-light">
                 <form class="needs-validation" id="formRegistroCRUD"></form>
                 <div id="plantillaContrato"></div>
-                <img id="codigo_qr" class="d-none" />
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal" id="botonCancelar">Cancelar</button>

@@ -33,7 +33,7 @@ class Matramites extends Model
     {
         try {
             $builder=$this->dbBuild->table('sys_clientes');
-            $builder->select("CONCAT(`IDUSUA_CLIEN`,'_',CONTRATO_CCONT) AS `idTablePk`, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS CLIENTE, CONTRATO_CCONT, DESCRIPCION_CONT, FECHACAP_CCONT");
+            $builder->select("CONCAT(`CONTRATO_CCONT`,'_',`IDUSUA_CLIEN`) AS `idTablePk`, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS CLIENTE, CONTRATO_CCONT, DESCRIPCION_CONT, FECHACAP_CCONT");
             $builder->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
             $builder->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
             $builder->where('ESTATUS_CLIEN','ACTI');
@@ -1075,7 +1075,7 @@ class Matramites extends Model
             }
 
             $buildera=$this->dbBuild->table('sys_clientes');
-            $buildera->select("CONCAT(IDUSUA_CLIEN,'_',CONTRATO_CCONT) AS IDCONTRAUSER, ESTADO_ESTA, NOMBRE_MUNIC, CODIPOST_CODPOS, COLONIA_CODPOS,
+            $buildera->select("CONCAT(CONTRATO_CCONT,'_',IDUSUA_CLIEN) AS IDCONTRAUSER, ESTADO_ESTA, NOMBRE_MUNIC, CODIPOST_CODPOS, COLONIA_CODPOS,
              CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES, CONTRATO_CCONT, DESCRIPCION_CONT, PERMISO_CCONT");
             $buildera->join('sys_clientes_contratos','IDUSUA_CLIEN=CLIENTE_CCONT');
             $buildera->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
@@ -1103,34 +1103,6 @@ class Matramites extends Model
             return json_encode($errorElement.message());
         }
 
-    }
-
-    public function mostrandoDatosContratoNuevo($id)
-    {
-        $parametro=explode('_', $id);
-
-
-        $builder=$this->dbBuild->table('sys_clientes');
-        $builder->select("FECHACAP_CCONT, HORACAP_CCONT, IDUSUA_CLIEN, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE, CODBARR_CLIEN, EMAIL_CLIEN,
-        FNACIM_CLIEN, SEXO_CLIEN, TELEFONO_CLIEN, MOVIL_CLIEN, ESTADO_ESTA, NOMBRE_MUNIC,
-        CODIPOST_CODPOS, COLONIA_CODPOS, CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES, CONTRATO_CCONT, DESCRIPCION_CONT, PERMISO_CCONT, DESCUENTO_CCONT");
-        $builder->join('sys_clientes_contratos','IDUSUA_CLIEN=CLIENTE_CCONT');
-        $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
-        $builder->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
-        $builder->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
-        $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
-        $builder->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
-        $builder->where('IDUSUA_CLIEN',$parametro[0]);
-        $builder->where('CONTRATO_CCONT',$parametro[1]);
-        $builder->where('CLVCOLON_CODPOS=COLONIA_UBIC');
-        $builder->where('ESTATUS_CLIEN','ACTI');
-        $builder->groupBy('IDUSUA_CLIEN');
-        $resultado=$builder->get();
-        if($resultado->getNumRows()>0){
-            log_message('info','[AGRCONTRATOS|Async/Q] Generando datos desde consulta para continuar edición de usuario');
-            return $resultado->getResultArray();
-
-        }
     }
 
     public function llenarDatosTablaContratoModificar($id)

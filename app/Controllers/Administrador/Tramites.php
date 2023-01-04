@@ -933,26 +933,6 @@ class Tramites extends BaseController
         }
     }
 
-    public function mostrandoContratoNuevo($id)
-    {
-        log_message('info','[AGRCONTRATO|Async] Solicitando datos para usuarios agregar contrato');
-        if($tablaDatos = $this->modeloTramites->mostrandoDatosContratoNuevo($id)){
-            log_message('info','[AGRCONTRATO|Async] Envio de datos para usuarios agregar contrato');
-            return json_encode($tablaDatos);
-        }else {
-            log_message('info','[AGRCONTRATO|Async] Ocurrio un error al consultar los datos, notificando');
-            $swalMensajes=[
-                'title'=>'Error Servidor',
-                'button'=>'Ok',
-                'icon'=>'error',
-                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
-                'estatus'=>'error',
-            ];
-
-            return json_encode($swalMensajes);
-        }
-    }
-
     public function amodcontrato()
     {
         $id = __FUNCTION__;

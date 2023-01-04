@@ -13,7 +13,7 @@
         <div class="card-body p-2">
             <div id="busquedaUsuarios"></div>
             <div id="datosUsuarioDetalle"></div>
-
+            <div id="datosContratoDetalle" class="d-none"></div>
             <img id="codigo_qr" class="d-none" />
         </div>
         <div class="card-footer bg-white p-2 fuente-12p">
