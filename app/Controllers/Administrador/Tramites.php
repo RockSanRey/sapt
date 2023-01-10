@@ -1758,26 +1758,6 @@ class Tramites extends BaseController
         }
     }
 
-    public function imprimirReciboTransferencia($id)
-    {
-        log_message('info','[TRACONTRATO|Async] Solicitando datos para renderizado de recibo transferencia');
-        if($tablaDatos = $this->modeloTramites->imprimirDatosReciboTransferencia($id)){
-            log_message('info','[TRACONTRATO|Async] Envio de datos para renderizado de recibo transferencia');
-            return json_encode($tablaDatos);
-        }else {
-            log_message('info','[TRACONTRATO|Async] Ocurrio un error al consultar los datos, notificando');
-            $swalMensajes=[
-                'title'=>'Error Servidor',
-                'button'=>'Ok',
-                'icon'=>'error',
-                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
-                'estatus'=>'error',
-            ];
-
-            return json_encode($swalMensajes);
-        }
-    }
-
     public function abajcontrato()
     {
         $id = __FUNCTION__;
@@ -1947,6 +1927,165 @@ class Tramites extends BaseController
                 'button'=>'Ok',
                 'icon'=>'error',
                 'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function amodubicacio()
+    {
+        $id = __FUNCTION__;
+        $respuesta=$this->llamandoParametrosWeb($id);
+        $cadena=array(
+            'titulo'=>'SAPT | '.$respuesta['TITULO_CONW'],
+            'tutiloPantalla'=>$respuesta['TITULOPANT_CONW'],
+            'robots'=>$respuesta['ROBOTS_CONW'],
+            'Keyword'=>$respuesta['KEYWORD_CONW'],
+            'descripcion'=>$respuesta['DESCRIPCION_CONW'],
+            'pantalla'=>$id,
+            'sesionIniciada'=>session(),
+        );
+        $sesionIniciada=session();
+        $log_extra=[
+            'user'=>$sesionIniciada->get('IDCLIENTE'),
+            'grupo'=>$sesionIniciada->get('NIVELCLIEN'),
+        ];
+        log_message('info','[MODUBICACION] Cargando modulo modubicacion para {user} con privilegios {grupo}.',$log_extra);
+        return view('Plantilla/vHeader',$cadena).view('Administrador/Tramites/vModUbicacio').view('Plantilla/vFooter');
+    }
+
+    public function llenarTablaUbicacionModificar($id)
+    {
+        log_message('info','[MODUBICACION|Async] Solicitando datos para renderizado de modif ubicación');
+        if($tablaDatos = $this->modeloTramites->llenarDatosTablaUbicacionModificar($id)){
+            log_message('info','[MODUBICACION|Async] Envio de datos para renderizado de modif ubicación');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[MODUBICACION|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function actualizarUbicacion()
+    {
+        $log_extra=[
+            'user'=>session()->get('IDCLIENTE'),
+        ];
+        log_message('info','[MODUBICACION|Async] Verificando el método de envio para continuar proceso guardar');
+        if($this->request->getMethod('POST')){
+            log_message('info','[MODUBICACION|Async] Metodo envio reconocido continua proceso guardar');
+            $reglasValidacion = $this->validate([
+                'textIdCliente'=>[
+                    'label'=>'Cliente',
+                    'rules'=>'required',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                    ],
+                ],
+                'textColonia'=>[
+                    'label'=>'Colonia',
+                    'rules'=>'required',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                    ],
+                ],
+                'textCalle'=>[
+                    'label'=>'Calle',
+                    'rules'=>'required|max_length[40]|string',
+                    'errors'=>[
+                        'max_length'=>'{field} dene tener max {param} caracteres.',
+                        'required'=>'{field} es requerido.',
+                    ],
+                ],
+                'textNexte'=>[
+                    'label'=>'N. Ext.',
+                    'rules'=>'required|string',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                    ],
+                ],
+                'textNinte'=>[
+                    'label'=>'N. Int.',
+                    'rules'=>'max_length[20]|string',
+                    'errors'=>[
+                        'max_length'=>'{field} dene tener max {param} caracteres.',
+                    ],
+                ],
+                'textReferencia'=>[
+                    'label'=>'Referencia',
+                    'rules'=>'max_length[200]|string',
+                    'errors'=>[
+                        'max_length'=>'{field} debe tener max {param} caracteres',
+                    ],
+                ],
+            ]);
+            log_message('info','[MODUBICACION|Async] Creando variables con arreglo de los campos del formulario');
+            $datosParaGuardar=[
+                $captura = session()->get('IDCLIENTE'),
+                $textIdCliente = $this->request->getPost('textIdCliente'),
+                $textColonia = $this->request->getPost('textColonia'),
+                $textCalle = $this->request->getPost('textCalle'),
+                $textNexte = $this->request->getPost('textNexte'),
+                $textNinte = $this->request->getPost('textNinte'),
+                $textReferencia = $this->request->getPost('textReferencia'),
+            ];
+            log_message('notice','[MODUBICACION|Async] {user} esta intentando actualizar ubicaciones.', $log_extra);
+            log_message('info','[MODUBICACION|Async] Inicializando Validación de reglas...');
+            if(!$reglasValidacion){
+                log_message('info','[MODUBICACION|Async] Reglas de validacion fueron rechazadas');
+                $swalMensajes=[
+                    'title'=>'Atención',
+                    'button'=>'Entendido',
+                    'icon'=>'info',
+                    'text'=>$this->validator->listErrors(),
+                    'estatus'=>'invalido',
+                ];
+
+                return json_encode($swalMensajes);
+            }else{
+                log_message('info','[MODUBICACION|Async] Reglas de validacion aceptadas');
+                if($retorno=$this->modeloTramites->actualizarDatosUbicacion($datosParaGuardar)){
+                    log_message('info','[MODUBICACION|Async] Los registros se grabaron correctamente, notificando.');
+                    $swalMensajes=[
+                        'title'=>'Trámites',
+                        'button'=>'Ok',
+                        'icon'=>'success',
+                        'text'=>'Se han actualizado los datos de ubicación.',
+                        'estatus'=>'actualizado',
+                    ];
+
+                    return json_encode($swalMensajes);
+                }else {
+                    log_message('info','[BAJCONTRATO|Async] Ocurrio un error al guardar los datos, notificando');
+                    $swalMensajes=[
+                        'title'=>'Error Servidor',
+                        'button'=>'Ok',
+                        'icon'=>'error',
+                        'text'=>'Ocurro un error al guardar los datos.',
+                        'estatus'=>'error',
+                    ];
+
+                    return json_encode($swalMensajes);
+                }
+            }
+        }
+        else {
+            log_message('info','[TRACONTRATO|Async] Metodo envio no reconocido termina proceso');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error envio no reconocido.',
                 'estatus'=>'error',
             ];
 

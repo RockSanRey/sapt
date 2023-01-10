@@ -1270,8 +1270,7 @@ const imprimirReciboTransferencia = async (botonImprimirRecibo) => {
         let idBusqueda = botonImprimirRecibo.attributes.datarecib.value;
         let plantillaTransferencia = document.querySelector('#plantillaTransferencia');
         plantillaTransferencia.innerHTML='';
-        const reciboTransferencia = document.createElement('div');
-        fetch(`atracontrato/imprimirReciboTransferencia/${idBusqueda}`)
+        fetch(`areportes/imprimirReciboTransferencia/${idBusqueda}`)
         .then(respRender => respRender.json())
         .then(respuestas => {
             plantillaTransferencia.innerHTML=`

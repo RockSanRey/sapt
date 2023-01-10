@@ -4,7 +4,7 @@ let cargaAnimacion = '<div class="spinner-grow spinner-grow-sm" role="status"><s
 document.addEventListener('DOMContentLoaded', () => {
     plantillaBusqueda();
     botonActualizar.addEventListener('click', () => {
-        actualizarRegistroContrato();
+        actualizarUbicacionContrato();
     })
 })
 
@@ -120,7 +120,7 @@ const buscarContratoInformacion = async (textIdContrato) => {
             let busquedaContratos = document.querySelector('#busquedaContratos');
             let datosContratoDetalle = document.querySelector('#datosContratoDetalle');
             datosContratoDetalle.innerHTML=cargaAnimacion;
-            fetch(`amodcontrato/llenarTablaContratoModificar/${idBusqueda}`)
+            fetch(`amodubicacio/llenarTablaUbicacionModificar/${idBusqueda}`)
             .then(respRender => respRender.json())
             .then(respuestas => {
                 busquedaContratos.innerHTML=`
@@ -139,40 +139,43 @@ const buscarContratoInformacion = async (textIdContrato) => {
                 respuestas.forEach(contrato => {
                     datosContratoDetalle.innerHTML=`
                         <div class="form-group">
-                            <input type="hidden" id="textIdCliente" name="textIdCliente" value="${contrato.CLIENTE_CCONT}">
-                            <input type="hidden" id="textIdContrato" name="textIdContrato" value="${contrato.CONTRATO_CCONT}">
-                            <div class="form-control form-control-sm">${contrato.CONTRATO_CCONT} - ${contrato.NOMBRE}</div>
+                            <input type="hidden" id="textIdCliente" name="textIdCliente" value="${contrato.idTablePk}">
+                            <div id="textCliente" class="form-control form-control-sm">${contrato.CONTRATO_CCONT} - ${contrato.CLIENTE}</div>
                         </div>
                         <div class="row">
                             <div class="form-group col-md-3">
-                                <select class="custom-select custom-select-sm" id="textTipoContrato" name="textTipoContrato"></select>
+                                <div class="custom-select custom-select-sm">${contrato.ESTADO_ESTA}</div>
                             </div>
                             <div class="form-group col-md-3">
-                                <select class="custom-select custom-select-sm" id="textExpContrato" name="textExpContrato"></select>
+                                <div class="custom-select custom-select-sm">${contrato.NOMBRE_MUNIC}</div>
                             </div>
                             <div class="form-group col-md-3">
-                                <select class="custom-select custom-select-sm" id="textPermisos" name="textPermisos"></select>
+                                <div class="custom-select custom-select-sm">${contrato.CODIPOST_CODPOS}</div>
                             </div>
                             <div class="form-group col-md-3">
-                                <select class="custom-select custom-select-sm" id="textDescuento" name="textDescuento"></select>
+                                <select class="custom-select custom-select-sm" id="textColonia" name="textColonia"></select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <input type="text" class="form-control form-control-sm" name="textCalle" id="textCalle" value="${contrato.CALLE_UBIC}" placeholder="Calle"/>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <input type="text" class="form-control form-control-sm" name="textNexte" id="textNexte" value="${contrato.NEXTE_UBIC}" placeholder="N. Ext."/>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <input type="text" class="form-control form-control-sm" name="textNinte" id="textNinte" value="${contrato.NINTE_UBIC}" placeholder="N. Int."/>
                             </div>
                         </div>
                         <div class="form-group">
-                            <textarea class="form-control form-control-sm" rows="5" id="textComentarios" name="textComentarios">${contrato.COMENTS_CCONT}</textarea>
+                            <textarea class="form-control form-control-sm" rows="5" id="textReferencia" name="textReferencia">${contrato.REFERENCIA_UBIC}</textarea>
                         </div>
                     `;
-                    let textTipoContrato = document.querySelector('#textTipoContrato')
-                    let textExpContrato = document.querySelector('#textExpContrato')
-                    let textPermisos = document.querySelector('#textPermisos')
-                    let textDescuento = document.querySelector('#textDescuento')
-                    let tipoSelecto = contrato.TIPO_CCONT;
-                    let modoSelecto = contrato.MODO_CCONT;
-                    let permisoSelecto = contrato.PERMISO_CCONT;
-                    let descuentoSelecto = contrato.DESCUENTO_CCONT
-                    llenarComboContratosSel(textTipoContrato,tipoSelecto);
-                    llenarComboExpedicionSel(textExpContrato,modoSelecto);
-                    llenarComboPermisosSel(textPermisos,permisoSelecto);
-                    llenarComboTarifaSel(textDescuento,descuentoSelecto);
+                    let textColonia = document.querySelector('#textColonia')
+                    let selCodiPostal = contrato.CODIPOSTAL_UBIC;
+                    let selColonia = contrato.COLONIA_UBIC;
+                    llenarComboColoniaSel(selCodiPostal,textColonia,selColonia);
+                    botonActualizar.innerHTML='Actualizar';
                     botonActualizar.classList.remove('d-none');
                 })
             })
@@ -188,10 +191,10 @@ const buscarContratoInformacion = async (textIdContrato) => {
     }
 }
 
-const llenarComboContratosSel = async (textTipoContrato,tipoSelecto) => {
-    try {
-        textTipoContrato.innerHTML='<option value="">Cargando...*</option>'
-        fetch('acatalogos/llenarComboCatContrato')
+const llenarComboColoniaSel = async (selCodiPostal, textColonia, selColonia) => {
+    try{
+        textColonia.innerHTML='<option value="">Colonias</option>';
+        fetch(`catalogos/llenarComboCatColonias/${selCodiPostal}`)
         .then(respRender => respRender.json())
         .then(respuestas => {
             if(respuestas.estatus=='error'){
@@ -199,21 +202,27 @@ const llenarComboContratosSel = async (textTipoContrato,tipoSelecto) => {
                 opcionSelect.setAttribute('value', '');
                 opcionSelect.classList.add('fuente-12p');
                 opcionSelect.innerHTML='Sin Datos';
-                textTipoContrato.appendChild(opcionSelect);
+                textColonia.appendChild(opcionSelect);
             }else{
-                textTipoContrato.innerHTML='<option value="">Tipo Contrato*</option>';
-                respuestas.forEach(estados => {
+                respuestas.forEach(municipios => {
                     const opcionSelect = document.createElement('option');
-                    opcionSelect.setAttribute('value', estados.CLAVE_CONT);
+                    opcionSelect.setAttribute('value', municipios.CLVCOLON_CODPOS);
                     opcionSelect.classList.add('fuente-12p');
-                    if(tipoSelecto==estados.CLAVE_CONT){
-                        opcionSelect.setAttribute('selected','selected');
+                    if(selColonia==municipios.CLVCOLON_CODPOS){
+                        opcionSelect.setAttribute('selected', 'selected');
+                        opcionSelect.innerHTML=municipios.COLONIA_CODPOS;
+                        textColonia.appendChild(opcionSelect);
+                    }else{
+                        opcionSelect.innerHTML=municipios.COLONIA_CODPOS;
+                        textColonia.appendChild(opcionSelect);
                     }
-                    opcionSelect.innerHTML=estados.DESCRIPCION_CONT;
-                    textTipoContrato.appendChild(opcionSelect);
                 });
             }
+            textColonia.addEventListener('change',() => {
+                textCalle.focus();
+            });
         })
+
     } catch (errorAlert) {
         return Swal.fire({
             title: 'Error interno',
@@ -224,127 +233,19 @@ const llenarComboContratosSel = async (textTipoContrato,tipoSelecto) => {
     }
 }
 
-const llenarComboExpedicionSel = async (textExpContrato,modoSelecto) => {
-    try {
-        textExpContrato.innerHTML='<option value="">Cargando...*</option>'
-        fetch('acatalogos/llenarComboCatExpedicion')
-        .then(respRender => respRender.json())
-        .then(respuestas => {
-            if(respuestas.estatus=='error'){
-                const opcionSelect = document.createElement('option');
-                opcionSelect.setAttribute('value', '');
-                opcionSelect.classList.add('fuente-12p');
-                opcionSelect.innerHTML='Sin Datos';
-                textExpContrato.appendChild(opcionSelect);
-            }else{
-                textExpContrato.innerHTML='<option value="">Expedición*</option>';
-                respuestas.forEach(estados => {
-                    const opcionSelect = document.createElement('option');
-                    opcionSelect.setAttribute('value', estados.CLAVE_CEXP);
-                    opcionSelect.classList.add('fuente-12p');
-                    if(modoSelecto==estados.CLAVE_CEXP){
-                        opcionSelect.setAttribute('selected','selected');
-                    }
-                    opcionSelect.innerHTML=estados.DESCRIPCION_CEXP;
-                    textExpContrato.appendChild(opcionSelect);
-                });
-            }
-        })
-    } catch (errorAlert) {
-        return Swal.fire({
-            title: 'Error interno',
-            icon: 'error',
-            confirmButtonColor: '#f43',
-            html: errorAlert.message,
-        })
-    }
-}
-
-const llenarComboPermisosSel = async (textPermisos,permisoSelecto) => {
-    try {
-        textPermisos.innerHTML='<option value="">Cargando...*</option>'
-        fetch('acatalogos/llenarComboCatPermisos')
-        .then(respRender => respRender.json())
-        .then(respuestas => {
-            if(respuestas.estatus=='error'){
-                const opcionSelect = document.createElement('option');
-                opcionSelect.setAttribute('value', '');
-                opcionSelect.classList.add('fuente-12p');
-                opcionSelect.innerHTML='Sin Datos';
-                textPermisos.appendChild(opcionSelect);
-            }else{
-                textPermisos.innerHTML='<option value="">Permisos*</option>';
-                respuestas.forEach(estados => {
-                    const opcionSelect = document.createElement('option');
-                    opcionSelect.setAttribute('value', estados.CLAVE_CPERM);
-                    opcionSelect.classList.add('fuente-12p');
-                    if(permisoSelecto==estados.CLAVE_CPERM){
-                        opcionSelect.setAttribute('selected','selected');
-                    }
-                    opcionSelect.innerHTML=estados.DESCRIPCION_CPERM;
-                    textPermisos.appendChild(opcionSelect);
-                });
-            }
-        })
-    } catch (errorAlert) {
-        return Swal.fire({
-            title: 'Error interno',
-            icon: 'error',
-            confirmButtonColor: '#f43',
-            html: errorAlert.message,
-        })
-    }
-}
-
-const llenarComboTarifaSel = async (textDescuento,descuentoSelecto) => {
-    try {
-        textDescuento.innerHTML='<option value="">Cargando...*</option>'
-        fetch('acatalogos/llenarComboCatTarifa')
-        .then(respRender => respRender.json())
-        .then(respuestas => {
-            if(respuestas.estatus=='error'){
-                const opcionSelect = document.createElement('option');
-                opcionSelect.setAttribute('value', '');
-                opcionSelect.classList.add('fuente-12p');
-                opcionSelect.innerHTML='Sin Datos';
-                textDescuento.appendChild(opcionSelect);
-            }else{
-                textDescuento.innerHTML='<option value="">Tarifa*</option>';
-                respuestas.forEach(estados => {
-                    const opcionSelect = document.createElement('option');
-                    opcionSelect.setAttribute('value', estados.CLAVE_CTARI);
-                    opcionSelect.classList.add('fuente-12p');
-                    if(descuentoSelecto==estados.CLAVE_CTARI){
-                        opcionSelect.setAttribute('selected','selected');
-                    }
-                    opcionSelect.innerHTML=estados.DESCRIPCION_CTARI;
-                    textDescuento.appendChild(opcionSelect);
-                });
-            }
-        })
-    } catch (errorAlert) {
-        return Swal.fire({
-            title: 'Error interno',
-            icon: 'error',
-            confirmButtonColor: '#f43',
-            html: errorAlert.message,
-        })
-    }
-}
-
-const actualizarRegistroContrato = async () => {
-    try {
-        let datosContratoDetalle = document.querySelector('#datosContratoDetalle');
-        if(validarCliente() && validarContrato() && validarTipoContrato() && validarExpContrato() && validarPermisos() &&
-        validarDescuento() && validarComentarios()){
+const actualizarUbicacionContrato = async () => {
+    try{
+        if(validarCliente() && validarColonia() && validarCalle() && validarNexter() && validarNinter() && validarReferen()){
+            let datosContratoDetalle = document.querySelector('#datosContratoDetalle');
+            botonActualizar.innerHTML='Espere...'+cargaAnimacion;
             const crearDatos = new FormData(datosContratoDetalle);
-            fetch('amodcontrato/actualizarContratoDetalle', {
+            fetch('amodubicacio/actualizarUbicacion', {
                 method: 'POST',
                 body: crearDatos,
             })
             .then(respRender => respRender.json())
             .then(respuestas => {
-                if(respuestas.estatus=='error' || respuestas.estatus=='invalido' || respuestas.estatus=='duplicado' || respuestas.estatus=='nosesion'){
+                if(respuestas.estatus=='error' || respuestas.estatus=='invalido' || respuestas.estatus=='duplicado'){
                     return Swal.fire({
                         title: respuestas.title,
                         icon: respuestas.icon,
@@ -353,16 +254,18 @@ const actualizarRegistroContrato = async () => {
                         html: respuestas.text,
                     });
                 }else{
+                    botonActualizar.innerHTML='Actualizado';
                     return Swal.fire({
                         title: respuestas.title,
                         icon: respuestas.icon,
                         confirmButtonText: respuestas.button,
                         confirmButtonColor: '#009C06',
                         html: respuestas.text,
-                    }).then((result) => {
-                        if((result.isConfirmed)){
-                            datosContratoDetalle.innerHTML='';
+                    })
+                    .then((result) => {
+                        if(result.isConfirmed){
                             botonActualizar.classList.add('d-none');
+                            datosContratoDetalle.innerHTML='';
                         }
                     })
                 }
@@ -378,10 +281,10 @@ const actualizarRegistroContrato = async () => {
     }
 }
 
-
 function validarCliente(){
-    let inputForm = document.querySelector("#textIdCliente");
-    if(inputForm.value==null || inputForm.value==''){
+    let textIdCliente = document.querySelector("#textIdCliente");
+    let inputForm = document.querySelector("#textCliente");
+    if(textIdCliente.value==null || textIdCliente.value==''){
         Swal.fire({
             title: 'Campo Inválido',
             confirmButtonText: 'Revisar',
@@ -400,15 +303,15 @@ function validarCliente(){
 
 }
 
-function validarContrato(){
-    let inputForm = document.querySelector("#textIdContrato");
+function validarColonia(){
+    let inputForm = document.querySelector("#textColonia");
     if(inputForm.value==null || inputForm.value==''){
         Swal.fire({
             title: 'Campo Inválido',
             confirmButtonText: 'Revisar',
             confirmButtonColor: '#9C0000',
             icon: 'error',
-            text: 'Contrato es requerido',
+            text: 'Colonia es requerido',
         }).then((result)=>{
             if(result.isConfirmed){
                 inputError(inputForm);
@@ -421,15 +324,41 @@ function validarContrato(){
 
 }
 
-function validarTipoContrato(){
-    let inputForm = document.querySelector("#textTipoContrato");
+function validarCalle(){
+    let inputForm = document.querySelector("#textCalle");
     if(inputForm.value==null || inputForm.value==''){
         Swal.fire({
             title: 'Campo Inválido',
             confirmButtonText: 'Revisar',
             confirmButtonColor: '#9C0000',
             icon: 'error',
-            text: 'T. Contrato es requerido',
+            text: 'Calle es requerido',
+        }).then((result)=>{
+            if(result.isConfirmed){
+                inputError(inputForm);
+            }
+        })
+        return false;
+    }else if (inputForm.length < 3) {
+        Swal.fire({
+            title: 'Campo Inválido',
+            confirmButtonText: 'Revisar',
+            confirmButtonColor: '#9C0000',
+            icon: 'error',
+            text: 'Calle min 3 caracteres',
+        }).then((result)=>{
+            if(result.isConfirmed){
+                inputError(inputForm);
+            }
+        })
+        return false;
+    }else if (inputForm.length > 40) {
+        Swal.fire({
+            title: 'Campo Inválido',
+            confirmButtonText: 'Revisar',
+            confirmButtonColor: '#9C0000',
+            icon: 'error',
+            text: 'Calle máx 40 caracteres',
         }).then((result)=>{
             if(result.isConfirmed){
                 inputError(inputForm);
@@ -442,15 +371,41 @@ function validarTipoContrato(){
 
 }
 
-function validarExpContrato(){
-    let inputForm = document.querySelector("#textExpContrato");
+function validarNexter(){
+    let inputForm = document.querySelector("#textNexte");
     if(inputForm.value==null || inputForm.value==''){
         Swal.fire({
             title: 'Campo Inválido',
             confirmButtonText: 'Revisar',
             confirmButtonColor: '#9C0000',
             icon: 'error',
-            text: 'Expedición requerido',
+            text: 'N. Ext. es requerido',
+        }).then((result)=>{
+            if(result.isConfirmed){
+                inputError(inputForm);
+            }
+        })
+        return false;
+    }else if (inputForm.length < 3) {
+        Swal.fire({
+            title: 'Campo Inválido',
+            confirmButtonText: 'Revisar',
+            confirmButtonColor: '#9C0000',
+            icon: 'error',
+            text: 'N. Ext. min 3 caracteres',
+        }).then((result)=>{
+            if(result.isConfirmed){
+                inputError(inputForm);
+            }
+        })
+        return false;
+    }else if (inputForm.length > 40) {
+        Swal.fire({
+            title: 'Campo Inválido',
+            confirmButtonText: 'Revisar',
+            confirmButtonColor: '#9C0000',
+            icon: 'error',
+            text: 'N. Ext. máx 40 caracteres',
         }).then((result)=>{
             if(result.isConfirmed){
                 inputError(inputForm);
@@ -463,15 +418,28 @@ function validarExpContrato(){
 
 }
 
-function validarPermisos(){
-    let inputForm = document.querySelector("#textPermisos");
-    if(inputForm.value==null || inputForm.value==''){
+function validarNinter(){
+    let inputForm = document.querySelector("#textNinte");
+    if(inputForm.length < 3) {
         Swal.fire({
             title: 'Campo Inválido',
             confirmButtonText: 'Revisar',
             confirmButtonColor: '#9C0000',
             icon: 'error',
-            text: 'Permisos es requerido',
+            text: 'N. Int. min 3 caracteres',
+        }).then((result)=>{
+            if(result.isConfirmed){
+                inputError(inputForm);
+            }
+        })
+        return false;
+    }else if (inputForm.length > 40) {
+        Swal.fire({
+            title: 'Campo Inválido',
+            confirmButtonText: 'Revisar',
+            confirmButtonColor: '#9C0000',
+            icon: 'error',
+            text: 'N. Int. máx 40 caracteres',
         }).then((result)=>{
             if(result.isConfirmed){
                 inputError(inputForm);
@@ -484,36 +452,15 @@ function validarPermisos(){
 
 }
 
-function validarDescuento(){
-    let inputForm = document.querySelector("#textDescuento");
-    if(inputForm.value==null || inputForm.value==''){
+function validarReferen(){
+    let inputForm = document.querySelector("#textReferencia");
+    if (inputForm.length > 80) {
         Swal.fire({
             title: 'Campo Inválido',
             confirmButtonText: 'Revisar',
             confirmButtonColor: '#9C0000',
             icon: 'error',
-            text: 'Tarifa es requerido',
-        }).then((result)=>{
-            if(result.isConfirmed){
-                inputError(inputForm);
-            }
-        })
-        return false;
-    }
-    inputValido(inputForm);
-    return true;
-
-}
-
-function validarComentarios(){
-    let inputForm = document.querySelector("#textComentarios");
-    if (inputForm.length > 250) {
-        Swal.fire({
-            title: 'Campo Inválido',
-            confirmButtonText: 'Revisar',
-            confirmButtonColor: '#9C0000',
-            icon: 'error',
-            text: 'N. Int. máx 250 caracteres',
+            text: 'N. Int. máx 80 caracteres',
         }).then((result)=>{
             if(result.isConfirmed){
                 inputError(inputForm);

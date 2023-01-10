@@ -1647,72 +1647,6 @@ class Matramites extends Model
         }
     }
 
-    public function imprimirDatosReciboTransferencia($id)
-    {
-        try {
-            $parametro=explode('_',$id);
-            $builder=$this->dbBuild->table('sys_clientes_transferencias');
-            $builder->select("FOLIO_TRANS, FTRANS_TRANS, HORACAP_TRANS, CONTRATO_TRANS,
-            CONCAT(a.NOMBRE_CLIEN,' ',a.APATERNO_CLIEN,' ',a.AMATERNO_CLIEN) AS NOMBREALTA, a.CODBARR_CLIEN AS CODBARRALTA,
-            CONCAT(a.CALLE_CLIEN,' ',a.NEXTE_CLIEN,' ',a.NINTE_CLIEN) AS DOMICILIOALTA, a.SEXO_CLIEN AS SEXOALTA,
-            CONCAT(b.NOMBRE_CLIEN,' ',b.APATERNO_CLIEN,' ',b.AMATERNO_CLIEN) AS NOMBREBAJA, b.CODBARR_CLIEN AS CODBARRBAJA,
-            CONCAT(b.CALLE_CLIEN,' ',b.NEXTE_CLIEN,' ',b.NINTE_CLIEN) AS DOMICILIOBAJA, b.SEXO_CLIEN AS SEXOBAJA,
-            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_CODPOS,', C.P. ',CODIPOST_CODPOS,', ',NOMBRE_MUNIC) AS DOMICILIOCONTRATO,
-            DESCRIPCION_CONT, DESCRIPCION_CEXP, DESCRIPCION_CPERM, DESCRIPCION_CTARI,COMENTS_TRANS
-            ");
-            $builder->join('sys_clientes a','a.IDUSUA_CLIEN=CLIENALTA_TRANS');
-            $builder->join('sys_clientes b','b.IDUSUA_CLIEN=CLIENBAJA_TRANS');
-            $builder->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_TRANS');
-            $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
-            $builder->join('cat_colonias','CLVCOLON_CODPOS=COLONIA_UBIC');
-            $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
-            $builder->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
-            $builder->join('cat_contratosExpedicion','CLAVE_CEXP=MODO_CCONT');
-            $builder->join('cat_contratosPermisos','CLAVE_CPERM=PERMISO_CCONT');
-            $builder->join('cat_contratosTarifas','CLAVE_CTARI=DESCUENTO_CCONT');
-            $builder->where('CONTRATO_TRANS',$parametro[0]);
-            $builder->where('CLIENBAJA_TRANS',$parametro[1]);
-            $builder->where('CLIENALTA_TRANS',$parametro[2]);
-            $builder->groupBy('CONTRATO_TRANS');
-            $resultado=$builder->get();
-
-            if($resultado->getNumRows()>0){
-                $transfer= $resultado->getResultArray();
-            }
-            $buildera=$this->dbBuild->table('sys_responsables');
-            $buildera->select("CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS NOMBRE, SEXO_RESPO, DESCRIPHOM_PUESTO, DESCRIPMUJ_PUESTO");
-            $buildera->join('cat_puestos','CLAVE_PUESTO=PUESTO_RESPO');
-            $buildera->where('PUESTO_RESPO','COMIPRESI');
-            $buildera->where('ESTATUS_RESPO','ACTI');
-            $resultado0=$buildera->get();
-
-            if($resultado0->getNumRows()>0){
-                $presid= $resultado0->getResultArray();
-            }
-
-            $builderb=$this->dbBuild->table('sys_responsables');
-            $builderb->select("CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS NOMBRE, SEXO_RESPO, DESCRIPHOM_PUESTO, DESCRIPMUJ_PUESTO");
-            $builderb->join('cat_puestos','CLAVE_PUESTO=PUESTO_RESPO');
-            $builderb->where('PUESTO_RESPO','COMITESOR');
-            $builderb->where('ESTATUS_RESPO','ACTI');
-            $resultado1=$builderb->get();
-
-            if($resultado1->getNumRows()>0){
-                $tesore= $resultado1->getResultArray();
-            }
-
-            return [
-                $transfer,
-                $presid,
-                $tesore,
-            ];
-
-
-        } catch (Exception $errorElement) {
-            return json_encode($errorElement.message());
-        }
-    }
-
     public function llenarDatosTablaContratoBaja($id)
     {
         try {
@@ -1971,6 +1905,70 @@ class Matramites extends Model
                 $comite,
                 // $arreglo,
             ];
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+    }
+
+    public function llenarDatosTablaUbicacionModificar($id)
+    {
+        try {
+            $parametros=explode('_',$id);
+            $builder=$this->dbBuild->table('sys_clientes');
+            $builder->select("CONCAT(IDUSUA_CLIEN,'_',CONTRATO_CCONT,'_',UBICA_CCONT) AS idTablePk, CONTRATO_CCONT, 
+            CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS CLIENTE,ESTADO_ESTA,NOMBRE_MUNIC,CODIPOSTAL_UBIC, 
+            CODIPOST_CODPOS,COLONIA_UBIC,CALLE_UBIC,NEXTE_UBIC,NINTE_UBIC,REFERENCIA_UBIC");
+            $builder->join('sys_clientes_contratos','IDUSUA_CLIEN=CLIENTE_CCONT');
+            $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
+            $builder->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
+            $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
+            $builder->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->where('IDUSUA_CLIEN',$parametros[0]);
+            $builder->where('CONTRATO_CCONT',$parametros[1]);
+            $builder->where('ESTATUS_CLIEN','ACTI');
+            $builder->groupBy('CONTRATO_CCONT');
+            $resultado=$builder->get();
+            if($resultado->getNumRows()>0){
+                log_message('info','[MODUBICACION|Async/Q] Generando datos desde consulta para continuar edición de usuario');
+                return $resultado->getResultArray();
+
+            }
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function actualizarDatosUbicacion($datosParaGuardar)
+    {
+        try {
+            $parametro=explode('_',$datosParaGuardar[1]);
+            $log_extra=[
+                'captur'=>$datosParaGuardar[0],
+                'user'=>$parametro[0],
+                'argu'=>$parametro[1],
+                'arg1'=>$parametro[2],
+            ];
+            $setActualizarUbicacion=[
+                'COLONIA_UBIC'=>$datosParaGuardar[2],
+                'CALLE_UBIC'=>$datosParaGuardar[3],
+                'NEXTE_UBIC'=>$datosParaGuardar[4],
+                'NINTE_UBIC'=>$datosParaGuardar[5],
+                'REFERENCIA_UBIC'=>$datosParaGuardar[6],
+                'IDMODIF_UBIC'=>$datosParaGuardar[0],
+                'FMODIF_UBIC'=>date('Y-m-d'),
+            ];
+            $builder=$this->dbBuild->table('sys_clientes_ubicaciones');
+            $builder->where('IDUSUA_UBIC',$parametro[0]);
+            $builder->where('IDUBIC_UBIC',$parametro[2]);
+            $builder->where('ESTATUS_UBIC','ACTI');
+            $builder->set($setActualizarUbicacion);
+            $builder->update($setActualizarUbicacion);
+            log_message('notice','[MODUBICACION|Async] {captur} ha actualizado la ubicación de {arg1}.',$log_extra);
+            
+            return true;
 
         } catch (Exception $errorElement) {
             return json_encode($errorElement.message());
