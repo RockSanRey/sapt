@@ -159,8 +159,17 @@ class Macobros extends Model
                 $resultado5=$builderg->get();
                 if(!$resultado5->getNumRows()>0){
                     log_message('info','[PAGOSERVICIO|Async/Q] No hay multas detectadas para {user}', $log_extra);
-    
-                    $builderd=$this->dbBuild->query("
+                    $builderh=$this->dbBuild->table('sys_clientes_detalles');
+                    $builderh->select("CODIGO_DETA, ESTATUS_DETA");
+                    $builderh->where('CODIGO_DETA',$datosRevisar[3]);
+                    $builderh->where('USUARIO_DETA', $parametros[0]);
+                    $builderh->where('CONTRATO_DETA', $parametros[1]);
+                    $builderh->like('FECHACAP_DETA',date('Y'),'after');
+                    $resultados6=$builderh->get();
+                    if($resultados6->getNumRows()>0){
+                        log_message('info','[PAGOSERVICIO|Async/Q] Ya esta agregada condonación de mes enero para {user}', $log_extra);                    
+                    }else{
+                        $builderd=$this->dbBuild->query("
                         INSERT INTO sys_clientes_detalles(
                             `FECHACAP_DETA`,
                             `HORACAP_DETA`,
@@ -175,25 +184,27 @@ class Macobros extends Model
                             `FMODIF_DETA`,
                             `ESTATUS_DETA`
                         )
-                        SELECT
-                        curdate(),
-                        curtime(),
-                        '".$datosRevisar[0]."',
-                        '".$parametros[0]."',
-                        '".$parametros[1]."',
-                        CLAVE_CONC,
-                        '1',
-                        COSTO_CONC,
-                        COSTO_CONC,
-                        '".$datosRevisar[0]."',
-                        curdate(),
-                        'ADEU'
-                        FROM cat_conceptos
-                        WHERE
-                        CLAVE_CONC like '".$datosRevisar[3]."' AND
-                        ESTATUS_CONC='ACTI'
-                    ");
-                    log_message('info','[PAGOSERVICIO|Async/Q] Creando condonación de mes enero para pagar de {user}', $log_extra);
+                            SELECT
+                            curdate(),
+                            curtime(),
+                            '".$datosRevisar[0]."',
+                            '".$parametros[0]."',
+                            '".$parametros[1]."',
+                            CLAVE_CONC,
+                            '1',
+                            COSTO_CONC,
+                            COSTO_CONC,
+                            '".$datosRevisar[0]."',
+                            curdate(),
+                            'ADEU'
+                            FROM cat_conceptos
+                            WHERE
+                            CLAVE_CONC like '".$datosRevisar[3]."' AND
+                            ESTATUS_CONC='ACTI'
+                        ");
+                        log_message('info','[PAGOSERVICIO|Async/Q] Creando condonación de mes enero para pagar de {user}', $log_extra);
+
+                    }
     
                 }
     
@@ -338,6 +349,75 @@ class Macobros extends Model
             log_message('notice','[PAGOSERVICIO|Async/Q] {user} agrego concepto {item} al pedido de {item2}', $log_extra);
 
             return true;
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function buscarDuplicadosAnticiposDetalle($datosParaAgregar)
+    {
+        try {
+            $parametros = explode('_',$datosParaAgregar[1]);
+
+            $builder=$this->dbBuild->table('sys_clientes_detalles');
+            $builder->select("CODIGO_DETA, DESCRIPCION_CONC, COSTO_DETA");
+            $builder->join('cat_conceptos','CODIGO_DETA=CLAVE_CONC');
+            $builder->where('USUARIO_DETA',$parametros[0]);
+            $builder->where('CONTRATO_DETA',$parametros[1]);
+            $builder->whereIn('CODIGO_DETA',$datosParaAgregar[2]);
+            $builder->whereIn('ESTATUS_DETA',['ADEU','PAGA']);
+            $resultado=$builder->get();
+            return $resultado->getResultArray();
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function agregarDatosAnticiposDetalle($datosParaAgregar)
+    {
+        try {
+            $parametros = explode('_',$datosParaAgregar[1]);
+
+            $log_extra=[
+                'user'=>$datosParaAgregar[0],
+                'item'=>$datosParaAgregar[2],
+                'item2'=>$parametros[1],
+            ];
+
+            $builder=$this->dbBuild->table('cat_conceptos');
+            $builder->select("CLAVE_CONC, COSTO_CONC");
+            $builder->whereIn('CLAVE_CONC', $datosParaAgregar[2]);
+            $builder->where('ESTATUS_CONC','ACTI');
+            $resultado0=$builder->get();
+            if($resultado0->getNumRows()>0){
+                log_message('info','[PAGOSERVICIO|Async/Q] Generando datos para aplicar el costo del anticipo agregado');
+                $setCreaDetalle=[];
+                foreach($resultado0->getResultArray() as $filas){
+                    $setCreaDetalle[]=
+                        ['FECHACAP_DETA'=>date('Y-m-d'),
+                        'HORACAP_DETA'=>date('H:i:s'),
+                        'CAPTURA_DETA'=>$datosParaAgregar[0],
+                        'USUARIO_DETA'=>$parametros[0],
+                        'CONTRATO_DETA'=>$parametros[1],
+                        'CODIGO_DETA'=>$filas['CLAVE_CONC'],
+                        'CANTIDAD_DETA'=>'1',
+                        'COSTO_DETA'=>$filas['COSTO_CONC'],
+                        'TOTAL_DETA'=>$filas['COSTO_CONC'],
+                        'IDMODIF_DETA'=>$datosParaAgregar[0],
+                        'FMODIF_DETA'=>date('Y-m-d'),
+                        'ESTATUS_DETA'=>'ADEU',
+                        ];
+                }
+                $buildera=$this->dbBuild->table('sys_clientes_detalles');
+                $buildera->insertBatch($setCreaDetalle);
+                log_message('notice','[PAGOSERVICIO|Async/Q] {user} agrego anticipo {item} al pedido de {item2}', $log_extra);
+
+                return true;
+            }
 
         } catch (Exception $errorElement) {
             return json_encode($errorElement.message());

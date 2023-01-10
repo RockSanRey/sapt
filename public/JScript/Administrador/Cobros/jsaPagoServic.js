@@ -193,6 +193,9 @@ const buscarUsuarioInformacion = async (textIdUsuario) => {
                                         <div class="input-group-append">
                                             <button id="botonAgregarAnticipo" class="btn btn-outline-success btn-sm" disabled>Adenlantar Meses <i class="fas fa-plus"></i></button>
                                         </div>
+                                        <div class="input-group-append">
+                                            <button id="botonMostrarHistorial" class="btn btn-outline-success btn-sm" disabled>Mostrar Historial <i class="fas fa-clock"></i></button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -392,7 +395,7 @@ const buscarDetallePagos = async (botonVerConceptos) => {
                         botonHistorico.setAttribute('datahistor',idBusqueda);
                         botonHistorico.setAttribute('data-toggle','modal');
                         botonHistorico.setAttribute('data-target','#formCobroDeuda');
-                        botonHistorico.innerHTML='<i class="fas fa-eye"></i> Ver Histórico';
+                        botonHistorico.innerHTML='Mostrar Historial <i class="fas fa-clock"></i>';
                         botonHistorico.addEventListener('click', () => {
                             verHistoricoPagado(botonHistorico);
                         })
@@ -409,6 +412,16 @@ const buscarDetallePagos = async (botonVerConceptos) => {
                         botonAgregarAnticipo.removeAttribute('disabled');
                         botonCobrar.classList.remove('d-none');
                         botonParcial.classList.remove('d-none');
+                        const botonHistorico = document.querySelector('#botonMostrarHistorial');
+                        botonHistorico.classList.add('btn','btn-light','btn-sm');
+                        botonHistorico.removeAttribute('disabled','disabled');
+                        botonHistorico.setAttribute('datahistor',idBusqueda);
+                        botonHistorico.setAttribute('data-toggle','modal');
+                        botonHistorico.setAttribute('data-target','#formCobroDeuda');
+                        botonHistorico.innerHTML='<i class="fas fa-eye"></i> Ver Histórico';
+                        botonHistorico.addEventListener('click', () => {
+                            verHistoricoPagado(botonHistorico);
+                        })
 
                         respuestas[0].forEach(detallePago => {
                             const filasDetalles = document.createElement('tr');
@@ -630,7 +643,7 @@ const agregarMesesAnticipados = async () => {
             textMovimiento: textMovimiento.value,
             adelantos: adelantosTemporal,
         }
-        fetch('pagoservicio/agregarAnticiposDetalle', {
+        fetch('apagoservic/agregarAnticiposDetalle', {
             method: 'POST',
             body: JSON.stringify(datosAdelantos),
             headers: {
@@ -1027,7 +1040,20 @@ const cargarTotalPagoCobro = async (textMovimiento) => {
                                 html: 'Seleccione un método de pago a utilizar.',
                             })
                         }else if(textRecibo.value=='' || textRecibo.value==null){
-                        }else if(textRecibo.value < textTotal.value){
+                            textCambio.value='';
+                            return Swal.fire({
+                                title: 'Campo no válido',
+                                icon: 'warning',
+                                confirmButtonColor: '#9C0000',
+                                confirmButtonText: 'Verificar',
+                                html: 'Debe poner cuanto dinero recibe para pagar.',
+                            })
+                        }else if(!textRecibo.value=='' || textRecibo.value==null){
+                            reciboMoney = textRecibo.value
+                            textRecibo.value=parseFloat(reciboMoney).toFixed(2);
+                            calculoCambio = parseFloat(textRecibo.value)-parseFloat(textTotal.value);
+                            textCambio.value=parseFloat(calculoCambio).toFixed(2);
+                        }else if(textTotal.value > textRecibo.value){
                             return Swal.fire({
                                 title: 'Campo no válido',
                                 icon: 'warning',
@@ -1035,9 +1061,6 @@ const cargarTotalPagoCobro = async (textMovimiento) => {
                                 confirmButtonText: 'Verificar',
                                 html: 'No se puede recibir menos dinero de lo que debe.',
                             })
-                        }else{
-                            calculoCambio = parseFloat(textRecibo.value)-parseFloat(textTotal.value);
-                            textCambio.value=parseFloat(calculoCambio).toFixed(2);
                         }
                     })
                 })
@@ -1178,7 +1201,7 @@ const pagarDeudaCompleta = async () => {
                                 columnaAcciones.appendChild(grupoAcciones);
                                 filaTablaReciboPago.appendChild(columnaAcciones);
                                 cuerpoTablaReciboPago.appendChild(filaTablaReciboPago);
-
+                                imprimirReciboPago(botonImprimirRecibo)
                             })
                             tablaReciboPago.appendChild(cuerpoTablaReciboPago);
                             datosUsuarioDetalle.innerHTML='';
@@ -1477,6 +1500,19 @@ const cargarParcialPagoCobro = async () => {
                     html: 'Seleccione un método de pago a utilizar.',
                 })
             }else if(textRecibo.value=='' || textRecibo.value==null){
+                textCambio.value='';
+                return Swal.fire({
+                    title: 'Campo no válido',
+                    icon: 'warning',
+                    confirmButtonColor: '#9C0000',
+                    confirmButtonText: 'Verificar',
+                    html: 'Debe poner cuanto dinero recibe para pagar.',
+                })
+            }else if(!textRecibo.value=='' || textRecibo.value==null){
+                reciboMoney = textRecibo.value
+                textRecibo.value=parseFloat(reciboMoney).toFixed(2);
+                calculoCambio = parseFloat(textRecibo.value)-parseFloat(textTotal.value);
+                textCambio.value=parseFloat(calculoCambio).toFixed(2);
             }else if(textRecibo.value < textTotal.value){
                 return Swal.fire({
                     title: 'Campo no válido',

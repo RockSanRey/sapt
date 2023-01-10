@@ -189,6 +189,61 @@ class Cobros extends BaseController
         }
     }
 
+    public function agregarAnticiposDetalle()
+    {
+        $log_extra=[
+            'user'=>session()->get('IDCLIENTE'),
+        ];
+        log_message('info','[PAGOSERVICIO|Async] Verificando el método de envio para continuar proceso guardar');
+        if($this->request->getMethod('POST')){
+            $camposJson=json_decode($this->request->getBody());
+            $datosParaAgregar=[
+                $captura = session()->get('IDCLIENTE'),
+                $textMovimiento = $camposJson->textMovimiento,
+                $adelantos = $camposJson->adelantos,
+            ];
+            log_message('notice','[PAGOSERVICIO|Async] {user} esta intentando grabar registros en usuarios.', $log_extra);
+            log_message('info','[PAGOSERVICIO|Async] Enviando datos verificar duplicidad');
+            if($datosDuplicados=$this->modeloCobros->buscarDuplicadosAnticiposDetalle($datosParaAgregar)){
+                log_message('info','[PAGOSERVICIO|Async] Retorno de datos esperando respuesta');
+                $swalMensajes=[
+                    'title'=>'Advertencia',
+                    'button'=>'Entendido',
+                    'icon'=>'warning',
+                    'text'=>'Existen registros con la misma clave, revise sus datos.',
+                    'estatus'=>'duplicado',
+                ];
+                return json_encode($swalMensajes);
+
+            }else {
+                log_message('info','[PAGOSERVICIO|Async] No se detecto registros duplicados.');
+                if($this->modeloCobros->agregarDatosAnticiposDetalle($datosParaAgregar)){
+                    log_message('info','[PAGOSERVICIO|Async] Los registros se grabaron correctamente, notificando.');
+                    $swalMensajes=[
+                        'title'=>'Agregado',
+                        'button'=>'Ok',
+                        'icon'=>'success',
+                        'text'=>'El mes anticipado se agrego correctamente.',
+                        'estatus'=>'agrego',
+                    ];
+
+                    return json_encode($swalMensajes);
+                }else {
+                    log_message('info','[PAGOSERVICIO|Async] Ocurrio un error al guardar los datos, notificando');
+                    $swalMensajes=[
+                        'title'=>'Error Servidor',
+                        'button'=>'Ok',
+                        'icon'=>'error',
+                        'text'=>'Ocurro un error al guardar los datos.',
+                        'estatus'=>'error',
+                    ];
+
+                    return json_encode($swalMensajes);
+                }
+            }
+        }
+    }
+
     public function eliminarDetallesPago($id)
     {
         log_message('info','[PAGOSERVICIO|Async] Comprobando sesión iniciada en el sistema.');
