@@ -466,7 +466,7 @@ const armarMenuPerfilEditar = async (rolesSelecionados) => {
         .then(respRender => respRender.json())
         .then(respuestas => {
             const listadoUl=document.createElement('ul');
-            listadoUl.classList.add('menu-vertical-edit')
+            listadoUl.classList.add('menu-vertical-edit','fuente-12p')
                 respuestas[0].forEach(respuesta => {
                     const listadoItemUl=document.createElement('li');
                     listadoItemUl.setAttribute('menu-item-select',respuesta.IDMENU_MENA);
@@ -514,18 +514,18 @@ const armarMenuPerfilEditar = async (rolesSelecionados) => {
                                                             `;
                                                         }else {
                                                             if(rolesSelecionados.includes(respuestd.IDSBMENUO_MEND)){
-                                                                listadoItemUlC.innerHTML=`<a class="margen-izq-40 p-0">
+                                                                listadoItemUlC.innerHTML=`<a class="margen-izq-40">
                                                                 <input type="checkbox" name="menuRoles[]" id="${respuestd.IDSBMENUO_MEND}" value="${respuestd.IDSBMENUO_MEND}" checked="checked">
-                                                                <label for="${respuestd.IDSBMENUO_MEND}" class="mb-0 p-2 col-10">
+                                                                <label for="${respuestd.IDSBMENUO_MEND}" class="mb-0 p-0 col-10">
                                                                 <i class="${respuestd.CLASS_MEND}"></i>
                                                                 ${respuestd.DESCRIP_MEND}  - ${respuestd.IDSBMENUO_MEND}
                                                                 </label>
                                                                 </a>
                                                                 `;
                                                             }else {
-                                                                listadoItemUlC.innerHTML=`<a class="margen-izq-40 p-0">
+                                                                listadoItemUlC.innerHTML=`<a class="margen-izq-40">
                                                                 <input type="checkbox" name="menuRoles[]" id="${respuestd.IDSBMENUO_MEND}" value="${respuestd.IDSBMENUO_MEND}">
-                                                                <label for="${respuestd.IDSBMENUO_MEND}" class="mb-0 p-2 col-10">
+                                                                <label for="${respuestd.IDSBMENUO_MEND}" class="mb-0 p-0 col-10">
                                                                 <i class="${respuestd.CLASS_MEND}"></i>
                                                                 ${respuestd.DESCRIP_MEND}  - ${respuestd.IDSBMENUO_MEND}
                                                                 </label>
@@ -539,18 +539,18 @@ const armarMenuPerfilEditar = async (rolesSelecionados) => {
                                                 });
                                             }else {
                                                 if(rolesSelecionados.includes(respuestc.IDSBMENU_MENC)){
-                                                    listadoItemUlB.innerHTML=`<a class="margen-izq-30 p-0">
+                                                    listadoItemUlB.innerHTML=`<a class="margen-izq-30">
                                                     <input type="checkbox" name="menuRoles[]" id="${respuestc.IDSBMENU_MENC}" value="${respuestc.IDSBMENU_MENC}" checked="checked">
-                                                    <label for="${respuestc.IDSBMENU_MENC}" class="mb-0 p-2 col-10">
+                                                    <label for="${respuestc.IDSBMENU_MENC}" class="mb-0 p-0 col-10">
                                                     <i class="${respuestc.CLASS_MENC}"></i>
                                                     ${respuestc.DESCRIP_MENC}  - ${respuestc.IDSBMENU_MENC}
                                                     </label>
                                                     </a>
                                                     `;
                                                 }else {
-                                                    listadoItemUlB.innerHTML=`<a class="margen-izq-30 p-0">
+                                                    listadoItemUlB.innerHTML=`<a class="margen-izq-30">
                                                     <input type="checkbox" name="menuRoles[]" id="${respuestc.IDSBMENU_MENC}" value="${respuestc.IDSBMENU_MENC}">
-                                                    <label for="${respuestc.IDSBMENU_MENC}" class="mb-0 p-2 col-10">
+                                                    <label for="${respuestc.IDSBMENU_MENC}" class="mb-0 p-0 col-10">
                                                     <i class="${respuestc.CLASS_MENC}"></i>
                                                     ${respuestc.DESCRIP_MENC}  - ${respuestc.IDSBMENU_MENC}
                                                     </label>
@@ -564,18 +564,18 @@ const armarMenuPerfilEditar = async (rolesSelecionados) => {
                                     });
                                 }else {
                                     if(rolesSelecionados.includes(respuestb.IDSMENU_MENB)){
-                                        listadoItemUlA.innerHTML=`<a class="margen-izq-20 p-0">
+                                        listadoItemUlA.innerHTML=`<a class="margen-izq-20">
                                         <input type="checkbox" name="menuRoles[]" id="${respuestb.IDSMENU_MENB}" value="${respuestb.IDSMENU_MENB}" checked="checked">
-                                        <label for="${respuestb.IDSMENU_MENB}" class="mb-0 p-2 col-10">
+                                        <label for="${respuestb.IDSMENU_MENB}" class="mb-0 p-0 col-10">
                                         <i class="${respuestb.CLASS_MENB}"></i>
                                         ${respuestb.DESCRIP_MENB}  - ${respuestb.IDSMENU_MENB}
                                         </label>
                                         </a>
                                         `;
                                     }else {
-                                        listadoItemUlA.innerHTML=`<a class="margen-izq-20 p-0">
+                                        listadoItemUlA.innerHTML=`<a class="margen-izq-20">
                                         <input type="checkbox" name="menuRoles[]" id="${respuestb.IDSMENU_MENB}" value="${respuestb.IDSMENU_MENB}">
-                                        <label for="${respuestb.IDSMENU_MENB}" class="mb-0 p-2 col-10">
+                                        <label for="${respuestb.IDSMENU_MENB}" class="mb-0 p-0 col-10">
                                         <i class="${respuestb.CLASS_MENB}"></i>
                                         ${respuestb.DESCRIP_MENB}  - ${respuestb.IDSMENU_MENB}
                                         </label>
@@ -591,7 +591,7 @@ const armarMenuPerfilEditar = async (rolesSelecionados) => {
                         if(rolesSelecionados.includes(respuesta.IDMENU_MENA)){
                             listadoItemUl.innerHTML=`<a class="p-0">
                             <input type="checkbox" name="menuRoles[]" id="${respuesta.IDMENU_MENA}" value="${respuesta.IDMENU_MENA}" checked="checked">
-                            <label for="${respuesta.IDMENU_MENA}" class="mb-0 p-2 col-10">
+                            <label for="${respuesta.IDMENU_MENA}" class="mb-0 p-0 col-10">
                             <i class="${respuesta.CLASS_MENA}"></i>
                             ${respuesta.DESCRIP_MENA}  - ${respuesta.IDMENU_MENA}
                             </label>
@@ -600,7 +600,7 @@ const armarMenuPerfilEditar = async (rolesSelecionados) => {
                         }else {
                             listadoItemUl.innerHTML=`<a class="p-0">
                             <input type="checkbox" name="menuRoles[]" id="${respuesta.IDMENU_MENA}" value="${respuesta.IDMENU_MENA}">
-                            <label for="${respuesta.IDMENU_MENA}" class="mb-0 p-2 col-10">
+                            <label for="${respuesta.IDMENU_MENA}" class="mb-0 p-0 col-10">
                             <i class="${respuesta.CLASS_MENA}"></i>
                             ${respuesta.DESCRIP_MENA}  - ${respuesta.IDMENU_MENA}
                             </label>

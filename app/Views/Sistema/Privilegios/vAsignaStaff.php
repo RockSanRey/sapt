@@ -49,4 +49,4 @@
 <script src="/public/JScript/Sistema/Privilegios/jsAsignaStaff.js"></script>
 <script src="/public/assets/sweetalert/sweetalert2.all.min.js"></script>
 <link href="/public/assets/estilos/css_frontend/formularios/formularios.css" rel="stylesheet">
-<link href="/public/assets/estilos/sistema/privilegios.css" rel="stylesheet">
+<link href="/public/assets/estilos/css_frontend/menus/menu.css" rel="stylesheet">
