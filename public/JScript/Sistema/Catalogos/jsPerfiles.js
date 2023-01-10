@@ -438,167 +438,169 @@ const armarMenuPerfilNuevo = async () => {
 }
 
 const armarMenuPerfilEditar = async (rolesSelecionados) => {
-    let menuPerfiles = document.querySelector('#menuPerfiles');
-    menuPerfiles.innerHTML=cargaAnimacion;
-    fetch('catperfiles/armarMenuAsignaPerfiles')
-    .then(respuestaRender => respuestaRender.json())
-    .then(respuestas => {
-        const listadoUl=document.createElement('ul');
-        listadoUl.classList.add('menu-vertical-edit','fuente-12p')
-            respuestas[0].forEach(respuesta => {
-                const listadoItemUl=document.createElement('li');
-                listadoItemUl.setAttribute('menu-item-select',respuesta.IDMENU_MENA);
-                listadoItemUl.classList.add('menu-vertical-li-edit');
-                if(respuesta.CONTOPC_MENA=='SI'){
-                    listadoItemUl.innerHTML=`<a class="dropdown-toggle">
-                    <i class="${respuesta.CLASS_MENA}"></i>
-                    ${respuesta.DESCRIP_MENA}  - ${respuesta.IDMENU_MENA}</a>
-                    `;
-                    const listadoUlA = document.createElement('ul');
-                    listadoUlA.classList.add('menu-vertical-edit');
-                    respuestas[1].forEach(respuestb => {
-                        if(respuesta.IDMENU_MENA==respuestb.IDMENU_MENB){
-                            const listadoItemUlA = document.createElement('li');
-                            listadoItemUlA.setAttribute('menu-item-select',respuestb.IDSMENU_MENB);
-                            listadoItemUlA.classList.add('menu-vertical-li-edit');
-                            if(respuestb.CONTOPC_MENB=='SI'){
-                                listadoItemUlA.innerHTML=`<a class="dropdown-toggle margen-izq-20">
-                                <i class="${respuestb.CLASS_MENB}"></i>
-                                ${respuestb.DESCRIP_MENB}  - ${respuestb.IDSMENU_MENB}</a>
-                                `;
-                                const listadoUlB = document.createElement('ul');
-                                listadoUlB.classList.add('menu-vertical-edit');
-                                respuestas[2].forEach(respuestc => {
-                                    if(respuestb.IDSMENU_MENB==respuestc.IDSMENU_MENC){
-                                        const listadoItemUlB = document.createElement('li');
-                                        listadoItemUlB.setAttribute('menu-item-select',respuestc.IDSBMENU_MENC);
-                                        listadoItemUlB.classList.add('menu-vertical-li-edit');
-                                        if(respuestc.CONTOPC_MENC=='SI'){
-                                            listadoItemUlB.innerHTML=`<a class="dropdown-toggle margen-izq-20">
-                                            <i class="${respuestc.CLASS_MENC}"></i>
-                                            ${respuestc.DESCRIP_MENC}  - ${respuestc.IDSBMENU_MENC}</a>
-                                            `;
-                                            const listadoUlC = document.createElement('ul');
-                                            listadoUlC.classList.add('menu-vertical-edit');
-                                            respuestas[3].forEach(respuestd => {
-                                                if(respuestc.IDSBMENU_MENC==respuestd.IDSBMENU_MEND){
-                                                    const listadoItemUlC = document.createElement('li');
-                                                    listadoItemUlC.setAttribute('menu-item-select',respuestd.IDSBMENUO_MEND);
-                                                    listadoItemUlC.classList.add('menu-vertical-li-edit');
-                                                    if(respuestd.CONTOPC_MEND=='SI'){
-                                                        listadoItemUlC.innerHTML=`<a class="dropdown-toggle margen-izq-20">
-                                                        <i class="${respuestd.CLASS_MEND}"></i>
-                                                        ${respuestd.DESCRIP_MEND}  - ${respuestd.IDSBMENUO_MEND}</a>
-                                                        `;
-                                                    }else {
-                                                        if(rolesSelecionados.includes(respuestd.IDSBMENUO_MEND)){
-                                                            listadoItemUlC.innerHTML=`<a class="margen-izq-20">
-                                                            <input type="checkbox" name="menuRoles[]" id="${respuestd.IDSBMENUO_MEND}" value="${respuestd.IDSBMENUO_MEND}" checked="checked">
-                                                            <label for="${respuestd.IDSBMENUO_MEND}" class="mb-0">
+    try {
+        let menuPerfiles = document.querySelector('#menuPerfiles');
+        menuPerfiles.innerHTML=cargaAnimacion;
+        fetch('catperfiles/armarMenuAsignaPerfiles')
+        .then(respuestaRender => respuestaRender.json())
+        .then(respuestas => {
+            const listadoUl=document.createElement('ul');
+            listadoUl.classList.add('menu-vertical-edit','fuente-12p')
+                respuestas[0].forEach(respuesta => {
+                    const listadoItemUl=document.createElement('li');
+                    listadoItemUl.setAttribute('menu-item-select',respuesta.IDMENU_MENA);
+                    listadoItemUl.classList.add('menu-vertical-li-edit');
+                    if(respuesta.CONTOPC_MENA=='SI'){
+                        listadoItemUl.innerHTML=`<a class="dropdown-toggle">
+                        <i class="${respuesta.CLASS_MENA}"></i>
+                        ${respuesta.DESCRIP_MENA}  - ${respuesta.IDMENU_MENA}</a>
+                        `;
+                        const listadoUlA = document.createElement('ul');
+                        listadoUlA.classList.add('menu-vertical-edit');
+                        respuestas[1].forEach(respuestb => {
+                            if(respuesta.IDMENU_MENA==respuestb.IDMENU_MENB){
+                                const listadoItemUlA = document.createElement('li');
+                                listadoItemUlA.setAttribute('menu-item-select',respuestb.IDSMENU_MENB);
+                                listadoItemUlA.classList.add('menu-vertical-li-edit');
+                                if(respuestb.CONTOPC_MENB=='SI'){
+                                    listadoItemUlA.innerHTML=`<a class="dropdown-toggle margen-izq-20">
+                                    <i class="${respuestb.CLASS_MENB}"></i>
+                                    ${respuestb.DESCRIP_MENB}  - ${respuestb.IDSMENU_MENB}</a>
+                                    `;
+                                    const listadoUlB = document.createElement('ul');
+                                    listadoUlB.classList.add('menu-vertical-edit');
+                                    respuestas[2].forEach(respuestc => {
+                                        if(respuestb.IDSMENU_MENB==respuestc.IDSMENU_MENC){
+                                            const listadoItemUlB = document.createElement('li');
+                                            listadoItemUlB.setAttribute('menu-item-select',respuestc.IDSBMENU_MENC);
+                                            listadoItemUlB.classList.add('menu-vertical-li-edit');
+                                            if(respuestc.CONTOPC_MENC=='SI'){
+                                                listadoItemUlB.innerHTML=`<a class="dropdown-toggle margen-izq-20">
+                                                <i class="${respuestc.CLASS_MENC}"></i>
+                                                ${respuestc.DESCRIP_MENC}  - ${respuestc.IDSBMENU_MENC}</a>
+                                                `;
+                                                const listadoUlC = document.createElement('ul');
+                                                listadoUlC.classList.add('menu-vertical-edit');
+                                                respuestas[3].forEach(respuestd => {
+                                                    if(respuestc.IDSBMENU_MENC==respuestd.IDSBMENU_MEND){
+                                                        const listadoItemUlC = document.createElement('li');
+                                                        listadoItemUlC.setAttribute('menu-item-select',respuestd.IDSBMENUO_MEND);
+                                                        listadoItemUlC.classList.add('menu-vertical-li-edit');
+                                                        if(respuestd.CONTOPC_MEND=='SI'){
+                                                            listadoItemUlC.innerHTML=`<a class="dropdown-toggle margen-izq-20">
                                                             <i class="${respuestd.CLASS_MEND}"></i>
-                                                            ${respuestd.DESCRIP_MEND}  - ${respuestd.IDSBMENUO_MEND}
-                                                            </label>
-                                                            </a>
+                                                            ${respuestd.DESCRIP_MEND}  - ${respuestd.IDSBMENUO_MEND}</a>
                                                             `;
                                                         }else {
-                                                            listadoItemUlC.innerHTML=`<a class="margen-izq-20">
-                                                            <input type="checkbox" name="menuRoles[]" id="${respuestd.IDSBMENUO_MEND}" value="${respuestd.IDSBMENUO_MEND}">
-                                                            <label for="${respuestd.IDSBMENUO_MEND}" class="mb-0">
-                                                            <i class="${respuestd.CLASS_MEND}"></i>
-                                                            ${respuestd.DESCRIP_MEND}  - ${respuestd.IDSBMENUO_MEND}
-                                                            </label>
-                                                            </a>
-                                                            `;
+                                                            if(rolesSelecionados.includes(respuestd.IDSBMENUO_MEND)){
+                                                                listadoItemUlC.innerHTML=`<a class="margen-izq-20">
+                                                                <input type="checkbox" name="menuRoles[]" id="${respuestd.IDSBMENUO_MEND}" value="${respuestd.IDSBMENUO_MEND}" checked="checked">
+                                                                <label for="${respuestd.IDSBMENUO_MEND}" class="mb-0">
+                                                                <i class="${respuestd.CLASS_MEND}"></i>
+                                                                ${respuestd.DESCRIP_MEND}  - ${respuestd.IDSBMENUO_MEND}
+                                                                </label>
+                                                                </a>
+                                                                `;
+                                                            }else {
+                                                                listadoItemUlC.innerHTML=`<a class="margen-izq-20">
+                                                                <input type="checkbox" name="menuRoles[]" id="${respuestd.IDSBMENUO_MEND}" value="${respuestd.IDSBMENUO_MEND}">
+                                                                <label for="${respuestd.IDSBMENUO_MEND}" class="mb-0">
+                                                                <i class="${respuestd.CLASS_MEND}"></i>
+                                                                ${respuestd.DESCRIP_MEND}  - ${respuestd.IDSBMENUO_MEND}
+                                                                </label>
+                                                                </a>
+                                                                `;
+                                                            }
                                                         }
+                                                        listadoUlC.appendChild(listadoItemUlC);
+                                                        listadoItemUlB.appendChild(listadoUlC);
                                                     }
-                                                    listadoUlC.appendChild(listadoItemUlC);
-                                                    listadoItemUlB.appendChild(listadoUlC);
-                                                }
-                                            });
-                                        }else {
-                                            if(rolesSelecionados.includes(respuestc.IDSBMENU_MENC)){
-                                                listadoItemUlB.innerHTML=`<a class="margen-izq-20">
-                                                <input type="checkbox" name="menuRoles[]" id="${respuestc.IDSBMENU_MENC}" value="${respuestc.IDSBMENU_MENC}" checked="checked">
-                                                <label for="${respuestc.IDSBMENU_MENC}" class="mb-0">
-                                                <i class="${respuestc.CLASS_MENC}"></i>
-                                                ${respuestc.DESCRIP_MENC}  - ${respuestc.IDSBMENU_MENC}
-                                                </label>
-                                                </a>
-                                                `;
+                                                });
                                             }else {
-                                                listadoItemUlB.innerHTML=`<a class="margen-izq-20">
-                                                <input type="checkbox" name="menuRoles[]" id="${respuestc.IDSBMENU_MENC}" value="${respuestc.IDSBMENU_MENC}">
-                                                <label for="${respuestc.IDSBMENU_MENC}" class="mb-0">
-                                                <i class="${respuestc.CLASS_MENC}"></i>
-                                                ${respuestc.DESCRIP_MENC}  - ${respuestc.IDSBMENU_MENC}
-                                                </label>
-                                                </a>
-                                                `;
+                                                if(rolesSelecionados.includes(respuestc.IDSBMENU_MENC)){
+                                                    listadoItemUlB.innerHTML=`<a class="margen-izq-20">
+                                                    <input type="checkbox" name="menuRoles[]" id="${respuestc.IDSBMENU_MENC}" value="${respuestc.IDSBMENU_MENC}" checked="checked">
+                                                    <label for="${respuestc.IDSBMENU_MENC}" class="mb-0">
+                                                    <i class="${respuestc.CLASS_MENC}"></i>
+                                                    ${respuestc.DESCRIP_MENC}  - ${respuestc.IDSBMENU_MENC}
+                                                    </label>
+                                                    </a>
+                                                    `;
+                                                }else {
+                                                    listadoItemUlB.innerHTML=`<a class="margen-izq-20">
+                                                    <input type="checkbox" name="menuRoles[]" id="${respuestc.IDSBMENU_MENC}" value="${respuestc.IDSBMENU_MENC}">
+                                                    <label for="${respuestc.IDSBMENU_MENC}" class="mb-0">
+                                                    <i class="${respuestc.CLASS_MENC}"></i>
+                                                    ${respuestc.DESCRIP_MENC}  - ${respuestc.IDSBMENU_MENC}
+                                                    </label>
+                                                    </a>
+                                                    `;
+                                                }
                                             }
+                                            listadoUlB.appendChild(listadoItemUlB);
+                                            listadoItemUlA.appendChild(listadoUlB);
                                         }
-                                        listadoUlB.appendChild(listadoItemUlB);
-                                        listadoItemUlA.appendChild(listadoUlB);
-                                    }
-                                });
-                            }else {
-                                if(rolesSelecionados.includes(respuestb.IDSMENU_MENB)){
-                                    listadoItemUlA.innerHTML=`<a class="margen-izq-20">
-                                    <input type="checkbox" name="menuRoles[]" id="${respuestb.IDSMENU_MENB}" value="${respuestb.IDSMENU_MENB}" checked="checked">
-                                    <label for="${respuestb.IDSMENU_MENB}" class="mb-0">
-                                    <i class="${respuestb.CLASS_MENB}"></i>
-                                    ${respuestb.DESCRIP_MENB}  - ${respuestb.IDSMENU_MENB}
-                                    </label>
-                                    </a>
-                                    `;
+                                    });
                                 }else {
-                                    listadoItemUlA.innerHTML=`<a class="margen-izq-20">
-                                    <input type="checkbox" name="menuRoles[]" id="${respuestb.IDSMENU_MENB}" value="${respuestb.IDSMENU_MENB}">
-                                    <label for="${respuestb.IDSMENU_MENB}" class="mb-0">
-                                    <i class="${respuestb.CLASS_MENB}"></i>
-                                    ${respuestb.DESCRIP_MENB}  - ${respuestb.IDSMENU_MENB}
-                                    </label>
-                                    </a>
-                                    `;
+                                    if(rolesSelecionados.includes(respuestb.IDSMENU_MENB)){
+                                        listadoItemUlA.innerHTML=`<a class="margen-izq-20">
+                                        <input type="checkbox" name="menuRoles[]" id="${respuestb.IDSMENU_MENB}" value="${respuestb.IDSMENU_MENB}" checked="checked">
+                                        <label for="${respuestb.IDSMENU_MENB}" class="mb-0">
+                                        <i class="${respuestb.CLASS_MENB}"></i>
+                                        ${respuestb.DESCRIP_MENB}  - ${respuestb.IDSMENU_MENB}
+                                        </label>
+                                        </a>
+                                        `;
+                                    }else {
+                                        listadoItemUlA.innerHTML=`<a class="margen-izq-20">
+                                        <input type="checkbox" name="menuRoles[]" id="${respuestb.IDSMENU_MENB}" value="${respuestb.IDSMENU_MENB}">
+                                        <label for="${respuestb.IDSMENU_MENB}" class="mb-0">
+                                        <i class="${respuestb.CLASS_MENB}"></i>
+                                        ${respuestb.DESCRIP_MENB}  - ${respuestb.IDSMENU_MENB}
+                                        </label>
+                                        </a>
+                                        `;
+                                    }
                                 }
+                                listadoUlA.appendChild(listadoItemUlA);
+                                listadoItemUl.appendChild(listadoUlA);
                             }
-                            listadoUlA.appendChild(listadoItemUlA);
-                            listadoItemUl.appendChild(listadoUlA);
-                        }
-                    });
-                }else {
-                    if(rolesSelecionados.includes(respuesta.IDMENU_MENA)){
-                        listadoItemUl.innerHTML=`<a class="p-0">
-                        <input type="checkbox" name="menuRoles[]" id="${respuesta.IDMENU_MENA}" value="${respuesta.IDMENU_MENA}" checked="checked">
-                        <label for="${respuesta.IDMENU_MENA}" class="mb-0 p-2 col-10">
-                        <i class="${respuesta.CLASS_MENA}"></i>
-                        ${respuesta.DESCRIP_MENA}  - ${respuesta.IDMENU_MENA}
-                        </label>
-                        </a>
-                        `;
+                        });
                     }else {
-                        listadoItemUl.innerHTML=`<a class="p-0">
-                        <input type="checkbox" name="menuRoles[]" id="${respuesta.IDMENU_MENA}" value="${respuesta.IDMENU_MENA}">
-                        <label for="${respuesta.IDMENU_MENA}" class="mb-0 p-2 col-10">
-                        <i class="${respuesta.CLASS_MENA}"></i>
-                        ${respuesta.DESCRIP_MENA}  - ${respuesta.IDMENU_MENA}
-                        </label>
-                        </a>
-                        `;
+                        if(rolesSelecionados.includes(respuesta.IDMENU_MENA)){
+                            listadoItemUl.innerHTML=`<a class="p-0">
+                            <input type="checkbox" name="menuRoles[]" id="${respuesta.IDMENU_MENA}" value="${respuesta.IDMENU_MENA}" checked="checked">
+                            <label for="${respuesta.IDMENU_MENA}" class="mb-0 p-2 col-10">
+                            <i class="${respuesta.CLASS_MENA}"></i>
+                            ${respuesta.DESCRIP_MENA}  - ${respuesta.IDMENU_MENA}
+                            </label>
+                            </a>
+                            `;
+                        }else {
+                            listadoItemUl.innerHTML=`<a class="p-0">
+                            <input type="checkbox" name="menuRoles[]" id="${respuesta.IDMENU_MENA}" value="${respuesta.IDMENU_MENA}">
+                            <label for="${respuesta.IDMENU_MENA}" class="mb-0 p-2 col-10">
+                            <i class="${respuesta.CLASS_MENA}"></i>
+                            ${respuesta.DESCRIP_MENA}  - ${respuesta.IDMENU_MENA}
+                            </label>
+                            </a>
+                            `;
+                        }
                     }
-                }
-                listadoUl.appendChild(listadoItemUl);
-                menuPerfiles.innerHTML='';
-                menuPerfiles.appendChild(listadoUl);
-            });
-    })
-    .catch(function(errorAlert){
+                    listadoUl.appendChild(listadoItemUl);
+                    menuPerfiles.innerHTML='';
+                    menuPerfiles.appendChild(listadoUl);
+                });
+        })
+            
+    } catch (errorAlert) {
         return Swal.fire({
-            title: 'Error llamado',
+            title: 'Error interno',
             icon: 'error',
             confirmButtonColor: '#f43',
             html: errorAlert.message,
         })
-    })
+    }
 
 }
 
