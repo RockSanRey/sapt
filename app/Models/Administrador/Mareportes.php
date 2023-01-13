@@ -52,6 +52,55 @@ class Mareportes extends Model
         }
     }
 
+    public function autoDatosCompletarTransferencias($id)
+    {
+        try {
+            $builder=$this->dbBuild->table('sys_clientes_transferencias');
+            $builder->select("CONCAT(FOLIO_TRANS,'_',CONTRATO_TRANS,'_',CLIENALTA_TRANS) AS IDCONTRATO, CONTRATO_TRANS, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS CLIENTE");
+            $builder->join('sys_clientes','IDUSUA_CLIEN=CLIENALTA_TRANS');
+            $builder->like('CONTRATO_TRANS', $id,'after');
+            $builder->where('ESTATUS_TRANS','ACTI');
+            $builder->groupBy('CONTRATO_TRANS');
+            $resultado=$builder->get();
+
+            if($resultado->getNumRows()>0){
+                log_message('info','[AREIMPTRANSFER|Async/Q] Generando datos desde consulta autocompletar contrato');
+                return $resultado->getResultArray();
+    
+            }
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function mostrarDatosTransferContratos($id)
+    {
+        try {
+            $parametro=explode('_',$id);
+            $builder=$this->dbBuild->table('sys_clientes_transferencias');
+            $builder->select("CONCAT(CONTRATO_TRANS,'_',CLIENBAJA_TRANS,'_',CLIENALTA_TRANS) AS idTablePk, FOLIO_TRANS, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS CLIENTE, 
+            CONTRATO_TRANS, FECHACAP_TRANS");
+            $builder->join('sys_clientes','IDUSUA_CLIEN=CLIENALTA_TRANS');
+            $builder->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_TRANS');
+            $builder->where('FOLIO_TRANS',$parametro[0]);
+            $builder->where('CONTRATO_TRANS',$parametro[1]);
+            $builder->where('CLIENALTA_TRANS',$parametro[2]);
+            $builder->where('ESTATUS_TRANS','ACTI');
+            $builder->groupBy('CLIENALTA_TRANS');
+            $resultado=$builder->get();
+
+            if($resultado->getNumRows()>0){
+                log_message('info','[AREIMPTRANSFER|Async/Q] Generando datos desde consulta para comprobate pagos');
+                return $resultado->getResultArray();
+    
+            }
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
     public function autoDatosCompletarBajas($id)
     {
         try {
@@ -786,6 +835,72 @@ class Mareportes extends Model
             return json_encode($errorElement.message());
         }
 
+    }
+
+    public function imprimirDatosReciboTransferencia($id)
+    {
+        try {
+            $parametro=explode('_',$id);
+            $builder=$this->dbBuild->table('sys_clientes_transferencias');
+            $builder->select("FOLIO_TRANS, FTRANS_TRANS, HORACAP_TRANS, CONTRATO_TRANS,
+            CONCAT(a.NOMBRE_CLIEN,' ',a.APATERNO_CLIEN,' ',a.AMATERNO_CLIEN) AS NOMBREALTA, a.CODBARR_CLIEN AS CODBARRALTA,
+            CONCAT(a.CALLE_CLIEN,' ',a.NEXTE_CLIEN,' ',a.NINTE_CLIEN) AS DOMICILIOALTA, a.SEXO_CLIEN AS SEXOALTA,
+            CONCAT(b.NOMBRE_CLIEN,' ',b.APATERNO_CLIEN,' ',b.AMATERNO_CLIEN) AS NOMBREBAJA, b.CODBARR_CLIEN AS CODBARRBAJA,
+            CONCAT(b.CALLE_CLIEN,' ',b.NEXTE_CLIEN,' ',b.NINTE_CLIEN) AS DOMICILIOBAJA, b.SEXO_CLIEN AS SEXOBAJA,
+            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_CODPOS,', C.P. ',CODIPOST_CODPOS,', ',NOMBRE_MUNIC) AS DOMICILIOCONTRATO,
+            DESCRIPCION_CONT, DESCRIPCION_CEXP, DESCRIPCION_CPERM, DESCRIPCION_CTARI,COMENTS_TRANS
+            ");
+            $builder->join('sys_clientes a','a.IDUSUA_CLIEN=CLIENALTA_TRANS');
+            $builder->join('sys_clientes b','b.IDUSUA_CLIEN=CLIENBAJA_TRANS');
+            $builder->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_TRANS');
+            $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
+            $builder->join('cat_colonias','CLVCOLON_CODPOS=COLONIA_UBIC');
+            $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
+            $builder->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
+            $builder->join('cat_contratosExpedicion','CLAVE_CEXP=MODO_CCONT');
+            $builder->join('cat_contratosPermisos','CLAVE_CPERM=PERMISO_CCONT');
+            $builder->join('cat_contratosTarifas','CLAVE_CTARI=DESCUENTO_CCONT');
+            $builder->where('CONTRATO_TRANS',$parametro[0]);
+            $builder->where('CLIENBAJA_TRANS',$parametro[1]);
+            $builder->where('CLIENALTA_TRANS',$parametro[2]);
+            $builder->groupBy('CONTRATO_TRANS');
+            $resultado=$builder->get();
+
+            if($resultado->getNumRows()>0){
+                $transfer= $resultado->getResultArray();
+            }
+            $buildera=$this->dbBuild->table('sys_responsables');
+            $buildera->select("CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS NOMBRE, SEXO_RESPO, DESCRIPHOM_PUESTO, DESCRIPMUJ_PUESTO");
+            $buildera->join('cat_puestos','CLAVE_PUESTO=PUESTO_RESPO');
+            $buildera->where('PUESTO_RESPO','COMIPRESI');
+            $buildera->where('ESTATUS_RESPO','ACTI');
+            $resultado0=$buildera->get();
+
+            if($resultado0->getNumRows()>0){
+                $presid= $resultado0->getResultArray();
+            }
+
+            $builderb=$this->dbBuild->table('sys_responsables');
+            $builderb->select("CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS NOMBRE, SEXO_RESPO, DESCRIPHOM_PUESTO, DESCRIPMUJ_PUESTO");
+            $builderb->join('cat_puestos','CLAVE_PUESTO=PUESTO_RESPO');
+            $builderb->where('PUESTO_RESPO','COMITESOR');
+            $builderb->where('ESTATUS_RESPO','ACTI');
+            $resultado1=$builderb->get();
+
+            if($resultado1->getNumRows()>0){
+                $tesore= $resultado1->getResultArray();
+            }
+
+            return [
+                $transfer,
+                $presid,
+                $tesore,
+            ];
+
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
     }
 
     

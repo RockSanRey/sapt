@@ -7,6 +7,22 @@
             <?php endif;?>
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-6 col-12">
+            <div class="card mb-2">
+                <div class="card-body bg-white p-2">
+                    <div id="hojasCorteGeneral"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-12">
+            <div class="card mb-2">
+                <div class="card-body bg-white p-2">
+                    <div id="hojasCorteTipo"></div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="card">
         <div class="card-body bg-white p-2">
             <div class="card-text text-justify">
@@ -40,3 +56,5 @@
 <script src="/public/JScript/Administrador/Reportes/jsaCorteCaja.js"></script>
 <script src="/public/assets/sweetalert/sweetalert2.all.min.js"></script>
 <link href="/public/assets/estilos/css_frontend/formularios/formularios.css" rel="stylesheet">
+
+

@@ -69,6 +69,68 @@ class Reportes extends BaseController
         }
     }
 
+    public function areimtransfe()
+    {
+        $id = __FUNCTION__;
+        $respuesta=$this->llamandoParametrosWeb($id);
+        $cadena=array(
+            'titulo'=>'SAPT | '.$respuesta['TITULO_CONW'],
+            'tutiloPantalla'=>$respuesta['TITULOPANT_CONW'],
+            'robots'=>$respuesta['ROBOTS_CONW'],
+            'Keyword'=>$respuesta['KEYWORD_CONW'],
+            'descripcion'=>$respuesta['DESCRIPCION_CONW'],
+            'pantalla'=>$id,
+            'sesionIniciada'=>session(),
+        );
+        $sesionIniciada=session();
+        $log_extra=[
+            'user'=>$sesionIniciada->get('IDCLIENTE'),
+            'grupo'=>$sesionIniciada->get('NIVELCLIEN'),
+        ];
+        log_message('info','[AREIMPTRANSFER] Cargando modulo reimptransfe para {user} con privilegios {grupo}.',$log_extra);
+        return view('Plantilla/vHeader',$cadena).view('Administrador/Reportes/vReimTransfe').view('Plantilla/vFooter');        
+    }
+
+    public function autoCompletarTransferencias($id)
+    {
+        log_message('info','[AREIMPTRANSFER|Async] Solicitando datos para renderizado de autocompletar contratos');
+        if($tablaDatos = $this->modeloReportes->autoDatosCompletarTransferencias($id)){
+            log_message('info','[AREIMPTRANSFER|Async] Envio de datos para renderizado de autocompletar contratos');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[AREIMPTRANSFER|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function mostrarTransferContratos($id)
+    {
+        log_message('info','[AREIMPTRANSFER|Async] Solicitando datos para renderizado de contratos trasnferidos');
+        if($tablaDatos = $this->modeloReportes->mostrarDatosTransferContratos($id)){
+            log_message('info','[AREIMPTRANSFER|Async] Envio de datos para renderizado de contratos trasnferidos');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[AREIMPTRANSFER|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
     public function areimpbajas()
     {
         $id = __FUNCTION__;
@@ -571,6 +633,26 @@ class Reportes extends BaseController
         log_message('info','[AREPORTES|Async] Solicitando datos para renderizado de reactivación contrato');
         if($tablaDatos = $this->modeloReportes->imprimirDatosAcuseReactiva($id)){
             log_message('info','[AREPORTES|Async] Envio de datos para renderizado de reactivación contrato');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[AREPORTES|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function imprimirReciboTransferencia($id)
+    {
+        log_message('info','[AREPORTES|Async] Solicitando datos para renderizado de recibo transferencia');
+        if($tablaDatos = $this->modeloReportes->imprimirDatosReciboTransferencia($id)){
+            log_message('info','[AREPORTES|Async] Envio de datos para renderizado de recibo transferencia');
             return json_encode($tablaDatos);
         }else {
             log_message('info','[AREPORTES|Async] Ocurrio un error al consultar los datos, notificando');
