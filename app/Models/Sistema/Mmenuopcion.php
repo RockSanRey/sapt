@@ -69,6 +69,15 @@ class Mmenuopcion extends Model
                 'user'=>$datosParaGuardar[0],
                 'item'=>$datosParaGuardar[1],
             ];
+            $parametro=explode(' ',$datosParaGuardar[2]);
+            $tipoIcon='';
+            if($parametro[0]=='fas'){
+                $tipoIcon='solid';
+            }elseif($parametro[0]=='far'){
+                $tipoIcon='regular';
+            }elseif($parametro[0]=='fab'){
+                $tipoIcon='brand';
+            }
             $setGuardarMenu=[
                 'FECHCAPT_MENA'=>date('Y-m-d'),
                 'HORACAPT_MENA'=>date('H:i:s'),
@@ -101,6 +110,13 @@ class Mmenuopcion extends Model
                 'ESTATUS_CONW'=>'ACTI',
             ];
 
+            $setIconosActual=[
+                'TIPO_ICONS'=>$tipoIcon,
+                'FONTCSS_ICONS'=>$datosParaGuardar[2],
+                'IDMODIF_ICONS'=>$datosParaGuardar[0],
+                'FMODIF_ICONS'=>date('Y-m-d'),
+            ];
+
             $db= \Config\Database::connect();
             $builder=$db->table('sys_menuniva');
             $builder->insert($setGuardarMenu);
@@ -110,6 +126,11 @@ class Mmenuopcion extends Model
                 $buildera->insert($setGuardarSeo);
                 log_message('notice','[MENUNIVA|Async/Q] {user} creo un nuevo registro para control web con {item}.', $log_extra);
             }
+            $builderb=$db->table('cat_iconoscss');
+            $builderb->where('FONTCSS_ICONS',$parametro[1]);
+            $builderb->where('ESTATUS_ICONS','ACTI');
+            $builderb->set($setIconosActual);
+            $builderb->update($setIconosActual);
 
             return true;
 
@@ -158,6 +179,15 @@ class Mmenuopcion extends Model
                 'user'=>$datosParaActualizar[0],
                 'item'=>$datosParaActualizar[1],
             ];
+            $parametro=explode(' ',$datosParaActualizar[2]);
+            $tipoIcon='';
+            if($parametro[0]=='fas'){
+                $tipoIcon='solid';
+            }elseif($parametro[0]=='far'){
+                $tipoIcon='regular';
+            }elseif($parametro[0]=='fab'){
+                $tipoIcon='brand';
+            }
             $setActualizaMenu=[
                 'CLASS_MENA'=>$datosParaActualizar[2],
                 'REFEREN_MENA'=>$datosParaActualizar[3],
@@ -180,6 +210,13 @@ class Mmenuopcion extends Model
                 'IDMODIF_CONW'=>$datosParaActualizar[0],
             ];
 
+            $setIconosActual=[
+                'TIPO_ICONS'=>$tipoIcon,
+                'FONTCSS_ICONS'=>$datosParaActualizar[2],
+                'IDMODIF_ICONS'=>$datosParaActualizar[0],
+                'FMODIF_ICONS'=>date('Y-m-d'),
+            ];
+
             $db= \Config\Database::connect();
             $buildera=$db->table('sys_menuniva');
             $buildera->where('IDMENU_MENA',$datosParaActualizar[1]);
@@ -192,6 +229,12 @@ class Mmenuopcion extends Model
             $builderb->set($setActualizaSeo);
             $builderb->update($setActualizaSeo);
             log_message('notice','[MENUNIVA|Async/Q] {user} actualizo un registro {item} en control web.', $log_extra);
+
+            $builderc=$db->table('cat_iconoscss');
+            $builderc->where('FONTCSS_ICONS',$parametro[1]);
+            $builderc->where('ESTATUS_ICONS','ACTI');
+            $builderc->set($setIconosActual);
+            $builderc->update($setIconosActual);
 
             return true;
 
@@ -291,6 +334,15 @@ class Mmenuopcion extends Model
                 'user'=>$datosParaGuardar[0],
                 'item'=>$datosParaGuardar[2],
             ];
+            $parametro=explode(' ',$datosParaGuardar[3]);
+            $tipoIcon='';
+            if($parametro[0]=='fas'){
+                $tipoIcon='solid';
+            }elseif($parametro[0]=='far'){
+                $tipoIcon='regular';
+            }elseif($parametro[0]=='fab'){
+                $tipoIcon='brand';
+            }
             $setGuardarMenu=[
                 'FECHCAPT_MENB'=>date('Y-m-d'),
                 'HORACAPT_MENB'=>date('H:i:s'),
@@ -324,6 +376,12 @@ class Mmenuopcion extends Model
                 'ESTATUS_CONW'=>'ACTI',
             ];
 
+            $setIconosActual=[
+                'TIPO_ICONS'=>$tipoIcon,
+                'FONTCSS_ICONS'=>$datosParaGuardar[3],
+                'IDMODIF_ICONS'=>$datosParaGuardar[0],
+                'FMODIF_ICONS'=>date('Y-m-d'),
+            ];
 
             $db= \Config\Database::connect();
             $builder=$db->table('sys_menunivb');
@@ -335,6 +393,12 @@ class Mmenuopcion extends Model
                 $buildera->insert($setGuardarSeo);
                 log_message('notice','[MENUNIVB|Async/Q] {user} creo un nuevo registro para control web con {item}.', $log_extra);
             }
+
+            $builderb=$db->table('cat_iconoscss');
+            $builderb->where('FONTCSS_ICONS',$parametro[1]);
+            $builderb->where('ESTATUS_ICONS','ACTI');
+            $builderb->set($setIconosActual);
+            $builderb->update($setIconosActual);
 
             return true;
 
@@ -387,6 +451,15 @@ class Mmenuopcion extends Model
                 'item'=>$datosParaActualizar[1],
                 'item2'=>$datosParaActualizar[2],
             ];
+            $parametro=explode(' ',$datosParaActualizar[3]);
+            $tipoIcon='';
+            if($parametro[0]=='fas'){
+                $tipoIcon='solid';
+            }elseif($parametro[0]=='far'){
+                $tipoIcon='regular';
+            }elseif($parametro[0]=='fab'){
+                $tipoIcon='brand';
+            }
             $setActualizaMenu=[
                 'CLASS_MENB'=>$datosParaActualizar[3],
                 'REFEREN_MENB'=>$datosParaActualizar[4],
@@ -409,8 +482,14 @@ class Mmenuopcion extends Model
                 'IDMODIF_CONW'=>$datosParaActualizar[0],
             ];
 
-            $db= \Config\Database::connect();
+            $setIconosActual=[
+                'TIPO_ICONS'=>$tipoIcon,
+                'FONTCSS_ICONS'=>$datosParaActualizar[3],
+                'IDMODIF_ICONS'=>$datosParaActualizar[0],
+                'FMODIF_ICONS'=>date('Y-m-d'),
+            ];
 
+            $db= \Config\Database::connect();
             $builder=$db->table('sys_menunivb');
             $builder->where('IDMENU_MENB',$datosParaActualizar[1]);
             $builder->where('IDSMENU_MENB',$datosParaActualizar[2]);
@@ -423,6 +502,12 @@ class Mmenuopcion extends Model
             $builderb->set($setActualizaSeo);
             $builderb->update($setActualizaSeo);
             log_message('info','[MENUNIVB|Async/Q] {user} actualizo un registro {item} en control web.', $log_extra);
+
+            $builderc=$db->table('cat_iconoscss');
+            $builderc->where('FONTCSS_ICONS',$parametro[1]);
+            $builderc->where('ESTATUS_ICONS','ACTI');
+            $builderc->set($setIconosActual);
+            $builderc->update($setIconosActual);
 
             return true;
 
@@ -531,6 +616,15 @@ class Mmenuopcion extends Model
                 'item'=>$datosParaGuardar[2],
                 'item2'=>$datosParaGuardar[3],
             ];
+            $parametro=explode(' ',$datosParaGuardar[4]);
+            $tipoIcon='';
+            if($parametro[0]=='fas'){
+                $tipoIcon='solid';
+            }elseif($parametro[0]=='far'){
+                $tipoIcon='regular';
+            }elseif($parametro[0]=='fab'){
+                $tipoIcon='brand';
+            }
             $setGuardarMenu=[
                 'FECHCAPT_MENC'=>date('Y-m-d'),
                 'HORACAPT_MENC'=>date('H:i:s'),
@@ -564,6 +658,13 @@ class Mmenuopcion extends Model
                 'ESTATUS_CONW'=>'ACTI',
             ];
 
+            $setIconosActual=[
+                'TIPO_ICONS'=>$tipoIcon,
+                'FONTCSS_ICONS'=>$datosParaGuardar[4],
+                'IDMODIF_ICONS'=>$datosParaGuardar[0],
+                'FMODIF_ICONS'=>date('Y-m-d'),
+            ];
+
             $db= \Config\Database::connect();
             $builder=$db->table('sys_menunivc');
             $builder->insert($setGuardarMenu);
@@ -574,6 +675,12 @@ class Mmenuopcion extends Model
                 $buildera->insert($setGuardarSeo);
                 log_message('notice','[MENUNIVC|Async/Q] {user} creo un nuevo registro para control web con {item}.', $log_extra);
             }
+
+            $builderb=$db->table('cat_iconoscss');
+            $builderb->where('FONTCSS_ICONS',$parametro[1]);
+            $builderb->where('ESTATUS_ICONS','ACTI');
+            $builderb->set($setIconosActual);
+            $builderb->update($setIconosActual);
 
             return true;
 
@@ -625,6 +732,15 @@ class Mmenuopcion extends Model
                 'item'=>$datosParaActualizar[1],
                 'item2'=>$datosParaActualizar[2],
             ];
+            $parametro=explode(' ',$datosParaActualizar[3]);
+            $tipoIcon='';
+            if($parametro[0]=='fas'){
+                $tipoIcon='solid';
+            }elseif($parametro[0]=='far'){
+                $tipoIcon='regular';
+            }elseif($parametro[0]=='fab'){
+                $tipoIcon='brand';
+            }
             $setActualiza=[
                 'CLASS_MENC'=>$datosParaActualizar[3],
                 'REFEREN_MENC'=>$datosParaActualizar[4],
@@ -647,6 +763,13 @@ class Mmenuopcion extends Model
                 'IDMODIF_CONW'=>$datosParaActualizar[0],
             ];
 
+            $setIconosActual=[
+                'TIPO_ICONS'=>$tipoIcon,
+                'FONTCSS_ICONS'=>$datosParaActualizar[3],
+                'IDMODIF_ICONS'=>$datosParaActualizar[0],
+                'FMODIF_ICONS'=>date('Y-m-d'),
+            ];
+
             $db= \Config\Database::connect();
             $builder=$db->table('sys_menunivc');
             $builder->where('IDSMENU_MENC',$datosParaActualizar[1]);
@@ -660,6 +783,13 @@ class Mmenuopcion extends Model
             $builderb->set($setActualizaSeo);
             $builderb->update($setActualizaSeo);
             log_message('info','[MENUNIVC|Async/Q] {user} actualizo un registro {item2} en control web.', $log_extra);
+
+            $builderc=$db->table('cat_iconoscss');
+            $builderc->where('FONTCSS_ICONS',$parametro[1]);
+            $builderc->where('ESTATUS_ICONS','ACTI');
+            $builderc->set($setIconosActual);
+            $builderc->update($setIconosActual);
+
             return true;
 
         } catch (Exception $errorElement) {
