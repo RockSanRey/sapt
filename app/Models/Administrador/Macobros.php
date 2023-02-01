@@ -1153,7 +1153,6 @@ class Macobros extends Model
             $builder->select("IDUSUA_CLIEN, CODBARR_CLIEN, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE");
             $builder->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
             $builder->like('NOMBRE_CLIEN',$id,'after');
-            $builder->orLike('CODBARR_CLIEN',$id);
             $builder->where('ESTATUS_CCONT','ACTI');
             $builder->where('ESTATUS_CLIEN','ACTI');
             $builder->groupBy('IDUSUA_CLIEN');
@@ -1186,14 +1185,14 @@ class Macobros extends Model
 
             $buildera=$this->dbBuild->table('sys_clientes');
             $buildera->select("CONCAT(IDUSUA_CLIEN,'_',CONTRATO_CCONT,'_',DESCUENTO_CCONT) AS `idTablePk`, CONTRATO_CCONT,
-            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_CODPOS) AS DIRECCION, DESCRIPCION_CTARI, ESTATUS_CCONT");
+            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_COLON) AS DIRECCION, DESCRIPCION_CTARI, ESTATUS_CCONT");
             $buildera->join('sys_clientes_contratos','IDUSUA_CLIEN=CLIENTE_CCONT');
             $buildera->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
             $buildera->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
             $buildera->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
-            $buildera->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $buildera->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $buildera->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $buildera->join('cat_contratosTarifas','CLAVE_CTARI=DESCUENTO_CCONT');
-            $buildera->where('CLVCOLON_CODPOS=COLONIA_UBIC');
             $buildera->where('IDUSUA_CLIEN', $id);
             $buildera->where('ESTATUS_CLIEN','ACTI');
             $buildera->groupBy('CONTRATO_CCONT');

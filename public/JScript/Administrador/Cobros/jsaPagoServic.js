@@ -41,14 +41,19 @@ const buscadorUsuarios = async () => {
                     <button type="button" class="btn btn-sm btn-success" id="butonBuscarUsuario">Buscar</button>
                 </div>
             </div>
+            <div id="codigoTecla"></div>
         `;
         let textUsuario = document.querySelector('#textUsuario');
         let userListComplete = document.querySelector('#userListComplete');
+        let codigoTecla = document.querySelector('#codigoTecla');
         textUsuario.addEventListener('keyup', (e) => {
-            if(e.keyCode >= 64 && e.keyCode <= 90 || e.keyCode >= 96 && e.keyCode <= 105 || e.keyCode >= 48 && e.keyCode <= 57 || e.keyCode==8){
-                userListComplete.innerHTML='';
-                completarBusquedaUsuarios(textUsuario);
-            }
+            // if(e.keyCode >= 64 && e.keyCode <= 90 || e.keyCode >= 96 && e.keyCode <= 105 || e.keyCode >= 48 && e.keyCode <= 57 || e.keyCode==8){
+            //     userListComplete.innerHTML='';
+            //     completarBusquedaUsuarios(textUsuario);
+            //     codigoTecla.innerHTML=e.keyCode;
+            // }
+            userListComplete.innerHTML='';
+            completarBusquedaUsuarios(textUsuario);
         })
         let butonBuscarUsuario = document.querySelector('#butonBuscarUsuario');
         butonBuscarUsuario.addEventListener('click', () => {
