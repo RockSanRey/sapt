@@ -601,7 +601,7 @@ class Mcatalogos extends Model
         try {
             $db= \Config\Database::connect();
             $builder=$db->table('cat_estados');
-            $builder->select('CLAVE_ESTA, ESTADO_ESTA');
+            $builder->select('CLAVE_ESTA, NOMBRE_ESTA');
             $builder->where('ESTATUS_ESTA','ACTI');
             $resultado=$builder->get();
             if($resultado->getNumRows()>0){
@@ -621,7 +621,7 @@ class Mcatalogos extends Model
             $db= \Config\Database::connect();
             $builder=$db->table('cat_municipios');
             $builder->select('CLVMUNI_MUNIC, NOMBRE_MUNIC');
-            $builder->where('CLVESTA_MUNIC', $id);
+            $builder->where('ESTADO_MUNIC', $id);
             $builder->where('ESTATUS_MUNIC','ACTI');
             $resultado=$builder->get();
             if($resultado->getNumRows()>0){
@@ -639,9 +639,9 @@ class Mcatalogos extends Model
     {
         try {
             $db= \Config\Database::connect();
-            $builder=$db->table('cat_colonias');
+            $builder=$db->table('cat_codpostal');
             $builder->select('CLVCODPOS_CODPOS, CODIPOST_CODPOS');
-            $builder->where('CLVMUNIC_CODPOS', $id);
+            $builder->where('MUNIC_CODPOS', $id);
             $builder->where('ESTATUS_CODPOS','ACTI');
             $builder->groupBy('CLVCODPOS_CODPOS');
             $resultado=$builder->get();
@@ -661,9 +661,9 @@ class Mcatalogos extends Model
         try {
             $db= \Config\Database::connect();
             $builder=$db->table('cat_colonias');
-            $builder->select('CLVCOLON_CODPOS, COLONIA_CODPOS');
-            $builder->where('CLVCODPOS_CODPOS', $id);
-            $builder->where('ESTATUS_CODPOS','ACTI');
+            $builder->select('CLVCOLON_COLON, COLONIA_COLON');
+            $builder->where('CODPOS_COLON', $id);
+            $builder->where('ESTATUS_COLON','ACTI');
             $resultado=$builder->get();
             if($resultado->getNumRows()>0){
                 log_message('info','[CATALOGOS|Async/Q] Generando datos desde consulta externa para renderizado de combo colonias');
@@ -683,7 +683,7 @@ class Mcatalogos extends Model
             $db= \Config\Database::connect();
             $builder=$db->table('cat_calles');
             $builder->select('CALLE_CALLE');
-            $builder->where('CLVCOLON_CALLE',$parametros[0]);
+            $builder->where('COLON_CALLE',$parametros[0]);
             $builder->like('CALLE_CALLE', $parametros[1],'both');
             $builder->where('ESTATUS_CALLE','ACTI');
             $resultado=$builder->get();
