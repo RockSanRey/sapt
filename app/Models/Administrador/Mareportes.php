@@ -42,7 +42,7 @@ class Mareportes extends Model
             $builder->groupBy('CONTRATO_CCONT');
             $resultado=$builder->get();
             if($resultado->getNumRows()>0){
-                log_message('info','[AIMPCONTRATO|Async/Q] Generando datos desde consulta para continuar edición de usuario');
+                log_message('info','[AIMPCONTRATO|Async/Q] Generando datos desde consulta para continuar edici贸n de usuario');
                 return $resultado->getResultArray();
 
             }
@@ -204,17 +204,17 @@ class Mareportes extends Model
             $builder=$this->dbBuild->table('sys_clientes');
             $builder->select("CONCAT(IDCOBRO_COBR,'_',IDUSUA_CLIEN,'_',CONTRATO_COBR) AS idTablePk, IDCOBRO_COBR, CONSECUTIVO_COBR,
             CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE, CONCEPTO_COBR,
-              CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_CODPOS,' C.P.',CODIPOST_CODPOS,', ',NOMBRE_MUNIC,', ',ESTADO_ESTA) AS DIRECCION,
+              CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_COLON,' C.P.',CODIPOST_CODPOS,', ',NOMBRE_MUNIC,', ',NOMBRE_ESTA) AS DIRECCION,
               CONTRATO_CCONT, IDCOBRO_COBR, TOTAL_COBR, FMODIF_COBR, DESCRIPCION_ESTAT");
             $builder->join('sys_clientes_contratos','IDUSUA_CLIEN=CLIENTE_CCONT');
             $builder->join('sys_clientes_cobros','CONTRATO_COBR=CONTRATO_CCONT');
             $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
             $builder->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
             $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
-            $builder->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builder->join('cat_estatus','CLAVE_ESTAT=ESTATUS_COBR');
             $builder->where('CONTRATO_COBR=CONTRATO_CCONT');
-            $builder->where('CLVCOLON_CODPOS=COLONIA_UBIC');
             $builder->like('FMODIF_COBR', date('Y-m'),'after');
             $builder->where('ESTATUS_CLIEN','ACTI');
             $builder->where('ESTATUS_COBR','PAGA');
@@ -223,7 +223,7 @@ class Mareportes extends Model
             $builder->limit(50);
             $resultado=$builder->get();
             if($resultado->getNumRows()>0){
-                log_message('info','[REIMCOMPRO|Async/Q] Generando datos desde consulta para continuar edición de usuario');
+                log_message('info','[REIMCOMPRO|Async/Q] Generando datos desde consulta para continuar edici贸n de usuario');
                 return $resultado->getResultArray();
             }
         } catch (Exception $errorElement) {
@@ -238,17 +238,17 @@ class Mareportes extends Model
             $builder=$this->dbBuild->table('sys_clientes');
             $builder->select("CONCAT(IDCOBRO_COBR,'_',IDUSUA_CLIEN,'_',CONTRATO_COBR) AS idTablePk, IDCOBRO_COBR, CONSECUTIVO_COBR,
             CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE, CONCEPTO_COBR,
-              CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_CODPOS,' C.P.',CODIPOST_CODPOS,', ',NOMBRE_MUNIC,', ',ESTADO_ESTA) AS DIRECCION,
+              CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_COLON,' C.P.',CODIPOST_CODPOS,', ',NOMBRE_MUNIC,', ',NOMBRE_ESTA) AS DIRECCION,
               CONTRATO_CCONT, IDCOBRO_COBR, TOTAL_COBR, FMODIF_COBR, DESCRIPCION_ESTAT");
             $builder->join('sys_clientes_contratos','IDUSUA_CLIEN=CLIENTE_CCONT');
             $builder->join('sys_clientes_cobros','CONTRATO_COBR=CONTRATO_CCONT');
             $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
             $builder->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
             $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
-            $builder->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builder->join('cat_estatus','CLAVE_ESTAT=ESTATUS_COBR');
             $builder->where('CONTRATO_COBR=CONTRATO_CCONT');
-            $builder->where('CLVCOLON_CODPOS=COLONIA_UBIC');
             $builder->where('IDUSUARIO_COBR', $id);
             $builder->where('ESTATUS_CLIEN','ACTI');
             $builder->where('ESTATUS_COBR','PAGA');
@@ -272,11 +272,11 @@ class Mareportes extends Model
         try {
             $builder=$this->dbBuild->table('sys_clientes');
             $builder->select("CONTRATO_CCONT, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS USUARIO,
-            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_CODPOS) AS DIRECCION, SUM(TOTAL_DETA) AS DEUDA, DESCRIPCION_ESTAT");
+            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_COLON) AS DIRECCION, SUM(TOTAL_DETA) AS DEUDA, DESCRIPCION_ESTAT");
             $builder->join('sys_clientes_contratos','IDUSUA_CLIEN=CLIENTE_CCONT');
             $builder->join('sys_clientes_detalles','CONTRATO_DETA=CONTRATO_CCONT');
             $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
-            $builder->join('cat_colonias','CLVCOLON_CODPOS=COLONIA_UBIC');
+            $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builder->join('cat_estatus','CLAVE_ESTAT=ESTATUS_CCONT');
             $builder->where('ESTATUS_CLIEN','ACTI');
             $builder->where('ESTATUS_CCONT','ACTI');
@@ -285,7 +285,7 @@ class Mareportes extends Model
             $builder->orderBy('DEUDA','DESC');
             $resultado=$builder->get();
             if($resultado->getNumRows()>0){
-                log_message('info','[LISTACORTE|Async/Q] Generando datos desde consulta para continuar edición de usuario');
+                log_message('info','[LISTACORTE|Async/Q] Generando datos desde consulta para continuar edici贸n de usuario');
                 return $resultado->getResultArray();
             }
 
@@ -305,7 +305,7 @@ class Mareportes extends Model
             $builder->join('sys_clientes_contratos','IDUSUA_CLIEN=CLIENTE_CCONT');
             $builder->join('sys_clientes_detalles','CONTRATO_DETA=CONTRATO_CCONT');
             $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
-            $builder->join('cat_colonias','CLVCOLON_CODPOS=COLONIA_UBIC');
+            $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builder->join('cat_estatus','CLAVE_ESTAT=ESTATUS_CCONT');
             $builder->where('ESTATUS_CLIEN','ACTI');
             $builder->where('ESTATUS_CCONT','ACTI');
@@ -314,7 +314,7 @@ class Mareportes extends Model
             $builder->orderBy('DEUDA','DESC');
             $resultado=$builder->get();
             if($resultado->getNumRows()>0){
-                log_message('info','[LISTACORTE|Async/Q] Generando datos desde consulta para continuar edición de usuario');
+                log_message('info','[LISTACORTE|Async/Q] Generando datos desde consulta para continuar edici贸n de usuario');
                 $listado = $resultado->getResultArray();
     
             }
@@ -539,8 +539,8 @@ class Mareportes extends Model
             $parametro=explode('_',$id);
             $builder=$this->dbBuild->table('sys_clientes');
             $builder->select("FECHACAP_CCONT, HORACAP_CCONT, IDUSUA_CLIEN, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE, CODBARR_CLIEN, EMAIL_CLIEN,
-            FNACIM_CLIEN, SEXO_CLIEN, TELEFONO_CLIEN, MOVIL_CLIEN, ESTADO_ESTA, NOMBRE_MUNIC,
-            CODIPOST_CODPOS, COLONIA_CODPOS, CONCAT(CALLE_CLIEN,' ',NEXTE_CLIEN,' ',NINTE_CLIEN) AS CALLES, CONTRATO_CCONT, 
+            FNACIM_CLIEN, SEXO_CLIEN, TELEFONO_CLIEN, MOVIL_CLIEN, NOMBRE_ESTA, NOMBRE_MUNIC,
+            CODIPOST_CODPOS, COLONIA_COLON, CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES, CONTRATO_CCONT, 
             DESCRIPCION_CONT, DESCRIPCION_CTARI, DESCRIPCION_CPERM");
             $builder->join('sys_clientes_contratos','IDUSUA_CLIEN=CLIENTE_CCONT');
             $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
@@ -549,10 +549,10 @@ class Mareportes extends Model
             $builder->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
             $builder->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
             $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
-            $builder->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builder->where('IDUSUA_CLIEN',$parametro[1]);
             $builder->where('CONTRATO_CCONT',$parametro[0]);
-            $builder->where('CLVCOLON_CODPOS=COLONIA_UBIC');
             $builder->where('ESTATUS_CLIEN','ACTI');
             $resultado=$builder->get();
             if($resultado->getNumRows()>0){
@@ -574,8 +574,8 @@ class Mareportes extends Model
 
             $builderb=$this->dbBuild->table('sys_clientes');
             $builderb->select("IDUSUA_CLIEN,CODBARR_CLIEN,FECHACAP_CCONT,HORACAP_CCONT,CONTRATO_CCONT,
-            CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE,ESTADO_ESTA,NOMBRE_MUNIC,
-            CODIPOST_CODPOS,COLONIA_CODPOS,CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES,
+            CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE,NOMBRE_ESTA,NOMBRE_MUNIC,
+            CODIPOST_CODPOS,COLONIA_COLON,CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES,
             MODO_CCONT,TIPO_CCONT,PERMISO_CCONT,DESCUENTO_CCONT,
             CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS RESPONS");
             $builderb->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
@@ -583,8 +583,8 @@ class Mareportes extends Model
             $builderb->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
             $builderb->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
             $builderb->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
-            $builderb->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
-            $builderb->where('CLVCOLON_CODPOS=COLONIA_UBIC');
+            $builderb->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builderb->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builderb->where('CLIENTE_CCONT',$parametro[1]);
             $builderb->where('CONTRATO_CCONT',$parametro[0]);
             $builderb->groupBy('CONTRATO_CCONT');
@@ -599,10 +599,10 @@ class Mareportes extends Model
                     $campD=$filas['HORACAP_CCONT'];
                     $campE=$filas['CONTRATO_CCONT'];
                     $campF=$filas['NOMBRE'];
-                    $campG=$filas['ESTADO_ESTA'];
+                    $campG=$filas['NOMBRE_ESTA'];
                     $campH=$filas['NOMBRE_MUNIC'];
                     $campI=$filas['CODIPOST_CODPOS'];
-                    $campJ=$filas['COLONIA_CODPOS'];
+                    $campJ=$filas['COLONIA_COLON'];
                     $campK=$filas['CALLES'];
                     $campL=$filas['MODO_CCONT'];
                     $campM=$filas['TIPO_CCONT'];
@@ -638,8 +638,8 @@ class Mareportes extends Model
 
             $builder=$this->dbBuild->table('sys_clientes');
             $builder->select("IDUSUA_CLIEN, CODBARR_CLIEN, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE,
-            EMAIL_CLIEN, TELEFONO_CLIEN, MOVIL_CLIEN, CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES, ESTADO_ESTA, NOMBRE_MUNIC,
-            CODIPOST_CODPOS, COLONIA_CODPOS, CONTRATO_CCONT, DESCUENTO_CCONT, DESCRIPCION_CONT, PERMISO_CCONT, IDCOBRO_COBR, FECHACAP_COBR, HORACAP_COBR, CONSECUTIVO_COBR");
+            EMAIL_CLIEN, TELEFONO_CLIEN, MOVIL_CLIEN, CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES, NOMBRE_ESTA, NOMBRE_MUNIC,
+            CODIPOST_CODPOS, COLONIA_COLON, CONTRATO_CCONT, DESCUENTO_CCONT, DESCRIPCION_CONT, PERMISO_CCONT, IDCOBRO_COBR, FECHACAP_COBR, HORACAP_COBR, CONSECUTIVO_COBR");
             $builder->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
             $builder->join('sys_clientes_detalles','USUARIO_DETA=IDUSUA_CLIEN');
             $builder->join('sys_clientes_cobros','IDCOBRO_COBR=IDCOBRO_DETA');
@@ -647,12 +647,12 @@ class Mareportes extends Model
             $builder->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
             $builder->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
             $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
-            $builder->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builder->where('IDCOBRO_COBR', $parametros[0]);
             $builder->where('IDUSUA_CLIEN',$parametros[1]);
             $builder->where('CONTRATO_CCONT', $parametros[2]);
             $builder->where('CONTRATO_COBR=CONTRATO_CCONT');
-            $builder->where('CLVCOLON_CODPOS=COLONIA_UBIC');
             $builder->where('ESTATUS_CLIEN','ACTI');
             $builder->groupBy('IDUSUA_CLIEN');
             $resultado=$builder->get();
@@ -690,7 +690,7 @@ class Mareportes extends Model
             $builderb->where('ESTATUS_PAGO','PAGA');
             $builderb->groupBy('CONTRATO_PAGO');
             $resultados1=$builderb->get();
-
+            
             if($resultados1->getNumRows()>0){
                 log_message('info','[AREPORTES|Async/Q] Generando datos desde consulta para obtener datos transaccion');
                 $datosPagos=$resultados1->getResultArray();
@@ -747,7 +747,7 @@ class Mareportes extends Model
 
             $builderc=$this->dbBuild->table('sys_clientes');
             $builderc->select("IDUSUA_CLIEN, CONTRATO_CCONT, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE,
-            ESTADO_ESTA, NOMBRE_MUNIC,CODIPOST_CODPOS, COLONIA_CODPOS, CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES,
+            NOMBRE_ESTA, NOMBRE_MUNIC,CODIPOST_CODPOS, COLONIA_COLON, CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES,
             DESCRIPCION_CONT, TIPO_CCONT, PERMISO_CCONT, DESCUENTO_CCONT, FECHACAP_CCONT, FBAJA_CCONT, IDBAJA_CCONT,
             CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS RESPONS, FOLIO_CBAJA");
             $builderc->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
@@ -757,8 +757,8 @@ class Mareportes extends Model
             $builderc->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
             $builderc->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
             $builderc->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
-            $builderc->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
-            $builderc->where('CLVCOLON_CODPOS=COLONIA_UBIC');
+            $builderc->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builderc->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builderc->where('CLIENTE_CCONT',$parametro[0]);
             $builderc->where('CONTRATO_CCONT',$parametro[1]);
             $builderc->groupBy('CONTRATO_CCONT');
@@ -771,10 +771,10 @@ class Mareportes extends Model
                     $campB=$filas['IDUSUA_CLIEN'];
                     $campC=$filas['CONTRATO_CCONT'];
                     $campD=$filas['NOMBRE'];
-                    $campE=$filas['ESTADO_ESTA'];
+                    $campE=$filas['NOMBRE_ESTA'];
                     $campF=$filas['NOMBRE_MUNIC'];
                     $campG=$filas['CODIPOST_CODPOS'];
-                    $campH=$filas['COLONIA_CODPOS'];
+                    $campH=$filas['COLONIA_COLON'];
                     $campI=$filas['CALLES'];
                     $campJ=$filas['DESCRIPCION_CONT'];
                     $campK=$filas['TIPO_CCONT'];
@@ -794,7 +794,7 @@ class Mareportes extends Model
             return [
                 $resultado0->getResultArray(),
                 $resultado1->getResultArray(),
-                $arreglo,
+                // $arreglo,
             ];
 
         } catch (Exception $errorElement) {
@@ -854,7 +854,7 @@ class Mareportes extends Model
             $builder->join('sys_clientes b','b.IDUSUA_CLIEN=CLIENBAJA_TRANS');
             $builder->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_TRANS');
             $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
-            $builder->join('cat_colonias','CLVCOLON_CODPOS=COLONIA_UBIC');
+            $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
             $builder->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
             $builder->join('cat_contratosExpedicion','CLAVE_CEXP=MODO_CCONT');
