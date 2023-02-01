@@ -1845,6 +1845,14 @@ class Tramites extends BaseController
                         'max_length'=>'{field} dene tener max {param} caracteres',
                     ],
                 ],
+                'textMotivo'=>[
+                    'label'=>'Motivo',
+                    'rules'=>'required|max_length[400]|string',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
                 'textComentarios'=>[
                     'label'=>'Comentarios',
                     'rules'=>'max_length[400]|string',
@@ -1858,6 +1866,7 @@ class Tramites extends BaseController
                 $captura = session()->get('IDCLIENTE'),
                 $textModificacion = $this->request->getPost('textModificacion'),
                 $textEstatus = $this->request->getPost('textEstatus'),
+                $textMotivo = $this->request->getPost('textMotivo'),
                 $textComentarios = $this->request->getPost('textComentarios'),
             ];
             log_message('notice','[BAJCONTRATO|Async] {user} esta intentando dar de baja contrato.', $log_extra);

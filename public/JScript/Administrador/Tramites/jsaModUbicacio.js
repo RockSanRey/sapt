@@ -144,7 +144,7 @@ const buscarContratoInformacion = async (textIdContrato) => {
                         </div>
                         <div class="row">
                             <div class="form-group col-md-3">
-                                <div class="custom-select custom-select-sm">${contrato.ESTADO_ESTA}</div>
+                                <div class="custom-select custom-select-sm">${contrato.NOMBRE_ESTA}</div>
                             </div>
                             <div class="form-group col-md-3">
                                 <div class="custom-select custom-select-sm">${contrato.NOMBRE_MUNIC}</div>
@@ -206,14 +206,14 @@ const llenarComboColoniaSel = async (selCodiPostal, textColonia, selColonia) => 
             }else{
                 respuestas.forEach(municipios => {
                     const opcionSelect = document.createElement('option');
-                    opcionSelect.setAttribute('value', municipios.CLVCOLON_CODPOS);
+                    opcionSelect.setAttribute('value', municipios.CLVCOLON_COLON);
                     opcionSelect.classList.add('fuente-12p');
-                    if(selColonia==municipios.CLVCOLON_CODPOS){
+                    if(selColonia==municipios.CLVCOLON_COLON){
                         opcionSelect.setAttribute('selected', 'selected');
-                        opcionSelect.innerHTML=municipios.COLONIA_CODPOS;
+                        opcionSelect.innerHTML=municipios.COLONIA_COLON;
                         textColonia.appendChild(opcionSelect);
                     }else{
-                        opcionSelect.innerHTML=municipios.COLONIA_CODPOS;
+                        opcionSelect.innerHTML=municipios.COLONIA_COLON;
                         textColonia.appendChild(opcionSelect);
                     }
                 });

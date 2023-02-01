@@ -303,7 +303,7 @@ const llenarComboEstados = async () => {
                     const opcionSelect = document.createElement('option');
                     opcionSelect.setAttribute('value', estados.CLAVE_ESTA);
                     opcionSelect.classList.add('fuente-12p');
-                    opcionSelect.innerHTML=estados.ESTADO_ESTA;
+                    opcionSelect.innerHTML=estados.NOMBRE_ESTA;
                     textEstado.appendChild(opcionSelect);
                 });
             }
@@ -430,9 +430,9 @@ const llenarComboColonias = async (textCodiPostal) => {
                 }else{
                     respuestas.forEach(estados => {
                         const opcionSelect = document.createElement('option');
-                        opcionSelect.setAttribute('value', estados.CLVCOLON_CODPOS);
+                        opcionSelect.setAttribute('value', estados.CLVCOLON_COLON);
                         opcionSelect.classList.add('fuente-12p');
-                        opcionSelect.innerHTML=estados.COLONIA_CODPOS;
+                        opcionSelect.innerHTML=estados.COLONIA_COLON;
                         textColonia.appendChild(opcionSelect);
                     });
                     textColonia.focus();
@@ -983,10 +983,10 @@ const llenarComboEstadosSelect = async (textEstado, selEstado) => {
                     opcionSelect.classList.add('fuente-12p');
                     if(selEstado==estados.CLAVE_ESTA){
                         opcionSelect.setAttribute('selected', 'selected');
-                        opcionSelect.innerHTML=estados.ESTADO_ESTA;
+                        opcionSelect.innerHTML=estados.NOMBRE_ESTA;
                         textEstado.appendChild(opcionSelect);
                     }else{
-                        opcionSelect.innerHTML=estados.ESTADO_ESTA;
+                        opcionSelect.innerHTML=estados.NOMBRE_ESTA;
                         textEstado.appendChild(opcionSelect);
                     }
                 });
@@ -1105,14 +1105,14 @@ const llenarComboColoniasSelect = async (selCodiPostal, textColonia, selColonia)
             }else{
                 respuestas.forEach(municipios => {
                     const opcionSelect = document.createElement('option');
-                    opcionSelect.setAttribute('value', municipios.CLVCOLON_CODPOS);
+                    opcionSelect.setAttribute('value', municipios.CLVCOLON_COLON);
                     opcionSelect.classList.add('fuente-12p');
-                    if(selColonia==municipios.CLVCOLON_CODPOS){
+                    if(selColonia==municipios.CLVCOLON_COLON){
                         opcionSelect.setAttribute('selected', 'selected');
-                        opcionSelect.innerHTML=municipios.COLONIA_CODPOS;
+                        opcionSelect.innerHTML=municipios.COLONIA_COLON;
                         textColonia.appendChild(opcionSelect);
                     }else{
-                        opcionSelect.innerHTML=municipios.COLONIA_CODPOS;
+                        opcionSelect.innerHTML=municipios.COLONIA_COLON;
                         textColonia.appendChild(opcionSelect);
                     }
                 });
@@ -1287,10 +1287,10 @@ const exportarContratoNuevo = async (botonExportContrato) => {
                         docImprimir.text(contrato.NOMBRE,19,42, 'left');
                         docImprimir.text(contrato.DESCRIPCION_CONT,151,42, 'left');
                         docImprimir.text(contrato.CALLES,26,48, 'left');
-                        docImprimir.text(contrato.COLONIA_CODPOS,109,48, 'left');
+                        docImprimir.text(contrato.COLONIA_COLON,109,48, 'left');
                         docImprimir.text(contrato.CODIPOST_CODPOS,176,48, 'left');
                         docImprimir.text(contrato.NOMBRE_MUNIC,21,54, 'left');
-                        docImprimir.text(contrato.ESTADO_ESTA,123,54, 'left');
+                        docImprimir.text(contrato.NOMBRE_ESTA,123,54, 'left');
                         docImprimir.text(contrato.TELEFONO_CLIEN+' '+contrato.MOVIL_CLIEN,16,60, 'left');
                         docImprimir.text(contrato.DESCRIPCION_CPERM,140,60, 'left');
                         docImprimir.text(contrato.DESCRIPCION_CTARI,172,60, 'left');
@@ -1424,7 +1424,7 @@ const imprimirContrato = async (botonImprimContrato) => {
                                 </td>
                                 <td colspan="4" style="border: 1px solid rgb(20,179,237)">
                                     <div style="position: absolute; margin-left:3px; font-size:6px;">Colonia:</div>
-                                    <div style="text-align: center; font-size:14px;">${contrato.COLONIA_CODPOS}</div>
+                                    <div style="text-align: center; font-size:14px;">${contrato.COLONIA_COLON}</div>
                                 </td>
                                 <td colspan="3" style="border: 1px solid rgb(20,179,237)">
                                     <div style="position: absolute; margin-left:3px; font-size:6px;">Cod. Postal:</div>

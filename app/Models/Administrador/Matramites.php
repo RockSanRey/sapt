@@ -119,7 +119,7 @@ class Matramites extends Model
                 'CAPTURA_CLIEN'=>$datosParaGuardar[0],
                 'IDUSUA_CLIEN'=>$idUsuarioAsignado,
                 'CODBARR_CLIEN'=>date('Ymd').str_pad($secuenciaOrden, 6, '0', STR_PAD_LEFT),
-                'ID_CLIEN'=>str_pad($secuenciaOrden, 6, '0', STR_PAD_LEFT),
+                'ID_CLIEN'=>str_pad($secuenciaOrden, 8, '0', STR_PAD_LEFT),
                 'NOMBRE_CLIEN'=>ucwords(mb_strtolower($datosParaGuardar[1])),
                 'APATERNO_CLIEN'=>ucwords(mb_strtolower($datosParaGuardar[2])),
                 'AMATERNO_CLIEN'=>ucwords(mb_strtolower($datosParaGuardar[3])),
@@ -130,21 +130,13 @@ class Matramites extends Model
                 'TELEFONO_CLIEN'=>$datosParaGuardar[6],
                 'MOVIL_CLIEN'=>$datosParaGuardar[7],
                 'EMAIL_CLIEN'=>base64_encode($datosParaGuardar[8]),
-                'PAIS_CLIEN'=>'MX',
-                'ESTADO_CLIEN'=>$datosParaGuardar[9],
-                'MUNICIPIO_CLIEN'=>$datosParaGuardar[10],
-                'CODIPOSTAL_CLIEN'=>$datosParaGuardar[11],
-                'COLONIA_CLIEN'=>$datosParaGuardar[12],
-                'CALLE_CLIEN'=>$datosParaGuardar[13],
-                'NEXTE_CLIEN'=>$datosParaGuardar[14],
-                'NINTE_CLIEN'=>$datosParaGuardar[15],
                 'CAMPUS_CLIEN'=>'TELTI',
                 'USUARIO_CLIEN'=>base64_encode(base64_encode($generaUsuario)),
                 'PASSWORD_CLIEN'=>base64_encode(base64_encode(base64_encode($generaContrasena))),
-                'IDMODIF_CLIEN'=>$datosParaGuardar[0],
-                'FMODIF_CLIEN'=>date('Y-m-d'),
                 'NIVELPERF_CLIEN'=>'USUARIO',
                 'PERFIL_CLIEN'=>'USUARIO',
+                'IDMODIF_CLIEN'=>$datosParaGuardar[0],
+                'FMODIF_CLIEN'=>date('Y-m-d'),
                 'ESTATUS_CLIEN'=>'ACTI',
             ];
             $builderb=$this->dbBuild->table('sys_clientes');
@@ -193,35 +185,51 @@ class Matramites extends Model
 
             $buildere=$this->dbBuild->table('cat_calles');
             $buildere->select('CALLE_CALLE');
-            $buildere->where('CLVCOLON_CALLE',$datosParaGuardar[12]);
+            $buildere->where('COLON_CALLE',$datosParaGuardar[12]);
             $buildere->where('CALLE_CALLE',$datosParaGuardar[13]);
             $buildere->where('ESTATUS_CALLE','ACTI');
             $resultado1=$buildere->get();
             if(!$resultado1->getNumRows()>0){
 
+                $builderf=$this->dbBuild->table('cat_calles');
+                $builderf->selectMax('(SECUENCIA_CALLE)+1','SECUENCIA_CALLE');
+                $builderf->where('COLON_CALLE',$datosParaGuardar[12]);
+                $builderf->where('ESTATUS_CALLE','ACTI');
+                $resultado=$builderf->get();
+
+                if($resultado->getNumRows()>0){
+                    foreach($resultado->getResultArray() as $filas){
+                        $secuenciaCalle=$filas['SECUENCIA_CALLE'];
+                    }
+                    if($secuenciaCalle==''){
+                        $secuenciaCalle=1;
+                    }
+                    log_message('info','[REGUSUARIOS|Async/Q] Obteniendo secuencia para asignar a calle',$log_extra);
+                }
                 $setCalleNueva=[
                     'FECHACAP_CALLE'=>date('Y-m-d'),
                     'HORACAP_CALLE'=>date('H:i:s'),
                     'CAPTURA_CALLE'=>$datosParaGuardar[0],
-                    'CLVCOLON_CALLE'=>$datosParaGuardar[12],
-                    'CLVCALLE_CALLE'=>date('YmdHis'),
+                    'COLON_CALLE'=>$datosParaGuardar[12],
+                    'SECUENCIA_CALLE'=>str_pad($secuenciaCalle,4,'0', STR_PAD_LEFT),
+                    'CLVCALLE_CALLE'=>$datosParaGuardar[12].str_pad($secuenciaCalle,4,'0', STR_PAD_LEFT),
                     'CALLE_CALLE'=>$datosParaGuardar[13],
                     'IDMODIF_CALLE'=>$datosParaGuardar[0],
                     'FMODIF_CALLE'=>date('Y-m-d'),
                     'ESTATUS_CALLE'=>'ACTI',
                 ];
-                $builderf=$this->dbBuild->table('cat_calles');
-                $builderf->insert($setCalleNueva);
+                $builderg=$this->dbBuild->table('cat_calles');
+                $builderg->insert($setCalleNueva);
                 log_message('notice','[REGUSUARIOS|Async/Q] Agregando nueva calle al sistema');
 
             }
 
-            $builderg=$this->dbBuild->table('sys_clientes');
-            $builderg->select("IDUSUA_CLIEN, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE, IDUBIC_UBIC");
-            $builderg->join('sys_clientes_ubicaciones','IDUSUA_UBIC=IDUSUA_CLIEN');
-            $builderg->where('IDUSUA_CLIEN', $idUsuarioAsignado);
-            $builderg->where('ESTATUS_CLIEN','ACTI');
-            $resultado2=$builderg->get();
+            $builderh=$this->dbBuild->table('sys_clientes');
+            $builderh->select("IDUSUA_CLIEN, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE, IDUBIC_UBIC");
+            $builderh->join('sys_clientes_ubicaciones','IDUSUA_UBIC=IDUSUA_CLIEN');
+            $builderh->where('IDUSUA_CLIEN', $idUsuarioAsignado);
+            $builderh->where('ESTATUS_CLIEN','ACTI');
+            $resultado2=$builderh->get();
             if($resultado2->getNumRows()>0){
                 return $resultado2->getResultArray();
                 log_message('info','[REGUSUARIOS|Async/Q] Generando datos desde consulta para continuar asignación de contrato');
@@ -523,8 +531,8 @@ class Matramites extends Model
             CODIPOSTAL_UBIC, COLONIA_UBIC, CALLE_UBIC, NEXTE_UBIC, NINTE_UBIC, REFERENCIA_UBIC, IDUBIC_UBIC");
             $builder->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
             $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
-            $builder->where('IDUSUA_CLIEN',$parametro[0]);
-            $builder->where('CONTRATO_CCONT',$parametro[1]);
+            $builder->where('IDUSUA_CLIEN',$parametro[1]);
+            $builder->where('CONTRATO_CCONT',$parametro[0]);
             $builder->where('ESTATUS_CLIEN','ACTI');
             $builder->groupBy('IDUSUA_CLIEN');
             $resultado=$builder->get();
@@ -555,14 +563,6 @@ class Matramites extends Model
             'TELEFONO_CLIEN'=>$datosParaGuardar[8],
             'MOVIL_CLIEN'=>$datosParaGuardar[9],
             'EMAIL_CLIEN'=>base64_encode($datosParaGuardar[10]),
-            'PAIS_CLIEN'=>'MX',
-            'ESTADO_CLIEN'=>$datosParaGuardar[11],
-            'MUNICIPIO_CLIEN'=>$datosParaGuardar[12],
-            'CODIPOSTAL_CLIEN'=>$datosParaGuardar[13],
-            'COLONIA_CLIEN'=>$datosParaGuardar[14],
-            'CALLE_CLIEN'=>$datosParaGuardar[15],
-            'NEXTE_CLIEN'=>$datosParaGuardar[16],
-            'NINTE_CLIEN'=>$datosParaGuardar[17],
             'CAMPUS_CLIEN'=>'TELTI',
             'IDMODIF_CLIEN'=>$datosParaGuardar[0],
             'FMODIF_CLIEN'=>date('Y-m-d'),
@@ -603,11 +603,12 @@ class Matramites extends Model
 
             $builder=$this->dbBuild->table('sys_clientes');
             $builder->select("CONCAT(IDUSUA_CLIEN) AS idTablePk, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE,
-            ESTADO_ESTA, NOMBRE_MUNIC,CODIPOST_CODPOS, COLONIA_CODPOS, CONCAT(CALLE_CLIEN,' ',NEXTE_CLIEN,' ',NINTE_CLIEN) AS CALLES");
-            $builder->join('cat_estados','CLAVE_ESTA=ESTADO_CLIEN');
-            $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_CLIEN');
-            $builder->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_CLIEN');
-            $builder->where('CLVCOLON_CODPOS=COLONIA_CLIEN');
+            NOMBRE_ESTA,NOMBRE_MUNIC,CODIPOST_CODPOS,COLONIA_COLON,CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES");
+            $builder->join('sys_clientes_ubicaciones','IDUSUA_UBIC=IDUSUA_CLIEN');
+            $builder->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
+            $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
+            $builder->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builder->where('IDUSUA_CLIEN',$id);
             $builder->where('ESTATUS_CLIEN','ACTI');
             $builder->groupBy('IDUSUA_CLIEN');
@@ -773,25 +774,41 @@ class Matramites extends Model
     
             $builderc=$this->dbBuild->table('cat_calles');
             $builderc->select('CALLE_CALLE');
-            $builderc->where('CLVCOLON_CALLE',$datosParaGuardar[5]);
+            $builderc->where('COLON_CALLE',$datosParaGuardar[5]);
             $builderc->where('CALLE_CALLE',$datosParaGuardar[6]);
             $builderc->where('ESTATUS_CALLE','ACTI');
             $resultado1=$builderc->get();
             if(!$resultado1->getNumRows()>0){
-    
+                $builderd=$this->dbBuild->table('cat_calles');
+                $builderd->selectMax('(SECUENCIA_CALLE)+1','SECUENCIA_CALLE');
+                $builderd->where('COLON_CALLE',$datosParaGuardar[5]);
+                $builderd->where('ESTATUS_CALLE','ACTI');
+                $resultado=$builderd->get();
+
+                if($resultado->getNumRows()>0){
+                    foreach($resultado->getResultArray() as $filas){
+                        $secuenciaCalle=$filas['SECUENCIA_CALLE'];
+                    }
+                    if($secuenciaCalle==''){
+                        $secuenciaCalle=1;
+                    }
+                    log_message('info','[AGRCONTRATO|Async/Q] Obteniendo secuencia para asignar a calle',$log_extra);
+                }
+
                 $setCalleNueva=[
                     'FECHACAP_CALLE'=>date('Y-m-d'),
                     'HORACAP_CALLE'=>date('H:i:s'),
                     'CAPTURA_CALLE'=>$datosParaGuardar[0],
-                    'CLVCOLON_CALLE'=>$datosParaGuardar[5],
-                    'CLVCALLE_CALLE'=>date('YmdHis'),
+                    'COLON_CALLE'=>$datosParaGuardar[5],
+                    'SECUENCIA_CALLE'=>str_pad($secuenciaCalle,4,'0', STR_PAD_LEFT),
+                    'CLVCALLE_CALLE'=>$datosParaGuardar[5].str_pad($secuenciaCalle,4,'0', STR_PAD_LEFT),
                     'CALLE_CALLE'=>$datosParaGuardar[6],
                     'IDMODIF_CALLE'=>$datosParaGuardar[0],
                     'FMODIF_CALLE'=>date('Y-m-d'),
                     'ESTATUS_CALLE'=>'ACTI',
                 ];
-                $builderd=$this->dbBuild->table('cat_calles');
-                $builderd->insert($setCalleNueva);
+                $buildere=$this->dbBuild->table('cat_calles');
+                $buildere->insert($setCalleNueva);
                 log_message('notice','[AGRCONTRATO|Async/Q] Agregando nueva calle al sistema');
     
             }
@@ -812,15 +829,15 @@ class Matramites extends Model
                 'FMODIF_CCONT'=>date('Y-m-d'),
                 'ESTATUS_CCONT'=>'ACTI',
             ];
-            $buildere=$this->dbBuild->table('sys_clientes_contratos');
-            $buildere->insert($setCrearContrato);
+            $builderf=$this->dbBuild->table('sys_clientes_contratos');
+            $builderf->insert($setCrearContrato);
             log_message('notice','[AGRCONTRATO|Async/Q] {captur} asigno un contrato nuevo a {item}', $log_extra);
     
-            $builderf=$this->dbBuild->table('cat_conceptos');
-            $builderf->select('CLAVE_CONC, COSTO_CONC');
-            $builderf->where('CLAVE_CONC', $datosParaGuardar[11]);
-            $builderf->where('ESTATUS_CONC','ACTI');
-            $resultado2=$builderf->get();
+            $builderg=$this->dbBuild->table('cat_conceptos');
+            $builderg->select('CLAVE_CONC, COSTO_CONC');
+            $builderg->where('CLAVE_CONC', $datosParaGuardar[11]);
+            $builderg->where('ESTATUS_CONC','ACTI');
+            $resultado2=$builderg->get();
             if($resultado2->getNumRows()>0){
                 log_message('info','[AGRCONTRATO|Async/Q] Generando datos para aplicar el costo del concepto agregado');
                 foreach($resultado2->getResultArray() as $filas){
@@ -1075,16 +1092,16 @@ class Matramites extends Model
             }
 
             $buildera=$this->dbBuild->table('sys_clientes');
-            $buildera->select("CONCAT(CONTRATO_CCONT,'_',IDUSUA_CLIEN) AS IDCONTRAUSER, ESTADO_ESTA, NOMBRE_MUNIC, CODIPOST_CODPOS, COLONIA_CODPOS,
-             CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES, CONTRATO_CCONT, DESCRIPCION_CONT, PERMISO_CCONT");
+            $buildera->select("CONCAT(CONTRATO_CCONT,'_',IDUSUA_CLIEN) AS IDCONTRAUSER,NOMBRE_ESTA,NOMBRE_MUNIC,CODIPOST_CODPOS,COLONIA_COLON,
+             CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES,CONTRATO_CCONT,DESCRIPCION_CONT,PERMISO_CCONT");
             $buildera->join('sys_clientes_contratos','IDUSUA_CLIEN=CLIENTE_CCONT');
             $buildera->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
             $buildera->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
             $buildera->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
             $buildera->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
-            $buildera->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $buildera->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $buildera->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $buildera->where('IDUSUA_CLIEN',$id);
-            $buildera->where('CLVCOLON_CODPOS=COLONIA_UBIC');
             $buildera->where('ESTATUS_CLIEN','ACTI');
             $buildera->groupBy('CONTRATO_CCONT');
             $resultado1=$buildera->get();
@@ -1145,7 +1162,7 @@ class Matramites extends Model
                 'IDMODIF_CCONT'=>$datosParaGuardar[0],
                 'FMODIF_CCONT'=>date('Y-m-d'),
             ];
-            $builder=$this->dbBuild->table('sys_clientes_contratoss');
+            $builder=$this->dbBuild->table('sys_clientes_contratos');
             $builder->where('CLIENTE_CCONT',$datosParaGuardar[1]);
             $builder->where('CONTRATO_CCONT',$datosParaGuardar[2]);
             $builder->set($setActualizaContrato);
@@ -1166,19 +1183,19 @@ class Matramites extends Model
 
             $builder=$this->dbBuild->table('sys_clientes');
             $builder->select("CONCAT(IDUSUA_CLIEN,'_',CONTRATO_CCONT,'_',IDUBIC_UBIC) AS idTablePk, CONTRATO_CCONT, 
-            CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE, ESTADO_ESTA, NOMBRE_MUNIC,
-            CODIPOST_CODPOS, COLONIA_CODPOS, CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES, DESCRIPCION_CONT, 
-            DESCRIPCION_CEXP, DESCRIPCION_CPERM, DESCRIPCION_CTARI, FECHACAP_CCONT, COMENTS_CCONT");
+            CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE,NOMBRE_ESTA,NOMBRE_MUNIC,
+            CODIPOST_CODPOS,COLONIA_COLON,CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES,DESCRIPCION_CONT, 
+            DESCRIPCION_CEXP,DESCRIPCION_CPERM,DESCRIPCION_CTARI,FECHACAP_CCONT,COMENTS_CCONT");
             $builder->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
             $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
             $builder->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
             $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
-            $builder->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builder->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
             $builder->join('cat_contratosExpedicion','CLAVE_CEXP=MODO_CCONT');
             $builder->join('cat_contratosPermisos','CLAVE_CPERM=PERMISO_CCONT');
             $builder->join('cat_contratosTarifas','CLAVE_CTARI=DESCUENTO_CCONT');
-            $builder->where('CLVCOLON_CODPOS=COLONIA_UBIC');
             $builder->where('CLIENTE_CCONT',$parametro[0]);
             $builder->where('CONTRATO_CCONT', $parametro[1]);
             $builder->where('ESTATUS_CCONT','ACTI');
@@ -1281,14 +1298,6 @@ class Matramites extends Model
                 'TELEFONO_CLIEN'=>$datosParaGuardar[6],
                 'MOVIL_CLIEN'=>$datosParaGuardar[7],
                 'EMAIL_CLIEN'=>base64_encode($datosParaGuardar[8]),
-                'PAIS_CLIEN'=>'MX',
-                'ESTADO_CLIEN'=>$datosParaGuardar[9],
-                'MUNICIPIO_CLIEN'=>$datosParaGuardar[10],
-                'CODIPOSTAL_CLIEN'=>$datosParaGuardar[11],
-                'COLONIA_CLIEN'=>$datosParaGuardar[12],
-                'CALLE_CLIEN'=>$datosParaGuardar[13],
-                'NEXTE_CLIEN'=>$datosParaGuardar[14],
-                'NINTE_CLIEN'=>$datosParaGuardar[15],
                 'CAMPUS_CLIEN'=>'TELTI',
                 'USUARIO_CLIEN'=>base64_encode(base64_encode($generaUsuario)),
                 'PASSWORD_CLIEN'=>base64_encode(base64_encode(base64_encode($generaContrasena))),
@@ -1345,46 +1354,62 @@ class Matramites extends Model
 
             $buildere=$this->dbBuild->table('cat_calles');
             $buildere->select('CALLE_CALLE');
-            $buildere->where('CLVCOLON_CALLE',$datosParaGuardar[12]);
+            $buildere->where('COLON_CALLE',$datosParaGuardar[12]);
             $buildere->where('CALLE_CALLE',$datosParaGuardar[13]);
             $buildere->where('ESTATUS_CALLE','ACTI');
             $resultado1=$buildere->get();
             if(!$resultado1->getNumRows()>0){
+                $builderf=$this->dbBuild->table('cat_calles');
+                $builderf->selectMax('(SECUENCIA_CALLE)+1','SECUENCIA_CALLE');
+                $builderf->where('COLON_CALLE',$datosParaGuardar[12]);
+                $builderf->where('ESTATUS_CALLE','ACTI');
+                $resultado=$builderf->get();
+
+                if($resultado->getNumRows()>0){
+                    foreach($resultado->getResultArray() as $filas){
+                        $secuenciaCalle=$filas['SECUENCIA_CALLE'];
+                    }
+                    if($secuenciaCalle==''){
+                        $secuenciaCalle=1;
+                    }
+                    log_message('info','[TRACONTRATO|Async/Q] Obteniendo secuencia para asignar a calle',$log_extra);
+                }
 
                 $setCalleNueva=[
                     'FECHACAP_CALLE'=>date('Y-m-d'),
                     'HORACAP_CALLE'=>date('H:i:s'),
                     'CAPTURA_CALLE'=>$datosParaGuardar[0],
-                    'CLVCOLON_CALLE'=>$datosParaGuardar[12],
-                    'CLVCALLE_CALLE'=>date('YmdHis'),
+                    'COLON_CALLE'=>$datosParaGuardar[12],
+                    'SECUENCIA_CALLE'=>str_pad($secuenciaCalle,4,'0', STR_PAD_LEFT),
+                    'CLVCALLE_CALLE'=>$datosParaGuardar[12].str_pad($secuenciaCalle,4,'0', STR_PAD_LEFT),
                     'CALLE_CALLE'=>$datosParaGuardar[13],
                     'IDMODIF_CALLE'=>$datosParaGuardar[0],
                     'FMODIF_CALLE'=>date('Y-m-d'),
                     'ESTATUS_CALLE'=>'ACTI',
                 ];
-                $builderf=$this->dbBuild->table('cat_calles');
-                $builderf->insert($setCalleNueva);
+                $builderg=$this->dbBuild->table('cat_calles');
+                $builderg->insert($setCalleNueva);
                 log_message('notice','[TRACONTRATO|Async/Q] Agregando nueva calle al sistema');
 
             }
 
-            $builderg=$this->dbBuild->table('sys_clientes');
-            $builderg->select("IDUSUA_CLIEN, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE, IDUBIC_UBIC");
-            $builderg->join('sys_clientes_ubicaciones','IDUSUA_UBIC=IDUSUA_CLIEN');
-            $builderg->where('IDUSUA_CLIEN', $idUsuarioAsignado);
-            $builderg->where('ESTATUS_CLIEN','ACTI');
-            $resultado2=$builderg->get();
+            $builderh=$this->dbBuild->table('sys_clientes');
+            $builderh->select("IDUSUA_CLIEN, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE, IDUBIC_UBIC");
+            $builderh->join('sys_clientes_ubicaciones','IDUSUA_UBIC=IDUSUA_CLIEN');
+            $builderh->where('IDUSUA_CLIEN', $idUsuarioAsignado);
+            $builderh->where('ESTATUS_CLIEN','ACTI');
+            $resultado2=$builderh->get();
             if($resultado2->getNumRows()>0){
                 $usuario=$resultado2->getResultArray();
                 log_message('info','[TRACONTRATO|Async/Q] Generando datos desde consulta usuarios general transferencia de contrato');
             }
 
-            $builderh=$this->dbBuild->table('sys_clientes_contratos');
-            $builderh->select("CONCAT(CLIENTE_CCONT,'_',CONTRATO_CCONT,'_',UBICA_CCONT) AS IDCONTRATO, CONTRATO_CCONT, TIPO_CCONT, MODO_CCONT, PERMISO_CCONT, DESCUENTO_CCONT, COMENTS_CCONT");
-            $builderh->where('CLIENTE_CCONT',$parametro[0]);
-            $builderh->where('CONTRATO_CCONT',$parametro[1]);
-            $builderh->where('ESTATUS_CCONT','ACTI');
-            $resultado3=$builderh->get();
+            $builderi=$this->dbBuild->table('sys_clientes_contratos');
+            $builderi->select("CONCAT(CLIENTE_CCONT,'_',CONTRATO_CCONT,'_',UBICA_CCONT) AS IDCONTRATO, CONTRATO_CCONT, TIPO_CCONT, MODO_CCONT, PERMISO_CCONT, DESCUENTO_CCONT, COMENTS_CCONT");
+            $builderi->where('CLIENTE_CCONT',$parametro[0]);
+            $builderi->where('CONTRATO_CCONT',$parametro[1]);
+            $builderi->where('ESTATUS_CCONT','ACTI');
+            $resultado3=$builderi->get();
             if($resultado3->getNumRows()>0){
                 $contrato=$resultado3->getResultArray();
                 log_message('info','[TRACONTRATO|Async/Q] Generando datos desde consulta contrato detalles transferencia de contrato');
@@ -1497,47 +1522,63 @@ class Matramites extends Model
 
             $builderd=$this->dbBuild->table('cat_calles');
             $builderd->select('CALLE_CALLE');
-            $builderd->where('CLVCOLON_CALLE',$datosParaGuardar[12]);
+            $builderd->where('COLON_CALLE',$datosParaGuardar[12]);
             $builderd->where('CALLE_CALLE',$datosParaGuardar[13]);
             $builderd->where('ESTATUS_CALLE','ACTI');
             $resultado1=$builderd->get();
             if(!$resultado1->getNumRows()>0){
+                $buildere=$this->dbBuild->table('cat_calles');
+                $buildere->selectMax('(SECUENCIA_CALLE)+1','SECUENCIA_CALLE');
+                $buildere->where('COLON_CALLE',$datosParaGuardar[12]);
+                $buildere->where('ESTATUS_CALLE','ACTI');
+                $resultado=$buildere->get();
+
+                if($resultado->getNumRows()>0){
+                    foreach($resultado->getResultArray() as $filas){
+                        $secuenciaCalle=$filas['SECUENCIA_CALLE'];
+                    }
+                    if($secuenciaCalle==''){
+                        $secuenciaCalle=1;
+                    }
+                    log_message('info','[TRACONTRATO|Async/Q] Obteniendo secuencia para asignar a calle',$log_extra);
+                }
 
                 $setCalleNueva=[
                     'FECHACAP_CALLE'=>date('Y-m-d'),
                     'HORACAP_CALLE'=>date('H:i:s'),
                     'CAPTURA_CALLE'=>$datosParaGuardar[0],
-                    'CLVCOLON_CALLE'=>$datosParaGuardar[12],
-                    'CLVCALLE_CALLE'=>date('YmdHis'),
+                    'COLON_CALLE'=>$datosParaGuardar[12],
+                    'SECUENCIA_CALLE'=>str_pad($secuenciaCalle,4,'0', STR_PAD_LEFT),
+                    'CLVCALLE_CALLE'=>$datosParaGuardar[12].str_pad($secuenciaCalle,4,'0', STR_PAD_LEFT),
                     'CALLE_CALLE'=>$datosParaGuardar[13],
                     'IDMODIF_CALLE'=>$datosParaGuardar[0],
                     'FMODIF_CALLE'=>date('Y-m-d'),
                     'ESTATUS_CALLE'=>'ACTI',
                 ];
-                $buildere=$this->dbBuild->table('cat_calles');
-                $buildere->insert($setCalleNueva);
+                $builderf=$this->dbBuild->table('cat_calles');
+                $builderf->insert($setCalleNueva);
                 log_message('notice','[TRACONTRATO|Async/Q] Agregando nueva calle al sistema');
 
             }
 
-            $builderf=$this->dbBuild->table('sys_clientes');
-            $builderf->select("IDUSUA_CLIEN, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE, IDUBIC_UBIC");
-            $builderf->join('sys_clientes_ubicaciones','IDUSUA_UBIC=IDUSUA_CLIEN');
-            $builderf->where('IDUSUA_CLIEN', $datosParaGuardar[17]);
-            $builderf->where('IDUBIC_UBIC', $datosParaGuardar[17].str_pad($secuenciaUbic,3,'0', STR_PAD_LEFT));
-            $builderf->where('ESTATUS_CLIEN','ACTI');
-            $resultado2=$builderf->get();
+            $builderg=$this->dbBuild->table('sys_clientes');
+            $builderg->select("IDUSUA_CLIEN, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE, IDUBIC_UBIC");
+            $builderg->join('sys_clientes_ubicaciones','IDUSUA_UBIC=IDUSUA_CLIEN');
+            $builderg->where('IDUSUA_CLIEN', $datosParaGuardar[17]);
+            $builderg->where('IDUBIC_UBIC', $datosParaGuardar[17].str_pad($secuenciaUbic,3,'0', STR_PAD_LEFT));
+            $builderg->where('ESTATUS_CLIEN','ACTI');
+            $resultado2=$builderg->get();
             if($resultado2->getNumRows()>0){
                 $usuario=$resultado2->getResultArray();
                 log_message('info','[TRACONTRATO|Async/Q] Generando datos desde consulta usuario datos');
             }
 
-            $builderg=$this->dbBuild->table('sys_clientes_contratos');
-            $builderg->select("CONCAT(CLIENTE_CCONT,'_',CONTRATO_CCONT,'_',UBICA_CCONT) AS IDCONTRATO, CONTRATO_CCONT, TIPO_CCONT, MODO_CCONT, PERMISO_CCONT, DESCUENTO_CCONT, COMENTS_CCONT");
-            $builderg->where('CLIENTE_CCONT',$parametro[0]);
-            $builderg->where('CONTRATO_CCONT',$parametro[1]);
-            $builderg->where('ESTATUS_CCONT','ACTI');
-            $resultado3=$builderg->get();
+            $builderh=$this->dbBuild->table('sys_clientes_contratos');
+            $builderh->select("CONCAT(CLIENTE_CCONT,'_',CONTRATO_CCONT,'_',UBICA_CCONT) AS IDCONTRATO, CONTRATO_CCONT, TIPO_CCONT, MODO_CCONT, PERMISO_CCONT, DESCUENTO_CCONT, COMENTS_CCONT");
+            $builderh->where('CLIENTE_CCONT',$parametro[0]);
+            $builderh->where('CONTRATO_CCONT',$parametro[1]);
+            $builderh->where('ESTATUS_CCONT','ACTI');
+            $resultado3=$builderh->get();
             if($resultado3->getNumRows()>0){
                 $contrato=$resultado3->getResultArray();
                 log_message('info','[TRACONTRATO|Async/Q] Generando datos desde consulta contrato detalles');
@@ -1654,21 +1695,21 @@ class Matramites extends Model
             $parametro=explode('_',$id);
 
             $builder=$this->dbBuild->table('sys_clientes');
-            $builder->select("CONCAT(IDUSUA_CLIEN,'_',CONTRATO_CCONT,'_',IDUBIC_UBIC) AS idTablePk, CONTRATO_CCONT, 
+            $builder->select("CONCAT(IDUSUA_CLIEN,'_',CONTRATO_CCONT,'_',IDUBIC_UBIC) AS idTablePk,CONTRATO_CCONT, 
             CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE, 
-            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_CODPOS,', C.P.',CODIPOST_CODPOS,', ',NOMBRE_MUNIC,', ',ESTADO_ESTA) AS CALLES, 
-            DESCRIPCION_CONT, DESCRIPCION_CEXP, DESCRIPCION_CPERM, DESCRIPCION_CTARI, FECHACAP_CCONT, COMENTS_CCONT,
+            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_COLON,', C.P.',CODIPOST_CODPOS,', ',NOMBRE_MUNIC,', ',NOMBRE_ESTA) AS CALLES, 
+            DESCRIPCION_CONT,DESCRIPCION_CEXP,DESCRIPCION_CPERM,DESCRIPCION_CTARI,FECHACAP_CCONT,COMENTS_CCONT,
             COALESCE(COUNT(DISTINCT(CONTRATO_CCONT))) AS TOTALCONTRATO");
             $builder->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
             $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
             $builder->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
             $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
-            $builder->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builder->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
             $builder->join('cat_contratosExpedicion','CLAVE_CEXP=MODO_CCONT');
             $builder->join('cat_contratosPermisos','CLAVE_CPERM=PERMISO_CCONT');
             $builder->join('cat_contratosTarifas','CLAVE_CTARI=DESCUENTO_CCONT');
-            $builder->where('CLVCOLON_CODPOS=COLONIA_UBIC');
             $builder->where('CLIENTE_CCONT',$parametro[0]);
             $builder->where('CONTRATO_CCONT', $parametro[1]);
             $builder->where('ESTATUS_CCONT','ACTI');
@@ -1695,18 +1736,18 @@ class Matramites extends Model
             $builder=$this->dbBuild->table('sys_clientes');
             $builder->select("CONCAT(IDUSUA_CLIEN,'_',CONTRATO_CCONT,'_',IDUBIC_UBIC) AS idTablePk, CONTRATO_CCONT, 
             CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE,
-            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,' ',COLONIA_CODPOS,' C.P. ',CODIPOST_CODPOS,', ',NOMBRE_MUNIC,', ',ESTADO_ESTA) AS CALLES,
-            DESCRIPCION_CONT, DESCRIPCION_CEXP, DESCRIPCION_CPERM, DESCRIPCION_CTARI, FECHACAP_CCONT, COMENTS_CCONT,ESTATUS_CCONT");
+            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,' ',COLONIA_COLON,' C.P. ',CODIPOST_CODPOS,', ',NOMBRE_MUNIC,', ',NOMBRE_ESTA) AS CALLES,
+            DESCRIPCION_CONT,DESCRIPCION_CEXP,DESCRIPCION_CPERM,DESCRIPCION_CTARI,FECHACAP_CCONT,COMENTS_CCONT,ESTATUS_CCONT");
             $builder->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
             $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
             $builder->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
             $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
-            $builder->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builder->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
             $builder->join('cat_contratosExpedicion','CLAVE_CEXP=MODO_CCONT');
             $builder->join('cat_contratosPermisos','CLAVE_CPERM=PERMISO_CCONT');
             $builder->join('cat_contratosTarifas','CLAVE_CTARI=DESCUENTO_CCONT');
-            $builder->where('CLVCOLON_CODPOS=COLONIA_UBIC');
             $builder->where('CLIENTE_CCONT',$parametro[0]);
             $builder->where('CONTRATO_CCONT', $parametro[1]);
             $builder->where('ESTATUS_CCONT','ACTI');
@@ -1763,6 +1804,7 @@ class Matramites extends Model
             }
 
             $setBajaContrato = [
+                'COMENTS_CCONT'=>$datosParaGuardar[3],
                 'FMODIF_CCONT'=>date('Y-m-d'),
                 'IDMODIF_CCONT'=>$datosParaGuardar[0],
                 'ESTATUS_CCONT'=>$datosParaGuardar[2],
@@ -1811,7 +1853,7 @@ class Matramites extends Model
                 'CONTRATO_CBAJA'=>$parametro[1],
                 'FBAJA_CBAJA'=>date('Y-m-d'),
                 'IDBAJA_CBAJA'=>$datosParaGuardar[0],
-                'MOTIVBAJA_CBAJA'=>$datosParaGuardar[3],
+                'MOTIVBAJA_CBAJA'=>$datosParaGuardar[4],
                 'IDMODIF_CBAJA'=>$datosParaGuardar[0],
                 'FMODIF_CBAJA'=>date('Y-m-d'),
                 'ESTATUS_CBAJA'=>'ACTI',
@@ -1856,9 +1898,9 @@ class Matramites extends Model
 
             $builderc=$this->dbBuild->table('sys_clientes');
             $builderc->select("IDUSUA_CLIEN, CONTRATO_CCONT, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE,
-            ESTADO_ESTA, NOMBRE_MUNIC,CODIPOST_CODPOS, COLONIA_CODPOS, CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES,
-            DESCRIPCION_CONT, TIPO_CCONT, PERMISO_CCONT, DESCUENTO_CCONT, FECHACAP_CCONT, FBAJA_CCONT, IDBAJA_CCONT,
-            CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS RESPONS, FOLIO_CBAJA, ESTATUS_CCONT");
+            NOMBRE_ESTA,NOMBRE_MUNIC,CODIPOST_CODPOS,COLONIA_COLON,CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES,
+            DESCRIPCION_CONT,TIPO_CCONT,PERMISO_CCONT,DESCUENTO_CCONT,FECHACAP_CCONT,FBAJA_CCONT,IDBAJA_CCONT,
+            CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS RESPONS,FOLIO_CBAJA,ESTATUS_CCONT");
             $builderc->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
             $builderc->join('sys_responsables','IDUSUA_RESPO=IDBAJA_CCONT');
             $builderc->join('sys_clientes_contratosBajas','CONTRATO_CBAJA=CONTRATO_CCONT');
@@ -1866,8 +1908,8 @@ class Matramites extends Model
             $builderc->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
             $builderc->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
             $builderc->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
-            $builderc->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
-            $builderc->where('CLVCOLON_CODPOS=COLONIA_UBIC');
+            $builderc->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builderc->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builderc->where('CLIENTE_CCONT',$parametro[0]);
             $builderc->where('CONTRATO_CCONT',$parametro[1]);
             $builderc->groupBy('CONTRATO_CCONT');
@@ -1880,10 +1922,10 @@ class Matramites extends Model
                     $campB=$filas['IDUSUA_CLIEN'];
                     $campC=$filas['CONTRATO_CCONT'];
                     $campD=$filas['NOMBRE'];
-                    $campE=$filas['ESTADO_ESTA'];
+                    $campE=$filas['NOMBRE_ESTA'];
                     $campF=$filas['NOMBRE_MUNIC'];
                     $campG=$filas['CODIPOST_CODPOS'];
-                    $campH=$filas['COLONIA_CODPOS'];
+                    $campH=$filas['COLONIA_COLON'];
                     $campI=$filas['CALLES'];
                     $campJ=$filas['DESCRIPCION_CONT'];
                     $campK=$filas['TIPO_CCONT'];
@@ -1917,13 +1959,14 @@ class Matramites extends Model
             $parametros=explode('_',$id);
             $builder=$this->dbBuild->table('sys_clientes');
             $builder->select("CONCAT(IDUSUA_CLIEN,'_',CONTRATO_CCONT,'_',UBICA_CCONT) AS idTablePk, CONTRATO_CCONT, 
-            CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS CLIENTE,ESTADO_ESTA,NOMBRE_MUNIC,CODIPOSTAL_UBIC, 
-            CODIPOST_CODPOS,COLONIA_UBIC,CALLE_UBIC,NEXTE_UBIC,NINTE_UBIC,REFERENCIA_UBIC");
+            CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS CLIENTE,NOMBRE_ESTA,NOMBRE_MUNIC,CODIPOST_CODPOS,CODIPOSTAL_UBIC, 
+            COLONIA_UBIC,CALLE_UBIC,NEXTE_UBIC,NINTE_UBIC,REFERENCIA_UBIC");
             $builder->join('sys_clientes_contratos','IDUSUA_CLIEN=CLIENTE_CCONT');
             $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
             $builder->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
             $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
-            $builder->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builder->where('IDUSUA_CLIEN',$parametros[0]);
             $builder->where('CONTRATO_CCONT',$parametros[1]);
             $builder->where('ESTATUS_CLIEN','ACTI');
@@ -1991,16 +2034,17 @@ class Matramites extends Model
             }
 
             $buildera=$this->dbBuild->table('sys_clientes');
-            $buildera->select("CONCAT(IDUSUA_CLIEN,'_',CONTRATO_CCONT,'_',UBICA_CCONT) AS idTablePk, CONTRATO_CCONT, ESTADO_ESTA, NOMBRE_MUNIC, CODIPOST_CODPOS, COLONIA_CODPOS,
-             CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES, CONTRATO_CCONT, DESCRIPCION_CONT, PERMISO_CCONT");
+            $buildera->select("CONCAT(IDUSUA_CLIEN,'_',CONTRATO_CCONT,'_',UBICA_CCONT) AS idTablePk,CONTRATO_CCONT,NOMBRE_ESTA,
+            NOMBRE_MUNIC,CODIPOST_CODPOS,COLONIA_COLON,CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES,
+            CONTRATO_CCONT, DESCRIPCION_CONT, PERMISO_CCONT");
             $buildera->join('sys_clientes_contratos','IDUSUA_CLIEN=CLIENTE_CCONT');
             $buildera->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
             $buildera->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
             $buildera->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
             $buildera->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
-            $buildera->join('cat_colonias','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $buildera->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $buildera->join('cat_colonia','CLVCOLON_COLON=COLONIA_UBIC');
             $buildera->where('IDUSUA_CLIEN',$id);
-            $buildera->where('CLVCOLON_CODPOS=COLONIA_UBIC');
             $buildera->where('ESTATUS_CLIEN','ACTI');
             $buildera->groupBy('CONTRATO_CCONT');
             $resultado1=$buildera->get();
@@ -2180,7 +2224,7 @@ class Matramites extends Model
             CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS CLIENTE, CONTRATO_CBAJA, FBAJA_CBAJA");
             $builder->join('sys_clientes','IDUSUA_CLIEN=USUARIO_CBAJA');
             $builder->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_CBAJA');
-            $builder->like('CONTRATO_CBAJA',$id,'after');
+            $builder->like('CONTRATO_CBAJA',$id,'both');
             $builder->where('ESTATUS_CBAJA','ACTI');
             $builder->where('ESTATUS_CCONT','INAC');
             $builder->groupBy('CONTRATO_CBAJA');
@@ -2561,6 +2605,7 @@ class Matramites extends Model
             $builder->where('ESTATUS_CLIEN','ACTI');
             $builder->groupBy('IDUSUA_CLIEN');
             $builder->orderBy('NOMBRE_CLIEN, APATERNO_CLIEN');
+            $builder->limit(100);
             $resultado=$builder->get();
             if($resultado->getNumRows()>0){
                 log_message('info','[TRAMITES|Async/Q] Generando datos desde consulta para continuar edición de usuario');
@@ -2584,6 +2629,7 @@ class Matramites extends Model
             $builder->where('ESTATUS_CCONT','ACTI');
             $builder->where('ESTATUS_CLIEN','ACTI');
             $builder->groupBy('IDUSUA_CLIEN');
+            $builder->limit(100);
             $resultado=$builder->get();
             if($resultado->getNumRows()>0){
                 log_message('info','[TRAMITES|Async/Q] Generando datos desde consulta para continuar edición de usuario');

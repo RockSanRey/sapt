@@ -37,12 +37,15 @@ const plantillaBusqueda = async () => {
         let textIdContrato = document.querySelector('#textIdContrato');
         textContrato.addEventListener('keyup', (e) => {
             userListComplete.innerHTML='';
-            if(e.keyCode=='13'){
-                e.preventDefault();
-                buscarContratoInformacion(textIdContrato);
-            }else if(e.keyCode >= 96 && e.keyCode <= 105 || e.keyCode >= 48 && e.keyCode <= 57 || e.keyCode == 8){
-                completarBusquedaContratos(textContrato);
-            }
+            // if(e.keyCode=='13'){
+            //     e.preventDefault();
+            //     buscarContratoInformacion(textIdContrato);
+            // }else if(e.keyCode >= 96 && e.keyCode <= 105 || e.keyCode >= 48 && e.keyCode <= 57 || e.keyCode == 8){
+            //     completarBusquedaContratos(textContrato);
+            // }
+            e.preventDefault();
+            // buscarContratoInformacion(textIdContrato);
+            completarBusquedaContratos(textContrato);
         })
         let butonBuscarContrato = document.querySelector('#butonBuscarContrato');
         butonBuscarContrato.addEventListener('click', () => {
@@ -269,8 +272,12 @@ const buscarContratoModificar = async (botonEditarContrato) => {
                                         <select class="custom-select custom-select-sm col-md-3 col-12" name="textEstatus" id="textEstatus"></select>
                                     </div>
                                     <div class="form-group">
+                                        <small>Motivo Baja:</small>
+                                        <textarea class="form-control form-control-sm" id="textMotivo" rows="5" name="textMotivo" placeholder="Motivos o Razon de la baja sea explícito."></textarea>
+                                    </div>
+                                    <div class="form-group">
                                         <small>Observaciones:</small>
-                                        <textarea class="form-control form-control-sm" id="textComentarios" rows="5" name="textComentarios">${detalle.COMENTS_CCONT}</textarea>
+                                        <textarea class="form-control form-control-sm" id="textComentarios" rows="5" name="textComentarios" placeholder="Observaciones o notas adicionales.">${detalle.COMENTS_CCONT}</textarea>
                                     </div>
                                 </div>
                             `;
@@ -296,7 +303,7 @@ const buscarContratoModificar = async (botonEditarContrato) => {
 const llenarComboEstatus = async (estatusSelec) => {
     try {
         let textEstatus = document.querySelector('#textEstatus');
-        fetch('catalogos/llenarComboCatEstatus')
+        fetch('acatalogos/llenarComboCatEstatus')
         .then(respRender => respRender.json())
         .then(respuestas => {
             textEstatus.innerHTML='<option value="">Estatus</option>'
@@ -336,7 +343,7 @@ const llenarComboEstatus = async (estatusSelec) => {
 const guardarBajaContrato = async () => {
     try {
         let formRegistroCRUD = document.querySelector('#formRegistroCRUD');
-        if(validarEstatus() && validarComentarios()){
+        if(validarEstatus() && validarMotivo() && validarComentarios()){
             Swal.fire({
                 title: 'Aplicar Baja',
                 icon: 'question',
@@ -361,7 +368,7 @@ const guardarBajaContrato = async () => {
                             return Swal.fire({
                                 title: respuestas.title,
                                 icon: respuestas.icon,
-                                confirmButtonText: `${respuestas.button}`,
+                                confirmButtonText: respuestas.button,
                                 confirmButtonColor: '#9C0000',
                                 html: respuestas.text,
                             })
@@ -436,7 +443,7 @@ const imprimiendoAcuse = async (textModificacion) => {
                 for(let mes=contador; mes <= contador; mes++){
                     mesMuestra=mesesArray[mes];
                 }
-                if(bajas.ESTATUS_CCONT=='INAC'){
+                if(bajas.ESTATUS_CCONT=='BAJT'){
                     mensajeBaja=`
                         <tr>
                             <td colspan="12">
@@ -459,14 +466,14 @@ const imprimiendoAcuse = async (textModificacion) => {
                                     Por medio del presente documento queda escrito que el día ${fechaSplit[2]} de ${mesMuestra} de 
                                     ${fechaSplit[0]} en las instalaciones del pozo de agua potable de Teltipan de Juárez  del C. 
                                     ${bajas.NOMBRE} con numero de contrato ${bajas.CONTRATO_CBAJA} solicita la <strong>Baja Temporal</strong> 
-                                    de su contrato por motivo de ${bajas.OBSERVACIONES_CBAJA}, manifiesta que a esta fecha no presenta 
+                                    de su contrato por motivo de ${bajas.MOTIVBAJA_CBAJA}, manifiesta que a esta fecha no presenta 
                                     adeudos de ningún tipo en el Sistema de Agua Potable Teltipán.
                                 </div>
                             </td>
                         </tr>
                     `;
 
-                }else if(bajas.ESTATUS_CCONT=='BAJA'){
+                }else if(bajas.ESTATUS_CCONT=='BAJD'){
                     mensajeBaja=`
                         <tr>
                             <td colspan="12">
@@ -489,7 +496,7 @@ const imprimiendoAcuse = async (textModificacion) => {
                                     Por medio del presente documento queda escrito que el día ${fechaSplit[2]} de ${mesMuestra} de 
                                     ${fechaSplit[0]} en las instalaciones del pozo de agua potable de Teltipan de Juárez  del C. 
                                     ${bajas.NOMBRE} con numero de contrato ${bajas.CONTRATO_CBAJA} solicita la <strong>Baja Definitiva</strong> 
-                                    de su contrato por motivo de ${bajas.OBSERVACIONES_CBAJA}, manifiesta que a esta fecha no presenta 
+                                    de su contrato por motivo de ${bajas.MOTIVBAJA_CBAJA}, manifiesta que a esta fecha no presenta 
                                     adeudos de ningún tipo en el Sistema de Agua Potable Teltipán.
                                 </div>
                             </td>
@@ -625,8 +632,8 @@ function validarEstatus(){
 
 }
 
-function validarComentarios(){
-    let inputForm = document.querySelector("#textComentarios");
+function validarMotivo(){
+    let inputForm = document.querySelector("#textMotivo");
     if(inputForm.value==null || inputForm.value==''){
         Swal.fire({
             title: 'Campo Inválido',
@@ -641,6 +648,27 @@ function validarComentarios(){
         })
         return false;
     }else if (inputForm.length > 250) {
+        Swal.fire({
+            title: 'Campo Inválido',
+            confirmButtonText: 'Revisar',
+            confirmButtonColor: '#9C0000',
+            icon: 'error',
+            text: 'Observaciones máx 250 caracteres',
+        }).then((result)=>{
+            if(result.isConfirmed){
+                inputError(inputForm);
+            }
+        })
+        return false;
+    }
+    inputValido(inputForm);
+    return true;
+
+}
+
+function validarComentarios(){
+    let inputForm = document.querySelector("#textComentarios");
+    if (inputForm.length > 250) {
         Swal.fire({
             title: 'Campo Inválido',
             confirmButtonText: 'Revisar',

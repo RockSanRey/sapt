@@ -6,6 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
     botonActualizar.addEventListener('click', () => {
         actualizarRegistroUsuario();
     })
+    botonCancelar.addEventListener('click', () => {
+        let formRegistroCRUD = document.querySelector('#formRegistroCRUD');
+        formRegistroCRUD.innerHTML='';
+    })
 })
 
 const plantillaBusqueda = async () => {
@@ -172,7 +176,7 @@ const buscarUsuarioGenerales = async  (idBusqueda) => {
                     columnaDetallesUsuarios.innerHTML=`
                         <div class="row fuente-12p">
                             <div class="col-md-10 col-12"><small>Usuario:</small> ${usuarios.NOMBRE}
-                                <br/><small>Direccion:</small> ${usuarios.CALLES}, ${usuarios.COLONIA_CODPOS} C.P. ${usuarios.CODIPOST_CODPOS}, ${usuarios.NOMBRE_MUNIC}
+                                <br/><small>Direccion:</small> ${usuarios.CALLES}, ${usuarios.COLONIA_COLON} C.P. ${usuarios.CODIPOST_CODPOS}, ${usuarios.NOMBRE_MUNIC}
                             </div>
                         </div>
                     `;
@@ -357,10 +361,10 @@ const llenarComboEstadosSelect = async (textEstado, selEstado) => {
                     opcionSelect.classList.add('fuente-12p');
                     if(selEstado==estados.CLAVE_ESTA){
                         opcionSelect.setAttribute('selected', 'selected');
-                        opcionSelect.innerHTML=estados.ESTADO_ESTA;
+                        opcionSelect.innerHTML=estados.NOMBRE_ESTA;
                         textEstado.appendChild(opcionSelect);
                     }else{
-                        opcionSelect.innerHTML=estados.ESTADO_ESTA;
+                        opcionSelect.innerHTML=estados.NOMBRE_ESTA;
                         textEstado.appendChild(opcionSelect);
                     }
                 });
@@ -550,10 +554,6 @@ const actualizarRegistroUsuario = async () => {
     }
 }
 
-botonCancelar.addEventListener('click', () => {
-    let formRegistroCRUD = document.querySelector('#formRegistroCRUD');
-    formRegistroCRUD.innerHTML='';
-})
 
 function validarNombre(){
     let inputForm = document.querySelector("#textNombre");
