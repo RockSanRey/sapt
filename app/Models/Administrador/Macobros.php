@@ -149,66 +149,66 @@ class Macobros extends Model
             }
 
             $arregloMultas=['SNEXTA','202210EXT','INASCORTE','TIRAZ','TIRAT','PASAG','JARDI','JARDT','RECONA','OFENZ','CORTE','RECONE','202201RSA','202202RSA','202203RSA','202204RSA','202205RSA','202206RSA','202207RSA','202208RSA','202209RSA','202210RSA','202211RSA','202212RSA'];
-            if($parametros[2]=='TARNOR' || $parametros[2]=='TARMAY'){
-                log_message('info','[PAGOSERVICIO|Async/Q] Verificando si se aplica condonacion de mes para {user}', $log_extra);
-                $builderg=$this->dbBuild->table('sys_clientes_detalles');
-                $builderg->select('CODIGO_DETA, ESTATUS_DETA');
-                $builderg->whereIn('CODIGO_DETA',$arregloMultas);
-                $builderg->where('USUARIO_DETA', $parametros[0]);
-                $builderg->where('CONTRATO_DETA', $parametros[1]);
-                $resultado5=$builderg->get();
-                if(!$resultado5->getNumRows()>0){
-                    log_message('info','[PAGOSERVICIO|Async/Q] No hay multas detectadas para {user}', $log_extra);
-                    $builderh=$this->dbBuild->table('sys_clientes_detalles');
-                    $builderh->select("CODIGO_DETA, ESTATUS_DETA");
-                    $builderh->where('CODIGO_DETA',$datosRevisar[3]);
-                    $builderh->where('USUARIO_DETA', $parametros[0]);
-                    $builderh->where('CONTRATO_DETA', $parametros[1]);
-                    $builderh->like('FECHACAP_DETA',date('Y'),'after');
-                    $resultados6=$builderh->get();
-                    if($resultados6->getNumRows()>0){
-                        log_message('info','[PAGOSERVICIO|Async/Q] Ya esta agregada condonación de mes enero para {user}', $log_extra);                    
-                    }else{
-                        $builderd=$this->dbBuild->query("
-                        INSERT INTO sys_clientes_detalles(
-                            `FECHACAP_DETA`,
-                            `HORACAP_DETA`,
-                            `CAPTURA_DETA`,
-                            `USUARIO_DETA`,
-                            `CONTRATO_DETA`,
-                            `CODIGO_DETA`,
-                            `CANTIDAD_DETA`,
-                            `COSTO_DETA`,
-                            `TOTAL_DETA`,
-                            `IDMODIF_DETA`,
-                            `FMODIF_DETA`,
-                            `ESTATUS_DETA`
-                        )
-                            SELECT
-                            curdate(),
-                            curtime(),
-                            '".$datosRevisar[0]."',
-                            '".$parametros[0]."',
-                            '".$parametros[1]."',
-                            CLAVE_CONC,
-                            '1',
-                            COSTO_CONC,
-                            COSTO_CONC,
-                            '".$datosRevisar[0]."',
-                            curdate(),
-                            'ADEU'
-                            FROM cat_conceptos
-                            WHERE
-                            CLAVE_CONC like '".$datosRevisar[3]."' AND
-                            ESTATUS_CONC='ACTI'
-                        ");
-                        log_message('info','[PAGOSERVICIO|Async/Q] Creando condonación de mes enero para pagar de {user}', $log_extra);
+            // if($parametros[2]=='TARNOR' || $parametros[2]=='TARMAY'){
+            //     log_message('info','[PAGOSERVICIO|Async/Q] Verificando si se aplica condonacion de mes para {user}', $log_extra);
+            //     $builderg=$this->dbBuild->table('sys_clientes_detalles');
+            //     $builderg->select('CODIGO_DETA, ESTATUS_DETA');
+            //     $builderg->whereIn('CODIGO_DETA',$arregloMultas);
+            //     $builderg->where('USUARIO_DETA', $parametros[0]);
+            //     $builderg->where('CONTRATO_DETA', $parametros[1]);
+            //     $resultado5=$builderg->get();
+            //     if(!$resultado5->getNumRows()>0){
+            //         log_message('info','[PAGOSERVICIO|Async/Q] No hay multas detectadas para {user}', $log_extra);
+            //         $builderh=$this->dbBuild->table('sys_clientes_detalles');
+            //         $builderh->select("CODIGO_DETA, ESTATUS_DETA");
+            //         $builderh->where('CODIGO_DETA',$datosRevisar[3]);
+            //         $builderh->where('USUARIO_DETA', $parametros[0]);
+            //         $builderh->where('CONTRATO_DETA', $parametros[1]);
+            //         $builderh->like('FECHACAP_DETA',date('Y'),'after');
+            //         $resultados6=$builderh->get();
+            //         if($resultados6->getNumRows()>0){
+            //             log_message('info','[PAGOSERVICIO|Async/Q] Ya esta agregada condonación de mes enero para {user}', $log_extra);                    
+            //         }else{
+            //             $builderd=$this->dbBuild->query("
+            //             INSERT INTO sys_clientes_detalles(
+            //                 `FECHACAP_DETA`,
+            //                 `HORACAP_DETA`,
+            //                 `CAPTURA_DETA`,
+            //                 `USUARIO_DETA`,
+            //                 `CONTRATO_DETA`,
+            //                 `CODIGO_DETA`,
+            //                 `CANTIDAD_DETA`,
+            //                 `COSTO_DETA`,
+            //                 `TOTAL_DETA`,
+            //                 `IDMODIF_DETA`,
+            //                 `FMODIF_DETA`,
+            //                 `ESTATUS_DETA`
+            //             )
+            //                 SELECT
+            //                 curdate(),
+            //                 curtime(),
+            //                 '".$datosRevisar[0]."',
+            //                 '".$parametros[0]."',
+            //                 '".$parametros[1]."',
+            //                 CLAVE_CONC,
+            //                 '1',
+            //                 COSTO_CONC,
+            //                 COSTO_CONC,
+            //                 '".$datosRevisar[0]."',
+            //                 curdate(),
+            //                 'ADEU'
+            //                 FROM cat_conceptos
+            //                 WHERE
+            //                 CLAVE_CONC like '".$datosRevisar[3]."' AND
+            //                 ESTATUS_CONC='ACTI'
+            //             ");
+            //             log_message('info','[PAGOSERVICIO|Async/Q] Creando condonación de mes enero para pagar de {user}', $log_extra);
 
-                    }
+            //         }
     
-                }
+            //     }
     
-            }
+            // }
 
             $buildere=$this->dbBuild->table('sys_clientes_detalles');
             $buildere->select("CONCAT(USUARIO_DETA,'_',CONTRATO_DETA,'_',CODIGO_DETA) AS `idTablePk`, CODIGO_DETA, DESCRIPCION_CONC, 
@@ -414,7 +414,7 @@ class Macobros extends Model
                 }
                 $buildera=$this->dbBuild->table('sys_clientes_detalles');
                 $buildera->insertBatch($setCreaDetalle);
-                log_message('notice','[PAGOSERVICIO|Async/Q] {user} agrego anticipo {item} al pedido de {item2}', $log_extra);
+                // log_message('notice','[PAGOSERVICIO|Async/Q] {user} agrego anticipo {item} al pedido de {item2}', $log_extra);
 
                 return true;
             }
@@ -567,6 +567,7 @@ class Macobros extends Model
             $setPedidoCobro=[
                 'FECHACAP_COBR'=>date('Y-m-d'),
                 'HORACAP_COBR'=>date('H:i:s'),
+                'SEMANA_COBR'=>date('Y-W'),
                 'CAPTURA_COBR'=>$datosParaCompletar[0],
                 'IDCOBRO_COBR'=>$setMovimiento,
                 'CONSECUTIVO_COBR'=>str_pad($secuenciaCobro,10,'0', STR_PAD_LEFT),
@@ -585,6 +586,7 @@ class Macobros extends Model
             $setCompletaPago = [
                 'FECHACAP_PAGO'=>date('Y-m-d'),
                 'HORACAP_PAGO'=>date('H:i:s'),
+                'SEMANA_PAGO'=>date('Y-W'),
                 'CAPTURA_PAGO'=>$datosParaCompletar[0],
                 'IDCOBRO_PAGO'=>$setMovimiento,
                 'CONTRATO_PAGO'=>$parametros[1],
@@ -662,6 +664,7 @@ class Macobros extends Model
             $setPedidoCobro=[
                 'FECHACAP_COBR'=>date('Y-m-d'),
                 'HORACAP_COBR'=>date('H:i:s'),
+                'SEMANA_COBR'=>date('Y-W'),
                 'CAPTURA_COBR'=>$datosParaCompletar[0],
                 'IDCOBRO_COBR'=>$setMovimiento,
                 'CONSECUTIVO_COBR'=>str_pad($secuenciaCobro,10,'0', STR_PAD_LEFT),
@@ -680,6 +683,7 @@ class Macobros extends Model
             $setCompletaPago = [
                 'FECHACAP_PAGO'=>date('Y-m-d'),
                 'HORACAP_PAGO'=>date('H:i:s'),
+                'SEMANA_PAGO'=>date('Y-W'),
                 'CAPTURA_PAGO'=>$datosParaCompletar[0],
                 'IDCOBRO_PAGO'=>$setMovimiento,
                 'CONTRATO_PAGO'=>$parametros[1],
@@ -1153,6 +1157,7 @@ class Macobros extends Model
             $builder->select("IDUSUA_CLIEN, CODBARR_CLIEN, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE");
             $builder->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
             $builder->like('NOMBRE_CLIEN',$id,'after');
+            $builder->orLike('CODBARR_CLIEN',$id,'both');
             $builder->where('ESTATUS_CCONT','ACTI');
             $builder->where('ESTATUS_CLIEN','ACTI');
             $builder->groupBy('IDUSUA_CLIEN');

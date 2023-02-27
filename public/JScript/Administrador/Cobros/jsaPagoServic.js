@@ -307,7 +307,7 @@ const buscarUsuarioInformacion = async (textIdUsuario) => {
                         const botonVerConceptos = document.createElement('button');
                         botonVerConceptos.setAttribute('dataview',contratos.idTablePk);
                         botonVerConceptos.setAttribute('id','botonVerSel');
-                        if(contratos.ESTATUS_CCONT=='BAJA' || contratos.ESTATUS_CCONT=='INAC'){
+                        if(contratos.ESTATUS_CCONT=='BAJD' || contratos.ESTATUS_CCONT=='BAJT'){
                             botonVerConceptos.setAttribute('disabled','disabled');
                             botonVerConceptos.classList.add('btn','btn-white','btn-sm');
                             botonVerConceptos.innerHTML='<i class="fas fa-eye-slash"></i> Baja';
@@ -1817,7 +1817,7 @@ const imprimirReciboPago = async (botonImprimirRecibo) => {
                         </td>
                         <td colspan="4" style="border: 1px solid rgb(20,179,237)">
                             <div style="position: absolute; margin-left:3px; font-size:6px;">Colonia:</div>
-                            <div style="text-align: center; font-size:10px;">${usuarios.COLONIA_CODPOS}</div>
+                            <div style="text-align: center; font-size:10px;">${usuarios.COLONIA_COLON}</div>
                         </td>
                         <td colspan="4" style="border: 1px solid rgb(20,179,237)">
                             <div style="position: absolute; margin-left:3px; font-size:6px;">Codigo Postal:</div>
@@ -1831,7 +1831,7 @@ const imprimirReciboPago = async (botonImprimirRecibo) => {
                         </td>
                         <td colspan="4" style="border: 1px solid rgb(20,179,237)">
                             <div style="position: absolute; margin-left:3px; font-size:6px;">Estado:</div>
-                            <div style="text-align: center; font-size:10px;">${usuarios.ESTADO_ESTA}</div>
+                            <div style="text-align: center; font-size:10px;">${usuarios.NOMBRE_ESTA}</div>
                         </td>
                         <td colspan="4" style="border: 1px solid rgb(20,179,237)">
                             <div style="position: absolute; margin-left:3px; font-size:6px;">Telefono:</div>
@@ -2162,10 +2162,10 @@ const crearReciboPago = async (botonExportarPdf) => {
                 docImprimir.text(usuarios.DESCRIPCION_CONT,138,28, 'left');
                 docImprimir.text(usuarios.IDCOBRO_COBR+'-'+usuarios.CONSECUTIVO_COBR,208,28, 'right');
                 docImprimir.text(usuarios.CALLES,20,32, 'left');
-                docImprimir.text(usuarios.COLONIA_CODPOS,100,32, 'left');
+                docImprimir.text(usuarios.COLONIA_COLON,100,32, 'left');
                 docImprimir.text(usuarios.CODIPOST_CODPOS,168,32, 'left');
                 docImprimir.text(usuarios.NOMBRE_MUNIC,16,36, 'left');
-                docImprimir.text(usuarios.ESTADO_ESTA,79,36, 'left');
+                docImprimir.text(usuarios.NOMBRE_ESTA,79,36, 'left');
                 docImprimir.text(usuarios.TELEFONO_CLIEN+' '+usuarios.MOVIL_CLIEN,150,36, 'left');
                 JsBarcode('#codigo_qr', usuarios.CODBARR_CLIEN, {
                     displayValue: false,
