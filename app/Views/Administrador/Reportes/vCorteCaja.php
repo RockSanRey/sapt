@@ -11,14 +11,29 @@
         <div class="col-md-6 col-12">
             <div class="card mb-2">
                 <div class="card-body bg-white p-2">
-                    <div id="hojasCorteGeneral"></div>
+                    <div id="hojasCorteAnual"></div>
                 </div>
             </div>
         </div>
         <div class="col-md-6 col-12">
             <div class="card mb-2">
                 <div class="card-body bg-white p-2">
-                    <div id="hojasCorteTipo"></div>
+                    <div id="hojasCorteMensual"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-12">
+            <div class="card mb-2">
+                <div class="card-body bg-white p-2">
+                    <div id="hojasCorteSemanal"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-12">
+            <div class="card mb-2">
+                <div class="card-body bg-white p-2">
                 </div>
             </div>
         </div>
@@ -26,7 +41,7 @@
     <div class="card">
         <div class="card-body bg-white p-2">
             <div class="card-text text-justify">
-                <ol class="col-12">
+                <ol class="col-12 fuente-12p">
                     <li>Selecciona el mes o la fecha que deseas generar para el listado.</li>
                     <li>Hacer clic en el botón buscar <span class="btn-info btn-sm"><i class="fa fa-search"></i></span> para generar el listado.</li>
                     <li>Para imprimir o exportar elige la opción que necesites.</li>
@@ -36,8 +51,9 @@
             <div id="botonesPagina"></div>
             <div id="tablaListadoFolios"></div>
             <div id="botonesExportar"></div>
-            <table class="d-none" id="tablaExportadora"></table>
+            <div id="tablaExportadora"></div>
             <img id="codigo_qr" class="d-none" />
+            <div id="reporteGenerados" class="d-none"></div>
         </div>
         <div class="card-footer bg-white">
         </div>

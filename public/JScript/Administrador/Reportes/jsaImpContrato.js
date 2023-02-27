@@ -302,10 +302,10 @@ const exportarContrato = async (botonExportContrato) => {
                         docImprimir.text(contrato.NOMBRE,19,42, 'left');
                         docImprimir.text(contrato.DESCRIPCION_CONT,151,42, 'left');
                         docImprimir.text(contrato.CALLES,26,48, 'left');
-                        docImprimir.text(contrato.COLONIA_CODPOS,109,48, 'left');
+                        docImprimir.text(contrato.COLONIA_COLON,109,48, 'left');
                         docImprimir.text(contrato.CODIPOST_CODPOS,176,48, 'left');
                         docImprimir.text(contrato.NOMBRE_MUNIC,21,54, 'left');
-                        docImprimir.text(contrato.ESTADO_ESTA,123,54, 'left');
+                        docImprimir.text(contrato.NOMBRE_ESTA,123,54, 'left');
                         docImprimir.text(contrato.TELEFONO_CLIEN+' '+contrato.MOVIL_CLIEN,16,60, 'left');
                         docImprimir.text(contrato.DESCRIPCION_CPERM,140,60, 'left');
                         docImprimir.text(contrato.DESCRIPCION_CTARI,172,60, 'left');
@@ -439,7 +439,7 @@ const reimprimirContrato = async (botonImprimContrato) => {
                                 </td>
                                 <td colspan="4" style="border: 1px solid rgb(20,179,237)">
                                     <div style="position: absolute; margin-left:3px; font-size:6px;">Colonia:</div>
-                                    <div style="text-align: center; font-size:14px;">${contrato.COLONIA_CODPOS}</div>
+                                    <div style="text-align: center; font-size:14px;">${contrato.COLONIA_COLON}</div>
                                 </td>
                                 <td colspan="3" style="border: 1px solid rgb(20,179,237)">
                                     <div style="position: absolute; margin-left:3px; font-size:6px;">Cod. Postal:</div>

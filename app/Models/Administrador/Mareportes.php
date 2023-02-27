@@ -301,7 +301,7 @@ class Mareportes extends Model
 
             $builder=$this->dbBuild->table('sys_clientes');
             $builder->select("CONTRATO_CCONT, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS USUARIO,
-            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_CODPOS) AS DIRECCION, SUM(TOTAL_DETA) AS DEUDA, DESCRIPCION_ESTAT");
+            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_COLON) AS DIRECCION, SUM(TOTAL_DETA) AS DEUDA, DESCRIPCION_ESTAT");
             $builder->join('sys_clientes_contratos','IDUSUA_CLIEN=CLIENTE_CCONT');
             $builder->join('sys_clientes_detalles','CONTRATO_DETA=CONTRATO_CCONT');
             $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
@@ -343,6 +343,158 @@ class Mareportes extends Model
 
     }
 
+    public function listadoDatosGeneraCorte($id)
+    {
+        try {
+            $builder=$this->dbBuild->table('sys_clientes_cobros');
+            $builder->select('SUM(TOTAL_COBR) AS TOTAL, COUNT(sys_clientes_cobros.PK_IDENTA) AS CANTIDAD');
+            $builder->join('sys_clientes_pagos','IDCOBRO_PAGO=IDCOBRO_COBR');
+            $builder->like('FMODIF_COBR ',$id,'after');
+            $builder->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $builder->whereNotIn('IDMODIF_PAGO', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $builder->where('ESTATUS_COBR','PAGA');
+            $builder->where('ESTATUS_PAGO','PAGA');
+            $builder->groupBy('ESTATUS_PAGO');
+            $resultado0=$builder->get();
+            if($resultado0->getNumRows()>0){
+                log_message('info','[ACORTECAJA|Async/Q] Generando datos desde consulta para continuar corte anual');
+                $corteGeneral=$resultado0->getResultArray();
+            }
+
+            $buildera=$this->dbBuild->table('sys_clientes_pagos');
+            $buildera->select("METODO_PAGO, SUM(TOTAL_PAGO) AS TOTAL, COUNT(sys_clientes_cobros.PK_IDENTA) AS CANTIDAD");
+            $buildera->join('sys_clientes_cobros','IDCOBRO_COBR=IDCOBRO_PAGO');
+            $buildera->like('FMODIF_PAGO ',$id,'after');
+            $buildera->whereNotIn('IDMODIF_PAGO', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $buildera->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $buildera->where('ESTATUS_PAGO','PAGA');
+            $buildera->where('ESTATUS_COBR','PAGA');
+            $buildera->groupBy('ESTATUS_PAGO, METODO_PAGO');
+            $resultado1=$buildera->get();
+            if($resultado1->getNumRows()>0){
+                log_message('info','[ACORTECAJA|Async/Q] Generando datos desde consulta para continuar corte anual metodos');
+                $corteMetodos=$resultado1->getResultArray();
+            }
+
+            $builderb=$this->dbBuild->table('cat_metodoPagos');
+            $builderb->select('CLAVE_METP, DESCRIPCION_METP');
+            $builderb->where('ESTATUS_METP','ACTI');
+            $builderb->orderBy('DESCRIPCION_METP','ASC');
+            $resultado2=$builderb->get();
+            if($resultado2->getNumRows()>0){
+                log_message('info','[ACORTECAJA|Async/Q] Generando datos desde consulta para continuar metodos pago');
+                $metodosPago=$resultado2->getResultArray();
+            }
+
+            $builderc=$this->dbBuild->table('sys_clientes_cobros');
+            $builderc->select("SUM(TOTAL_DETA) AS PAGOS, CLASIFIC_CONC");
+            $builderc->join('sys_clientes_detalles','IDCOBRO_DETA=IDCOBRO_COBR');
+            $builderc->join('sys_clientes_pagos','IDCOBRO_PAGO=IDCOBRO_COBR');
+            $builderc->join('cat_conceptos','CLAVE_CONC=CODIGO_DETA');
+            $builderc->like('FMODIF_COBR',$id,'after');
+            $builderc->whereNotIn('IDMODIF_DETA', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $builderc->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $builderc->whereNotIn('IDMODIF_PAGO', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $builderc->where('ESTATUS_DETA','PAGA');
+            $builderc->where('ESTATUS_COBR','PAGA');
+            $builderc->where('ESTATUS_PAGO','PAGA');
+            $builderc->groupBy('YEAR(FMODIF_COBR), CLASIFIC_CONC');
+            $resultado3=$builderc->get();
+            if($resultado3->getNumRows()>0){
+                log_message('info','[ACORTECAJA|Async/Q] Generando datos desde consulta para continuar pago conceptos');
+                $pagoConceptos=$resultado3->getResultArray();
+            }
+
+
+            return [
+                $corteGeneral,
+                $corteMetodos,
+                $metodosPago,
+                $pagoConceptos,
+            ];
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function listadoDatosGeneraCorteSem($id)
+    {
+        try {
+            $builder=$this->dbBuild->table('sys_clientes_cobros');
+            $builder->select('SUM(TOTAL_COBR) AS TOTAL, COUNT(sys_clientes_cobros.PK_IDENTA) AS CANTIDAD');
+            $builder->join('sys_clientes_pagos','IDCOBRO_PAGO=IDCOBRO_COBR');
+            $builder->like('SEMANA_COBR',$id,'after');
+            $builder->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $builder->whereNotIn('IDMODIF_PAGO', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $builder->where('ESTATUS_COBR','PAGA');
+            $builder->where('ESTATUS_PAGO','PAGA');
+            $builder->groupBy('ESTATUS_PAGO');
+            $resultado0=$builder->get();
+            if($resultado0->getNumRows()>0){
+                log_message('info','[ACORTECAJA|Async/Q] Generando datos desde consulta para continuar corte anual');
+                $corteGeneral=$resultado0->getResultArray();
+            }
+
+            $buildera=$this->dbBuild->table('sys_clientes_pagos');
+            $buildera->select("METODO_PAGO, SUM(TOTAL_PAGO) AS TOTAL, COUNT(sys_clientes_cobros.PK_IDENTA) AS CANTIDAD");
+            $buildera->join('sys_clientes_cobros','IDCOBRO_COBR=IDCOBRO_PAGO');
+            $buildera->like('SEMANA_PAGO ',$id,'after');
+            $buildera->whereNotIn('IDMODIF_PAGO', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $buildera->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $buildera->where('ESTATUS_PAGO','PAGA');
+            $buildera->where('ESTATUS_COBR','PAGA');
+            $buildera->groupBy('ESTATUS_PAGO, METODO_PAGO');
+            $resultado1=$buildera->get();
+            if($resultado1->getNumRows()>0){
+                log_message('info','[ACORTECAJA|Async/Q] Generando datos desde consulta para continuar corte anual metodos');
+                $corteMetodos=$resultado1->getResultArray();
+            }
+
+            $builderb=$this->dbBuild->table('cat_metodoPagos');
+            $builderb->select('CLAVE_METP, DESCRIPCION_METP');
+            $builderb->where('ESTATUS_METP','ACTI');
+            $builderb->orderBy('DESCRIPCION_METP','ASC');
+            $resultado2=$builderb->get();
+            if($resultado2->getNumRows()>0){
+                log_message('info','[ACORTECAJA|Async/Q] Generando datos desde consulta para continuar metodos pago');
+                $metodosPago=$resultado2->getResultArray();
+            }
+
+            $builderc=$this->dbBuild->table('sys_clientes_cobros');
+            $builderc->select("SUM(TOTAL_DETA) AS PAGOS, CLASIFIC_CONC");
+            $builderc->join('sys_clientes_detalles','IDCOBRO_DETA=IDCOBRO_COBR');
+            $builderc->join('sys_clientes_pagos','IDCOBRO_PAGO=IDCOBRO_COBR');
+            $builderc->join('cat_conceptos','CLAVE_CONC=CODIGO_DETA');
+            $builderc->like('SEMANA_COBR',$id,'after');
+            $builderc->whereNotIn('IDMODIF_DETA', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $builderc->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $builderc->whereNotIn('IDMODIF_PAGO', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $builderc->where('ESTATUS_DETA','PAGA');
+            $builderc->where('ESTATUS_COBR','PAGA');
+            $builderc->where('ESTATUS_PAGO','PAGA');
+            $builderc->groupBy('YEAR(FMODIF_COBR), CLASIFIC_CONC');
+            $resultado3=$builderc->get();
+            if($resultado3->getNumRows()>0){
+                log_message('info','[ACORTECAJA|Async/Q] Generando datos desde consulta para continuar pago conceptos');
+                $pagoConceptos=$resultado3->getResultArray();
+            }
+
+
+            return [
+                $corteGeneral,
+                $corteMetodos,
+                $metodosPago,
+                $pagoConceptos,
+            ];
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
     public function llenarDatosComboAnioMes()
     {
         try {
@@ -352,7 +504,7 @@ class Mareportes extends Model
             $builder->where('FMODIF_COBR >','2021-12-29');
             // $builder->orLike('FMODIF_COBR','2022','after');
             // $builder->whereNotIn('CAPTURA_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6']);
-            $builder->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6']);
+            $builder->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
             $builder->where('ESTATUS_COBR','PAGA');
             $builder->groupBy('YEAR(FMODIF_COBR)');
             $resultado=$builder->get();
@@ -377,12 +529,36 @@ class Mareportes extends Model
             $builder->like('FMODIF_COBR ',$id,'after');
             // $builder->orLike('FMODIF_COBR','2022','after');
             // $builder->whereNotIn('CAPTURA_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6']);
-            $builder->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6']);
+            $builder->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
             $builder->where('ESTATUS_COBR','PAGA');
             $builder->groupBy('YEAR(FMODIF_COBR), MONTH(FMODIF_COBR)');
             $resultado=$builder->get();
             if($resultado->getNumRows()>0){
                 log_message('info','[ACORTECAJA|Async/Q] Generando datos desde consulta para continuar combo meses');
+                return $resultado->getResultArray();
+            }
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function llenarDatosComboSemana($id)
+    {
+        try {
+
+            $builder=$this->dbBuild->table('sys_clientes_cobros');
+            $builder->select('SEMANA_COBR');
+            $builder->like('FMODIF_COBR ',$id,'after');
+            // $builder->orLike('FMODIF_COBR','2022','after');
+            // $builder->whereNotIn('CAPTURA_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6']);
+            $builder->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $builder->where('ESTATUS_COBR','PAGA');
+            $builder->groupBy('YEAR(FMODIF_COBR), SEMANA_COBR');
+            $resultado=$builder->get();
+            if($resultado->getNumRows()>0){
+                log_message('info','[ACORTECAJA|Async/Q] Generando datos desde consulta para continuar combo semana');
                 return $resultado->getResultArray();
             }
 
@@ -401,7 +577,7 @@ class Mareportes extends Model
             $builder->like('FMODIF_COBR',$id,'after');
             // $builder->orLike('FMODIF_COBR','2022','after');
             // $builder->whereNotIn('CAPTURA_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6']);
-            $builder->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6']);
+            $builder->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
             $builder->where('ESTATUS_COBR','PAGA');
             $builder->groupBy('YEAR(FMODIF_COBR), MONTH(FMODIF_COBR), DAY(FMODIF_COBR)');
             $resultado=$builder->get();
@@ -425,8 +601,8 @@ class Mareportes extends Model
             $builder->select("FMODIF_COBR, IDCOBRO_COBR, CONSECUTIVO_COBR, CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO) AS NOMBRE, TOTAL_COBR");
             $builder->join('sys_responsables','IDUSUA_RESPO=IDMODIF_COBR');
             $builder->like('FMODIF_COBR',$id,'after');
-            $builder->whereNotIn('CAPTURA_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6']);
-            $builder->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6']);
+            $builder->whereNotIn('CAPTURA_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $builder->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
             $builder->where('ESTATUS_COBR','PAGA');
             $builder->groupBy('IDCOBRO_COBR');
             $resultado=$builder->get();
@@ -451,8 +627,8 @@ class Mareportes extends Model
             $builder->select("FMODIF_COBR, IDCOBRO_COBR, CONSECUTIVO_COBR, CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO) AS NOMBRE, TOTAL_COBR");
             $builder->join('sys_responsables','IDUSUA_RESPO=IDMODIF_COBR');
             $builder->like('FMODIF_COBR',$id,'after');
-            $builder->whereNotIn('CAPTURA_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6']);
-            $builder->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6']);
+            $builder->whereNotIn('CAPTURA_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $builder->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
             $builder->where('ESTATUS_COBR','PAGA');
             $builder->groupBy('IDCOBRO_COBR');
             $resultado=$builder->get();
@@ -478,10 +654,10 @@ class Mareportes extends Model
             $builder->join('sys_responsables','IDUSUA_RESPO=IDMODIF_COBR');
             $builder->join('sys_clientes','IDUSUA_CLIEN=IDUSUARIO_COBR');
             $builder->like('FMODIF_COBR',$parametro[0],'after');
-            $builder->whereNotIn('CAPTURA_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6']);
-            $builder->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6']);
+            $builder->whereNotIn('CAPTURA_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $builder->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
             $builder->where('ESTATUS_COBR','PAGA');
-            $builder->groupBy('IDCOBRO_COBR');
+            $builder->groupBy('sys_clientes_cobros.PK_IDENTA, IDCOBRO_COBR');
             $builder->orderBy('CONSECUTIVO_COBR');
             $builder->limit($parametro[2], $parametro[1]);
             $resultado=$builder->get();
@@ -503,18 +679,18 @@ class Mareportes extends Model
             $builder->join('sys_responsables','IDUSUA_RESPO=IDMODIF_COBR');
             $builder->join('sys_clientes','IDUSUA_CLIEN=IDUSUARIO_COBR');
             $builder->like('FMODIF_COBR',$id,'after');
-            $builder->whereNotIn('CAPTURA_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6']);
-            $builder->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6']);
+            $builder->whereNotIn('CAPTURA_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $builder->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
             $builder->where('ESTATUS_COBR','PAGA');
-            $builder->groupBy('IDCOBRO_COBR');
+            $builder->groupBy('sys_clientes_cobros.PK_IDENTA, IDCOBRO_COBR');
             $builder->orderBy('CONSECUTIVO_COBR');
             $resultado=$builder->get();
 
             $buildera=$this->dbBuild->table('sys_clientes_cobros');
             $buildera->select("SUM(TOTAL_COBR) AS TOTAL");
             $buildera->like('FMODIF_COBR',$id,'after');
-            $buildera->whereNotIn('CAPTURA_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6']);
-            $buildera->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6']);
+            $buildera->whereNotIn('CAPTURA_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
+            $buildera->whereNotIn('IDMODIF_COBR', ['78ea9f47ea4dc69e71f266b7487f3a16cb6965e6','2ee8df762ab68bae608a06db607c564fb7a85ec5']);
             $buildera->where('ESTATUS_COBR','PAGA');
             $buildera->groupBy('ESTATUS_COBR');
             $resultado0=$buildera->get();
@@ -844,16 +1020,17 @@ class Mareportes extends Model
             $builder=$this->dbBuild->table('sys_clientes_transferencias');
             $builder->select("FOLIO_TRANS, FTRANS_TRANS, HORACAP_TRANS, CONTRATO_TRANS,
             CONCAT(a.NOMBRE_CLIEN,' ',a.APATERNO_CLIEN,' ',a.AMATERNO_CLIEN) AS NOMBREALTA, a.CODBARR_CLIEN AS CODBARRALTA,
-            CONCAT(a.CALLE_CLIEN,' ',a.NEXTE_CLIEN,' ',a.NINTE_CLIEN) AS DOMICILIOALTA, a.SEXO_CLIEN AS SEXOALTA,
+            CONCAT(c.CALLE_UBIC,' ',c.NEXTE_UBIC,' ',c.NINTE_UBIC) AS DOMICILIOALTA, a.SEXO_CLIEN AS SEXOALTA,
             CONCAT(b.NOMBRE_CLIEN,' ',b.APATERNO_CLIEN,' ',b.AMATERNO_CLIEN) AS NOMBREBAJA, b.CODBARR_CLIEN AS CODBARRBAJA,
-            CONCAT(b.CALLE_CLIEN,' ',b.NEXTE_CLIEN,' ',b.NINTE_CLIEN) AS DOMICILIOBAJA, b.SEXO_CLIEN AS SEXOBAJA,
-            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_CODPOS,', C.P. ',CODIPOST_CODPOS,', ',NOMBRE_MUNIC) AS DOMICILIOCONTRATO,
+            CONCAT(c.CALLE_UBIC,' ',c.NEXTE_UBIC,' ',c.NINTE_UBIC) AS DOMICILIOBAJA, b.SEXO_CLIEN AS SEXOBAJA,
+            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_COLON,', C.P. ',CODIPOST_CODPOS,', ',NOMBRE_MUNIC) AS DOMICILIOCONTRATO,
             DESCRIPCION_CONT, DESCRIPCION_CEXP, DESCRIPCION_CPERM, DESCRIPCION_CTARI,COMENTS_TRANS
             ");
             $builder->join('sys_clientes a','a.IDUSUA_CLIEN=CLIENALTA_TRANS');
             $builder->join('sys_clientes b','b.IDUSUA_CLIEN=CLIENBAJA_TRANS');
             $builder->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_TRANS');
-            $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
+            $builder->join('sys_clientes_ubicaciones c','c.IDUBIC_UBIC=UBICA_CCONT');
+            $builder->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
             $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
             $builder->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');

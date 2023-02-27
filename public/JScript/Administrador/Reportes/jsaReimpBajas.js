@@ -226,14 +226,14 @@ const exportarBaja = async (botonExportarBaja) => {
                 for(let mes=contador; mes <= contador; mes++){
                     mesMuestra=mesesArray[mes];
                 }
-                if(bajas.ESTATUS_CCONT=='INAC'){
+                if(bajas.ESTATUS_CCONT=='BAJT'){
                     docImprimir.setFontSize(12);
                     docImprimir.text('ASUNTO: BAJA TEMPORAL DE CONTRATO',200,40, 'right');
                     docImprimir.setFontSize(12);
                     docImprimir.setFontType('normal');
                     docImprimir.text('Por medio del presente documento queda escrito que el día '+fechaSplit[2]+' de '+mesMuestra+' de '+fechaSplit[0]+' en las instalaciones del pozo '+
                     'de agua potable de Teltipan de Juárez  el C. '+bajas.NOMBRE+' con numero de contrato '+bajas.CONTRATO_CBAJA+' solicita la Baja Temporal de su contrato por motivo '+
-                    'de '+bajas.OBSERVACIONES_CBAJA+', manifiesta que a esta fecha no presenta adeudos de ningún tipo en el Sistema de Agua Potable Teltipán.',25,80, {align: 'justify', maxWidth: 175, lineHeightFactor: 1.5});
+                    'de '+bajas.MOTIVBAJA_CBAJA+', manifiesta que a esta fecha no presenta adeudos de ningún tipo en el Sistema de Agua Potable Teltipán.',25,80, {align: 'justify', maxWidth: 175, lineHeightFactor: 1.5});
                     docImprimir.setFontType('bold');
                     docImprimir.text('Nota: La baja temporal cuenta con un periodo de recesión de 12 meses a partir de su expedición, al usuario en caso de'+
                     ' no presentarse a su reactivación se asigna en automática su alta en el sistema.',25,115, {align: 'justify', maxWidth:175, lineHeightFactor: 1.0});
@@ -241,14 +241,14 @@ const exportarBaja = async (botonExportarBaja) => {
                     docImprimir.setFontSize(12);
                     docImprimir.text('El presente documento da fe y legalidad de la Baja efectuada y cero adeudos.',25,135, 'left');
 
-                }else if(bajas.ESTATUS_CCONT=='BAJA'){
+                }else if(bajas.ESTATUS_CCONT=='BAJD'){
                     docImprimir.setFontSize(12);
                     docImprimir.text('ASUNTO: BAJA DEFINITIVA DE CONTRATO',200,40, 'right');
                     docImprimir.setFontSize(12);
                     docImprimir.setFontType('normal');
                     docImprimir.text('Por medio del presente documento queda escrito que el día '+fechaSplit[2]+' de '+mesMuestra+' de '+fechaSplit[0]+' en las instalaciones del pozo '+
                     'de agua potable de Teltipan de Juárez  el C. '+bajas.NOMBRE+' con numero de contrato '+bajas.CONTRATO_CBAJA+' solicita la Baja Definitiva de su contrato por motivo '+
-                    'de '+bajas.OBSERVACIONES_CBAJA+', manifiesta que a esta fecha no presenta adeudos de ningún tipo en el Sistema de Agua Potable Teltipán.',25,80, {align: 'justify', maxWidth: 175, lineHeightFactor: 1.5});
+                    'de '+bajas.MOTIVBAJA_CBAJA+', manifiesta que a esta fecha no presenta adeudos de ningún tipo en el Sistema de Agua Potable Teltipán.',25,80, {align: 'justify', maxWidth: 175, lineHeightFactor: 1.5});
                     docImprimir.setFontType('normal');
                     docImprimir.setFontSize(12);
                     docImprimir.text('El presente documento da fe y legalidad de la Baja efectuada y cero adeudos.',25,125, 'left');
@@ -285,11 +285,11 @@ const exportarBaja = async (botonExportarBaja) => {
             docImprimir.text('Usuario.',110,237, 'center');
             docImprimir.setFontSize(6);
             let espaciosello = 250;
-            respuestas[2].forEach(sello => {
-                docImprimir.text('Sello Digital: '+sello.SELLODIGA,15,espaciosello, {align: 'justify', maxWidth: 185, lineHeightFactor: 1.0});
-                espaciosello=espaciosello+6;
+            // respuestas[2].forEach(sello => {
+            //     docImprimir.text('Sello Digital: '+sello.SELLODIGA,15,espaciosello, {align: 'justify', maxWidth: 185, lineHeightFactor: 1.0});
+            //     espaciosello=espaciosello+6;
 
-            })
+            // })
 
             docImprimir.save('Baja '+nombreArchivo+'.pdf');
         })
@@ -341,7 +341,7 @@ const reimprimirBaja = async (botonImprimirBaja) => {
                 for(let mes=contador; mes <= contador; mes++){
                     mesMuestra=mesesArray[mes];
                 }
-                if(bajas.ESTATUS_CCONT=='INAC'){
+                if(bajas.ESTATUS_CCONT=='BAJT'){
                     mensajeBaja=`
                         <tr>
                             <td colspan="12">
@@ -364,13 +364,13 @@ const reimprimirBaja = async (botonImprimirBaja) => {
                                     Por medio del presente documento queda escrito que el día ${fechaSplit[2]} de ${mesMuestra} de 
                                     ${fechaSplit[0]} en las instalaciones del pozo de agua potable de Teltipan de Juárez  del C. 
                                     ${bajas.NOMBRE} con numero de contrato ${bajas.CONTRATO_CBAJA} solicita la <strong>Baja Temporal</strong> 
-                                    de su contrato por motivo de ${bajas.OBSERVACIONES_CBAJA}, manifiesta que a esta fecha no presenta 
+                                    de su contrato por motivo de ${bajas.MOTIVBAJA_CBAJA}, manifiesta que a esta fecha no presenta 
                                     adeudos de ningún tipo en el Sistema de Agua Potable Teltipán.
                                 </div>
                             </td>
                         </tr>
                     `;
-                }else if(bajas.ESTATUS_CCONT=='BAJA'){
+                }else if(bajas.ESTATUS_CCONT=='BAJD'){
                     mensajeBaja=`
                         <tr>
                             <td colspan="12">
@@ -393,7 +393,7 @@ const reimprimirBaja = async (botonImprimirBaja) => {
                                     Por medio del presente documento queda escrito que el día ${fechaSplit[2]} de ${mesMuestra} de 
                                     ${fechaSplit[0]} en las instalaciones del pozo de agua potable de Teltipan de Juárez  del C. 
                                     ${bajas.NOMBRE} con numero de contrato ${bajas.CONTRATO_CBAJA} solicita la <strong>Baja Definitiva</strong> 
-                                    de su contrato por motivo de ${bajas.OBSERVACIONES_CBAJA}, manifiesta que a esta fecha no presenta 
+                                    de su contrato por motivo de ${bajas.MOTIVBAJA_CBAJA}, manifiesta que a esta fecha no presenta 
                                     adeudos de ningún tipo en el Sistema de Agua Potable Teltipán.
                                 </div>
                             </td>

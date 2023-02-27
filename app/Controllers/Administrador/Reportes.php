@@ -423,6 +423,46 @@ class Reportes extends BaseController
         return view('Plantilla/vHeader',$cadena).view('Administrador/Reportes/vCorteCaja').view('Plantilla/vFooter');        
     }
 
+    public function listadoGeneraCorte($id)
+    {
+        log_message('info','[ACORTECAJA|Async] Solicitando datos para renderizado de corte anual');
+        if($tablaDatos = $this->modeloReportes->listadoDatosGeneraCorte($id)){
+            log_message('info','[ACORTECAJA|Async] Envio de datos para renderizado de corte anual');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[ACORTECAJA|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function listadoGeneraCorteSem($id)
+    {
+        log_message('info','[ACORTECAJA|Async] Solicitando datos para renderizado de corte semanal');
+        if($tablaDatos = $this->modeloReportes->listadoDatosGeneraCorteSem($id)){
+            log_message('info','[ACORTECAJA|Async] Envio de datos para renderizado de corte semanal');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[ACORTECAJA|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
     public function llenarComboAnioMes()
     {
         log_message('info','[ACORTECAJA|Async] Solicitando datos para renderizado de combo aniomes');
@@ -463,6 +503,26 @@ class Reportes extends BaseController
         }
     }
     
+    public function llenarComboSemana($id)
+    {
+        log_message('info','[ACORTECAJA|Async] Solicitando datos para renderizado de combo semana');
+        if($tablaDatos = $this->modeloReportes->llenarDatosComboSemana($id)){
+            log_message('info','[ACORTECAJA|Async] Envio de datos para renderizado de combo semana');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[ACORTECAJA|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
     public function llenarComboDia($id)
     {
         log_message('info','[ACORTECAJA|Async] Solicitando datos para renderizado de combo dia');
@@ -562,6 +622,7 @@ class Reportes extends BaseController
             return json_encode($swalMensajes);
         }
     }
+
 
     
 
