@@ -23,7 +23,7 @@ class App extends BaseConfig
 	 *
 	 * @var string
 	 */
-	public $baseURL = 'https://sapt.masotek.com.mx/';
+	public $baseURL = 'https://sapt.teltipanhgo.org.mx/';
 
 	/**
 	 * --------------------------------------------------------------------------
@@ -108,7 +108,7 @@ class App extends BaseConfig
 	 *
 	 * @var string
 	 */
-	public $appTimezone = 'America/Chicago';
+	public $appTimezone = 'America/Mexico_City';
 
 	/**
 	 * --------------------------------------------------------------------------
