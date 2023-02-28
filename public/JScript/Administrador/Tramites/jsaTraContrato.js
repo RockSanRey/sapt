@@ -165,7 +165,7 @@ const buscarContratoInformacion = async (textIdContrato) => {
                             <div class="col-md-2 col-12"><small>Contrato:</small> ${contrato.CONTRATO_CCONT}</div>
                             <div class="col-md-10 col-12">
                                 <div><small>Usuario:</small> ${contrato.NOMBRE}</div>
-                                <div><small>Dirección:</small> ${contrato.CALLES}, ${contrato.COLONIA_CODPOS}, ${contrato.CODIPOST_CODPOS}, ${contrato.COLONIA_CODPOS}</div>
+                                <div><small>Dirección:</small> ${contrato.CALLES}, ${contrato.COLONIA_COLON}, ${contrato.CODIPOST_CODPOS}, ${contrato.COLONIA_COLON}</div>
                                 <div class="row">
                                     <div class="col-md-3 col-6"><small>Tipo Contrato:</small> ${contrato.DESCRIPCION_CONT}</div>
                                     <div class="col-md-3 col-6"><small>Perm. Asamblea:</small> ${contrato.DESCRIPCION_CPERM}</div>
@@ -700,10 +700,10 @@ const llenarComboEstadosSelect = async (textEstado, estadoSelecto) => {
                     opcionSelect.classList.add('fuente-12p');
                     if(estadoSelecto==estados.CLAVE_ESTA){
                         opcionSelect.setAttribute('selected', 'selected');
-                        opcionSelect.innerHTML=estados.ESTADO_ESTA;
+                        opcionSelect.innerHTML=estados.NOMBRE_ESTA;
                         textEstado.appendChild(opcionSelect);
                     }else{
-                        opcionSelect.innerHTML=estados.ESTADO_ESTA;
+                        opcionSelect.innerHTML=estados.NOMBRE_ESTA;
                         textEstado.appendChild(opcionSelect);
                     }
                 });
@@ -822,14 +822,14 @@ const llenarComboColoniasSelect = async (codipostalSelecto, textColonia, colonia
             }else{
                 respuestas.forEach(municipios => {
                     const opcionSelect = document.createElement('option');
-                    opcionSelect.setAttribute('value', municipios.CLVCOLON_CODPOS);
+                    opcionSelect.setAttribute('value', municipios.CLVCOLON_COLON);
                     opcionSelect.classList.add('fuente-12p');
-                    if(coloniaSelecto==municipios.CLVCOLON_CODPOS){
+                    if(coloniaSelecto==municipios.CLVCOLON_COLON){
                         opcionSelect.setAttribute('selected', 'selected');
-                        opcionSelect.innerHTML=municipios.COLONIA_CODPOS;
+                        opcionSelect.innerHTML=municipios.COLONIA_COLON;
                         textColonia.appendChild(opcionSelect);
                     }else{
-                        opcionSelect.innerHTML=municipios.COLONIA_CODPOS;
+                        opcionSelect.innerHTML=municipios.COLONIA_COLON;
                         textColonia.appendChild(opcionSelect);
                     }
                 });
