@@ -23,7 +23,7 @@ class Database extends Config
 	 *
 	 * @var string
 	 */
-	public $defaultGroup = 'previo';
+	public $defaultGroup = 'sandbox';
 
 	/**
 	 * The default database connection.
@@ -33,17 +33,39 @@ class Database extends Config
 	public $default = [
 		'DSN'      => '',
 		'hostname' => 'localhost',
-		'username' => 'teltipan_sapt',
+		'username' => 'teltipan_master',
 		'password' => '73l71p4n.M4573r',
-		'database' => 'teltipan_sistema',
+		'database' => 'teltipan_sapt',
 		'DBDriver' => 'MySQLi',
 		'DBPrefix' => '',
 		'pConnect' => false,
 		'DBDebug'  => (ENVIRONMENT !== 'production'),
 		'cacheOn'  => false,
 		'cacheDir' => '',
-		'charset'  => 'utf8',
-		'DBCollat' => 'utf8_general_ci',
+		'charset'  => 'utf8mb4',
+		'DBCollat' => 'utf8mb4_general_ci',
+		'swapPre'  => '',
+		'encrypt'  => false,
+		'compress' => false,
+		'strictOn' => false,
+		'failover' => [],
+		'port'     => 3306,
+	];
+
+	public $sandbox = [
+		'DSN'      => '',
+		'hostname' => 'localhost',
+		'username' => 'teltipan_master',
+		'password' => '73l71p4n.M4573r',
+		'database' => 'teltipan_saptsandbox',
+		'DBDriver' => 'MySQLi',
+		'DBPrefix' => '',
+		'pConnect' => false,
+		'DBDebug'  => (ENVIRONMENT !== 'production'),
+		'cacheOn'  => false,
+		'cacheDir' => '',
+		'charset'  => 'utf8mb4',
+		'DBCollat' => 'utf8mb4_general_ci',
 		'swapPre'  => '',
 		'encrypt'  => false,
 		'compress' => false,

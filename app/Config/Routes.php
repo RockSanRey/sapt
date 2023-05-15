@@ -44,197 +44,22 @@ $routes->group('',['namespace'=>'App\Controllers'], function($routes){
 		$cuenta->get('salir','Cuenta::salir');
 	});
 
-	$routes->group('', function($dashboard){
-		$dashboard->get('dashboard','Dashboard::index',['filter'=> 'roldashboard']);
-		$dashboard->get('inicio', 'Dashboard::inicio');
-		$dashboard->get('dashboard/mensajeSaludoInicial/(:any)', 'Dashboard::mensajeSaludoInicial/$1');
-		$dashboard->get('dashboard/graficoEstatusContratos', 'Dashboard::graficoEstatusContratos');
-		$dashboard->get('dashboard/graficoDeudaAcumulada', 'Dashboard::graficoDeudaAcumulada');
-	});
+});
 
-	$routes->group('', function($usuarios){
-		$usuarios->get('regusuarios','Usuarios::regusuarios');
-		$usuarios->post('regusuarios/guardarRegistroNuevo','Usuarios::guardarRegistroNuevo');
-		$usuarios->post('regusuarios/asignarContratoUsuario','Usuarios::asignarContratoUsuario');
-		$usuarios->get('regusuarios/llenarTablaUsuariosContratos','Usuarios::llenarTablaUsuariosContratos');
-		$usuarios->get('regusuarios/cargarInformeContratos/(:any)','Usuarios::cargarInformeContratos/$1');
-		$usuarios->post('regusuarios/actualizarRegistroUsuario','Usuarios::actualizarRegistroUsuario');
-		$usuarios->get('regusuarios/mostrandoContratoUsuario/(:any)','Usuarios::mostrandoContratoUsuario/$1');
-		$usuarios->get('asigcontrato','Usuarios::asigcontrato');
-		$usuarios->get('asigcontrato/autoCompletarUsuario/(:any)','Usuarios::autoCompletarUsuario/$1');
-		$usuarios->get('asigcontrato/llenarTablaUsuariosAsignado/(:any)','Usuarios::llenarTablaUsuariosAsignado/$1');
-		$usuarios->get('asigcontrato/buscarUsuario/(:any)','Usuarios::buscarUsuario/$1');
-		$usuarios->post('asigcontrato/asignarNuevoContrato','Usuarios::asignarNuevoContrato');
-		$usuarios->get('asigcontrato/mostrandoContratoNuevo/(:any)','Usuarios::mostrandoContratoNuevo/$1');
-		$usuarios->get('asigcontrato/cargarUsuarioContratos/(:any)','Usuarios::cargarUsuarioContratos/$1');
-		$usuarios->get('modcontrato','Usuarios::modcontrato');
-		$usuarios->get('modcontrato/autoCompletarModificacion/(:any)','Usuarios::autoCompletarModificacion/$1');
-		$usuarios->get('modcontrato/cargarModificacionContratos/(:any)','Usuarios::cargarModificacionContratos/$1');
-		$usuarios->post('modcontrato/actualizarContratoDetalle','Usuarios::actualizarContratoDetalle');
-		$usuarios->get('modcontrato/actualzaFilaContrato/(:any)','Usuarios::actualzaFilaContrato/$1');
-		$usuarios->get('bajacontrato','Usuarios::bajacontrato');
-		$usuarios->get('bajacontrato/autoCompletarBajas/(:any)','Usuarios::autoCompletarBajas/$1');
-		$usuarios->post('bajacontrato/actualizarContratoBaja','Usuarios::actualizarContratoBaja');
-		$usuarios->get('bajacontrato/acuseReciboBaja/(:any)','Usuarios::acuseReciboBaja/$1');
-		$usuarios->get('transdominio','Usuarios::transdominio');
-		$usuarios->get('transdominio/autoCompletarContrato/(:any)','Usuarios::autoCompletarContrato/$1');
-		$usuarios->get('transdominio/cargarContratoDetalles/(:any)','Usuarios::cargarContratoDetalles/$1');
-		$usuarios->post('transdominio/guardarUsuarioTransfer','Usuarios::guardarUsuarioTransfer');
-		$usuarios->post('transdominio/transferirContratoUsuario','Usuarios::transferirContratoUsuario');
-		$usuarios->get('modusuario','Usuarios::modusuario');
-		$usuarios->get('modusuario/autoCompletarUsuario/(:any)','Usuarios::autoCompletarUsuario/$1');
-		$usuarios->get('modusuario/llenarTablaUsuarioModificar/(:any)','Usuarios::llenarTablaUsuarioModificar/$1');
-		$usuarios->get('modusuario/cargarUsuarioModificar/(:any)','Usuarios::cargarUsuarioModificar/$1');
-		$usuarios->post('modusuario/actualizarRegistroUsuario','Usuarios::actualizarRegistroUsuario');
-
-		$usuarios->get('regconvenio','Usuarios::regconvenio');
-		$usuarios->get('regconvenio/llenarTablaDeudas','Usuarios::llenarTablaDeudas');
-		$usuarios->get('regconvenio/buscarUsuarioDeudor/(:any)','Usuarios::buscarUsuarioDeudor/$1');
-		$usuarios->post('regconvenio/crearConvenio','Usuarios::crearConvenio');
-		$usuarios->get('regconvenio/buscarUsuarioCitatorio/(:any)','Usuarios::buscarUsuarioCitatorio/$1');
-		$usuarios->post('regconvenio/crearCitatorio','Usuarios::crearCitatorio');
-		$usuarios->get('regconvenio/imprimirCitatorios/(:any)','Usuarios::imprimirCitatorios/$1');
-		$usuarios->get('regconvenio/buscarTotalesConcepto/(:any)','Usuarios::buscarTotalesConcepto/$1');
-		$usuarios->get('regconvenio/buscandoConvenCitat/(:any)','Usuarios::buscandoConvenCitat/$1');
-
-		$usuarios->get('asisasamb','Usuarios::asisasamb');
+$routes->group('', ['namespace'=>'App\Controllers\Cliente'], function($cliente){
+	$cliente->group('', function($cuenta){
 
 	});
+});
 
-	$routes->group('', function($comite){
-		$comite->get('regcomite','Comite::regcomite');
-		$comite->get('regcomite/llenarTablaUsuariosComite','Comite::llenarTablaUsuariosComite');
-		$comite->post('regcomite/guardarUsuarioNuevo','Comite::guardarUsuarioNuevo');
-		$comite->get('regcomite/cargarInformeUsuarios/(:any)','Comite::cargarInformeUsuarios/$1');
-		$comite->get('regcomite/eliminarRegistroUsuarios/(:any)','Comite::eliminarRegistroUsuarios/$1');
-		$comite->post('regcomite/actualizarRegistroUsuario','Comite::actualizarRegistroUsuario');
-		$comite->get('creaasamble','Comite::creaasamble');
-		$comite->get('creaasamble/llenarTablaAsambleas','Comite::llenarTablaAsambleas');
-		$comite->post('creaasamble/guardarAsambleaNueva','Comite::guardarAsambleaNueva');
-		$comite->get('creaasamble/buscarEditarAsamblea/(:any)','Comite::buscarEditarAsamblea/$1');
-		$comite->post('creaasamble/actualizarAsamblea','Comite::actualizarAsamblea');
-		$comite->get('creaasamble/eliminarAsamblea/(:any)','Comite::eliminarAsamblea/$1');
-		$comite->get('convasamble','Comite::convasamble');
-		$comite->get('convasamble/llenarTablaConvocatorias','Comite::llenarTablaConvocatorias');
-		$comite->get('convasamble/informeAsambleaConvoca/(:any)','Comite::informeAsambleaConvoca/$1');
-		$comite->get('convasamble/usuariosConvocados','Comite::usuariosConvocados');
-		$comite->post('convasamble/creandoInvitacionUsuario','Comite::creandoInvitacionUsuario');
-		$comite->get('convasamble/informeAsambleaAsistencias/(:any)','Comite::informeAsambleaAsistencias/$1');
-		$comite->get('convasamble/usuariosFaltantes/(:any)','Comite::usuariosFaltantes/$1');
-		$comite->post('convasamble/aplicandoSanciones','Comite::aplicandoSanciones');
-		$comite->get('convasamble/mostrarResumenConvocados/(:any)','Comite::mostrarResumenConvocados/$1');
-		$comite->get('convasamble/consultarAsambleaConvocada/(:any)','Comite::consultarAsambleaConvocada/$1');
-		$comite->get('convasamble/cerrarAsambleaConvocada/(:any)','Comite::cerrarAsambleaConvocada/$1');
-		$comite->get('convasamble/listadoConvocados/(:any)','Comite::listadoConvocados/$1');
-		$comite->get('asisasamble','Comite::asisasamble');
-		$comite->get('asisasamble/marcarAsistencia/(:any)','Comite::marcarAsistencia/$1');
-		$comite->get('asisasamble/autoCompletarUsuario/(:any)','Comite::autoCompletarUsuario/$1');
-
-	});
-
-	$routes->group('', function($catalogos){
-		$catalogos->get('catcontratos','Catalogos::catcontratos');
-		$catalogos->get('catcontratos/llenarTablaContratos','Catalogos::llenarTablaContratos');
-		$catalogos->get('catcontratos/buscarContratosEditar/(:any)','Catalogos::buscarContratosEditar/$1');
-		$catalogos->post('catcontratos/actualizarRegistroContratos','Catalogos::actualizarRegistroContratos');
-		$catalogos->get('catcontratos/eliminarRegistroContratos/(:any)','Catalogos::eliminarRegistroContratos/$1');
-
-		$catalogos->get('catconceptos','Catalogos::catconceptos');
-		$catalogos->get('catconceptos/llenarTablaConceptos','Catalogos::llenarTablaConceptos');
-		$catalogos->get('catconceptos/autoCompletDescrip/(:any)','Catalogos::autoCompletDescrip/$1');
-		$catalogos->post('catconceptos/registrarConceptos','Catalogos::registrarConceptos');
-		$catalogos->get('catconceptos/buscarConceptosEditar/(:any)','Catalogos::buscarConceptosEditar/$1');
-		$catalogos->post('catconceptos/actualizarRegistroConceptos','Catalogos::actualizarRegistroConceptos');
-		$catalogos->get('catconceptos/eliminarRegistroConceptos/(:any)','Catalogos::eliminarRegistroConceptos/$1');
-
-
-		$catalogos->get('catcontratos/llenarComboTipoContratos','Catalogos::llenarComboTipoContratos');
-		$catalogos->get('catconceptos/llenarComboConceptos','Catalogos::llenarComboConceptos');
-		$catalogos->get('catconceptos/llenarComboAnticipos/(:any)','Catalogos::llenarComboAnticipos/$1');
-		$catalogos->get('catalogos/llenarComboCatPuestos','Catalogos::llenarComboCatPuestos');
-		$catalogos->get('catalogos/llenarComboCatPermisos','Catalogos::llenarComboCatPermisos');
-		$catalogos->get('catalogos/llenarComboCatDescuentos','Catalogos::llenarComboCatDescuentos');
-		$catalogos->get('catalogos/llenarComboCatEstatus','Catalogos::llenarComboCatEstatus');
-
-	});
-
-	$routes->group('', function($cobros){
-		$cobros->get('pagoservicio','Cobros::pagoservicio');
-		$cobros->get('pagoservicio/autoCompletarUsuario/(:any)','Cobros::autoCompletarUsuario/$1');
-		$cobros->get('pagoservicio/cargarUsuarioGenerales/(:any)','Cobros::cargarUsuarioGenerales/$1');
-		$cobros->get('pagoservicio/cargarDeudasDetalle/(:any)','Cobros::cargarDeudasDetalle/$1');
-		$cobros->get('pagoservicio/cargarHistoricoPagado/(:any)','Cobros::cargarHistoricoPagado/$1');
-		$cobros->get('pagoservicio/cargarUsuarioDeudas/(:any)','Cobros::cargarUsuarioDeudas/$1');
-		$cobros->get('pagoservicio/cargarUsuarioPago/(:any)','Cobros::cargarUsuarioPago/$1');
-		$cobros->get('pagoservicio/buscarCooperacion/(:any)','Cobros::buscarCooperacion/$1');
-		$cobros->post('pagoservicio/modificarCoperacion','Cobros::modificarCoperacion');
-		$cobros->post('pagoservicio/agregarConceptosDetalle','Cobros::agregarConceptosDetalle');
-		$cobros->post('pagoservicio/agregarAnticiposDetalle','Cobros::agregarAnticiposDetalle');
-		$cobros->get('pagoservicio/buscarDetallePago/(:any)','Cobros::buscarDetallePago/$1');
-		$cobros->get('pagoservicio/eliminarDetallesPago/(:any)','Cobros::eliminarDetallesPago/$1');
-		$cobros->get('pagoservicio/buscarTotalPago/(:any)','Cobros::buscarTotalPago/$1');
-		$cobros->post('pagoservicio/realizarPagoCuenta/','Cobros::realizarPagoCuenta/');
-		$cobros->post('pagoservicio/realizarPagoParcialCuenta','Cobros::realizarPagoParcialCuenta');
-		$cobros->get('pagoservicio/imprimirComprobantePago/(:any)','Cobros::imprimirComprobantePago/$1');
-		$cobros->get('pagoespecial','Cobros::pagoespecial');
-		$cobros->get('pagoespecial/cargarDeudasEspeciales/(:any)','Cobros::cargarDeudasEspeciales/$1');
-		$cobros->post('pagoespecial/agregarConceptoAbonoDeuda','Cobros::agregarConceptoAbonoDeuda');
-		$cobros->post('pagoespecial/realizarPagoEspecial','Cobros::realizarPagoEspecial');
-		$cobros->get('crearcargo','Cobros::crearcargo');
-		$cobros->get('crearcargo/buscarUsuariosTotal','Cobros::buscarUsuariosTotal');
-		$cobros->get('crearcargo/verificarMesCorriente/(:any)','Cobros::verificarMesCorriente/$1');
-		$cobros->get('crearcargo/verificarMesSelectivo/(:any)','Cobros::verificarMesSelectivo/$1');
-		$cobros->get('crearcargo/mostrarResumenCargos','Cobros::mostrarResumenCargos');
-		$cobros->get('crearrecarg','Cobros::crearrecarg');
-		$cobros->get('crearrecarg/buscarIdUsuariosAdeudo','Cobros::buscarIdUsuariosAdeudo');
-		$cobros->get('crearrecarg/verificarMovimientos/(:any)','Cobros::verificarMovimientos/$1');
-		$cobros->get('crearrecarg/mostrarResumenRecargos','Cobros::mostrarResumenRecargos');
-
-	});
-
-	$routes->group('', function($reportes){
-		$reportes->get('listausuario','Reportes::listausuario');
-		$reportes->get('listausuario/llenarListadosUsuarios','Reportes::llenarListadosUsuarios');
-		$reportes->get('listausuario/llenarListadosFiltraCalles/(:any)','Reportes::llenarListadosFiltraCalles/$1');
-		$reportes->get('listausuario/generarListadosNavegador','Reportes::generarListadosNavegador');
-		$reportes->get('listausuario/llenarTablaPaginadaUsuarios/(:any)','Reportes::llenarTablaPaginadaUsuarios/$1');
-		$reportes->get('reimcomprob','Reportes::reimcomprob');
-		$reportes->get('reimcomprob/llenarTablaRecibosPago','Reportes::llenarTablaRecibosPago');
-		$reportes->get('reimcomprob/imprimirComprobantePago/(:any)','Reportes::imprimirComprobantePago/$1');
-		$reportes->get('reimcontrato','Reportes::reimcontrato');
-		$reportes->get('reimcontrato/autoCompletarUsuario/(:any)','Reportes::autoCompletarUsuario/$1');
-		$reportes->get('reimcontrato/buscarGeneralesUsuario/(:any)','Reportes::buscarGeneralesUsuario/$1');
-		$reportes->get('reimcontrato/reimprimirContratoUsuario/(:any)','Reportes::reimprimirContratoUsuario/$1');
-		$reportes->get('cmdomicilio','Reportes::cmdomicilio');
-		$reportes->get('cmdomicilio/autoCompletarUsuario/(:any)','Reportes::autoCompletarUsuario/$1');
-		$reportes->get('cmdomicilio/buscarComprobanteUsuario/(:any)','Reportes::buscarComprobanteUsuario/$1');
-		$reportes->get('reimconvenio','Reportes::reimconvenio');
-		$reportes->get('reimconvenio/llenatTablaConvenios','Reportes::llenatTablaConvenios');
-		$reportes->get('reimbajas','Reportes::reimbajas');
-		$reportes->get('reimbajas/autoCompletarContratos/(:any)','Reportes::autoCompletarContratos/$1');
-		$reportes->get('reimcontrato/autoCompletarContratos/(:any)','Reportes::autoCompletarContratos/$1');
-		$reportes->get('cortecaja','Reportes::cortecaja');
-		$reportes->get('cortecaja/llenarComboMes','Reportes::llenarComboMes');
-		$reportes->get('cortecaja/llenarComboDia','Reportes::llenarComboDia');
-		$reportes->get('cortecaja/listadoGeneraMeses/(:any)','Reportes::listadoGeneraMeses/$1');
-		$reportes->get('cortecaja/llenarTablaPaginadaFolios/(:any)','Reportes::llenarTablaPaginadaFolios/$1');
-		$reportes->get('cortecaja/listadoGeneraDias/(:any)','Reportes::listadoGeneraDias/$1');
-		$reportes->get('cortecaja/exportadorListaFolios/(:any)','Reportes::exportadorListaFolios/$1');
-		$reportes->get('reportegral','Reportes::reportegral');
-		$reportes->get('reportegral/informacionContratosGeneral','Reportes::informacionContratosGeneral');
-		$reportes->get('reporteesp','Reportes::reporteesp');
-		$reportes->get('reporteesp/informacionReporteEspeciales/(:any)','Reportes::informacionReporteEspeciales/$1');
-		$reportes->get('reporteesp/llenarComboMensual','Reportes::llenarComboMensual');
-
-		$reportes->get('listacortes','Reportes::listacortes');
-		$reportes->get('listacortes/exportadorListaDeudas','Reportes::exportadorListaDeudas');
-
-	});
-
-	$routes->group('', function($auditorias){
-		$auditorias->get('revpagos','Auditorias::revpagos');
-		$auditorias->get('revpagos/totalRegistrosPagos','Auditorias::totalRegistrosPagos');
-		$auditorias->get('revpagos/mostrandoRegistroPagos/(:any)','Auditorias::mostrandoRegistroPagos/$1');
+$routes->group('', ['namespace'=>'App\Controllers\Auditoria'], function($auditoria){
+	$auditoria->group('',function($reportes){
+		$reportes->get('reportegral','Reportes::reportegral',['filter'=>'autenticar']);
+		$reportes->get('reportegral/llenarComboAuditConceptosAnio/(:any)', 'Reportes::llenarComboAuditConceptosAnio/$1');
+		$reportes->get('reportegral/llenarComboAuditConceptosMes/(:any)', 'Reportes::llenarComboAuditConceptosMes/$1');
+		$reportes->get('reportegral/listadoConceptosPagadosMes/(:any)', 'Reportes::listadoConceptosPagadosMes/$1');
+		$reportes->get('reportegral/llenarComboAuditConceptos/(:any)', 'Reportes::llenarComboAuditConceptos/$1');
+		$reportes->get('reportegral/listadoConceptosPagados/(:any)', 'Reportes::listadoConceptosPagados/$1');
 	});
 });
 
@@ -244,32 +69,42 @@ $routes->group('', ['namespace'=>'App\Controllers\Administrador'], function($adm
 
 	$admins->group('', function($dashboard){
 		$dashboard->get('adashboard','Dashboard::adashboard',['filter'=>'autenticar']);
-
+		$dashboard->get('adashboard/mensajeSaludoInicial/(:any)', 'Dashboard::mensajeSaludoInicial/$1');
+		$dashboard->get('adashboard/resumenCantidadesTes', 'Dashboard::resumenCantidadesTes');
+		$dashboard->get('adashboard/resumenCantidadesPre', 'Dashboard::resumenCantidadesPre');
+		
 	});
 
 	$admins->group('',function($catalogos){
-		$catalogos->get('catconceptos','Catalogos::catconceptos',['filter'=>'autenticar']);
-		$catalogos->get('catconceptos/llenarTablaConceptos','Catalogos::llenarTablaConceptos');
-		$catalogos->get('catconceptos/autoCompletDescrip/(:any)','Catalogos::autoCompletDescrip/$1');
-		$catalogos->post('catconceptos/registrarConceptos','Catalogos::registrarConceptos');
-		$catalogos->get('catconceptos/buscarConceptosEditar/(:any)','Catalogos::buscarConceptosEditar/$1');
-		$catalogos->post('catconceptos/actualizarRegistroConceptos','Catalogos::actualizarRegistroConceptos');
-		$catalogos->get('catconceptos/eliminarRegistroConceptos/(:any)','Catalogos::eliminarRegistroConceptos/$1');
+		$catalogos->get('acatconcepto','Catalogos::acatconcepto',['filter'=>'autenticar']);
+		$catalogos->get('acatconcepto/llenarTablaConceptos','Catalogos::llenarTablaConceptos');
+		$catalogos->get('acatconcepto/autoCompletDescrip/(:any)','Catalogos::autoCompletDescrip/$1');
+		$catalogos->post('acatconcepto/registrarConceptos','Catalogos::registrarConceptos');
+		$catalogos->get('acatconcepto/buscarConceptosEditar/(:any)','Catalogos::buscarConceptosEditar/$1');
+		$catalogos->post('acatconcepto/actualizarConceptos','Catalogos::actualizarConceptos');
+		$catalogos->get('acatconcepto/eliminarConceptos/(:any)','Catalogos::eliminarConceptos/$1');
+		$catalogos->get('acatcontrato','Catalogos::acatcontrato',['filter'=>'autenticar']);
+		$catalogos->get('acatcontrato/llenarTablaContratos','Catalogos::llenarTablaContratos');
+		$catalogos->post('acatcontrato/registroContratos','Catalogos::registroContratos');
+		$catalogos->get('acatcontrato/buscarContratosEditar/(:any)','Catalogos::buscarContratosEditar/$1');
+		$catalogos->post('acatcontrato/actualizarContratos','Catalogos::actualizarContratos');
+		$catalogos->get('acatcontrato/eliminarContratos/(:any)','Catalogos::eliminarContratos/$1');
+		$catalogos->get('acatcontrexp','Catalogos::acatcontrexp',['filter'=>'autenticar']);
+		$catalogos->get('acatcontrexp/llenarTablaExpedidos','Catalogos::llenarTablaExpedidos');
+		$catalogos->post('acatcontrexp/registrarExpedidos','Catalogos::registrarExpedidos');
+		$catalogos->get('acatcontrexp/buscarExpedidosEditar/(:any)','Catalogos::buscarExpedidosEditar/$1');
+		$catalogos->post('acatcontrexp/actualizarExpedidos','Catalogos::actualizarExpedidos');
+		$catalogos->get('acatcontrexp/eliminarExpedidos/(:any)','Catalogos::eliminarExpedidos/$1');
 
 		$catalogos->get('acatalogos/llenarComboCatContrato','Catalogos::llenarComboCatContrato');
 		$catalogos->get('acatalogos/llenarComboCatExpedicion','Catalogos::llenarComboCatExpedicion');
 		$catalogos->get('acatalogos/llenarComboCatPermisos','Catalogos::llenarComboCatPermisos');
 		$catalogos->get('acatalogos/llenarComboCatTarifa','Catalogos::llenarComboCatTarifa');
+		$catalogos->get('acatalogos/llenarComboCatEstatus','Catalogos::llenarComboCatEstatus');
 		$catalogos->get('acatalogos/llenarComboConceptos','Catalogos::llenarComboConceptos');
 		$catalogos->get('acatalogos/llenarComboAnticipos/(:any)','Catalogos::llenarComboAnticipos/$1');
 
 	});
-
-	$admins->group('', function($cuenta){
-		$cuenta->get('alogin','Cuenta::alogin');
-		$cuenta->post('alogin/verificandoCredencial','Cuenta::verificandoCredencial');
-	});
-
 
 	$admins->group('', function($tramites){
 		$tramites->get('aregusuarios','Tramites::aregusuarios',['filter'=>'autenticar']);
@@ -287,7 +122,6 @@ $routes->group('', ['namespace'=>'App\Controllers\Administrador'], function($adm
 		$tramites->get('aagrcontrato/cargaUsuarioAsignar/(:any)','Tramites::cargaUsuarioAsignar/$1');
 		$tramites->post('aagrcontrato/asignarNuevoContrato','Tramites::asignarNuevoContrato');
 		$tramites->get('aagrcontrato/cargarUsuarioContratos/(:any)','Tramites::cargarUsuarioContratos/$1');
-		$tramites->get('aagrcontrato/mostrandoContratoNuevo/(:any)','Tramites::mostrandoContratoNuevo/$1');
 		$tramites->get('amodcontrato','Tramites::amodcontrato',['filter'=>'autenticar']);
 		$tramites->get('amodcontrato/llenarTablaContratoModificar/(:any)','Tramites::llenarTablaContratoModificar/$1');
 		$tramites->post('amodcontrato/actualizarContratoDetalle','Tramites::actualizarContratoDetalle');
@@ -298,16 +132,22 @@ $routes->group('', ['namespace'=>'App\Controllers\Administrador'], function($adm
 		$tramites->get('atracontrato/llenarUsuarioTransferir/(:any)','Tramites::llenarUsuarioTransferir/$1');
 		$tramites->post('atracontrato/actualizarUsuarioTransferir','Tramites::actualizarUsuarioTransferir');
 		$tramites->post('atracontrato/transferirContratoFinal','Tramites::transferirContratoFinal');
-		$tramites->get('atracontrato/imprimirReciboTransferencia/(:any)','Tramites::imprimirReciboTransferencia/$1');
 		$tramites->get('abajcontrato','Tramites::abajcontrato',['filter'=>'autenticar']);
 		$tramites->get('abajcontrato/llenarTablaContratoBaja/(:any)','Tramites::llenarTablaContratoBaja/$1');
 		$tramites->get('abajcontrato/cargarContratoBaja/(:any)','Tramites::cargarContratoBaja/$1');
 		$tramites->post('abajcontrato/actualizarContratoBaja','Tramites::actualizarContratoBaja');
 		$tramites->get('abajcontrato/acuseReciboBaja/(:any)','Tramites::acuseReciboBaja/$1');
+		$tramites->get('aactcontrato','Tramites::aactcontrato',['filter'=>'autenticar']);
+		$tramites->get('aactcontrato/autoCompletarBajasTem/(:any)','Tramites::autoCompletarBajasTem/$1');
+		$tramites->get('aactcontrato/buscarEditarBajas/(:any)','Tramites::buscarEditarBajas/$1');
+		$tramites->post('aactcontrato/reactivarContratoBaja','Tramites::reactivarContratoBaja');
+		$tramites->get('amodubicacio','Tramites::amodubicacio',['filter'=>'autenticar']);
+		$tramites->get('amodubicacio/llenarTablaUbicacionModificar/(:any)','Tramites::llenarTablaUbicacionModificar/$1');
+		$tramites->post('amodubicacio/actualizarUbicacion','Tramites::actualizarUbicacion');
 		$tramites->get('aregconvenio','Tramites::aregconvenio',['filter'=>'autenticar']);
 		$tramites->get('aregconvenio/llenarTablaContratoConvenio/(:any)','Tramites::llenarTablaContratoConvenio/$1');
 		$tramites->get('aregconvenio/buscarUsuarioDeudor/(:any)','Tramites::buscarUsuarioDeudor/$1');
-		$tramites->post('aregconvenio/crearConvenio','Tramites::crearConvenio');
+		$tramites->get('amodcontrato','Tramites::amodcontrato',['filter'=>'autenticar']);
 		$tramites->get('aborcontrato','Tramites::aborcontrato',['filter'=>'autenticar']);
 		$tramites->get('aborcontrato/llenarTablaUsuarioContratos/(:any)','Tramites::llenarTablaUsuarioContratos/$1');
 		$tramites->get('aborcontrato/eliminarContratos/(:any)','Tramites::eliminarContratos/$1');
@@ -327,30 +167,117 @@ $routes->group('', ['namespace'=>'App\Controllers\Administrador'], function($adm
 		$cobros->get('apagoservic/cargarDeudasDetalle/(:any)','Cobros::cargarDeudasDetalle/$1');
 		$cobros->get('apagoservic/cargarHistoricoPagado/(:any)','Cobros::cargarHistoricoPagado/$1');
 		$cobros->post('apagoservic/agregarConceptosDetalle','Cobros::agregarConceptosDetalle');
-		$cobros->get('apagoservic/eliminarDetallesPago/(:any)','Cobros::eliminarDetallesPago/$1');
+		$cobros->post('apagoservic/agregarAnticiposDetalle','Cobros::agregarAnticiposDetalle');
+		$cobros->post('apagoservic/eliminarDetallesPago','Cobros::eliminarDetallesPago');
 		$cobros->get('apagoservic/buscarCooperacion/(:any)','Cobros::buscarCooperacion/$1');
 		$cobros->post('apagoservic/modificarCoperacion','Cobros::modificarCoperacion');
 		$cobros->get('apagoservic/buscarTotalPago/(:any)','Cobros::buscarTotalPago/$1');
 		$cobros->post('apagoservic/realizarPagoCuenta','Cobros::realizarPagoCuenta');
 		$cobros->get('apagoservic/modificarTotalesConcepto/(:any)','Cobros::modificarTotalesConcepto/$1');
 		$cobros->post('apagoservic/realizarPagoParcialCuenta','Cobros::realizarPagoParcialCuenta');
+		$cobros->get('apagoservic/calculoTotalDeuda/(:any)','Cobros::calculoTotalDeuda/$1');
 		$cobros->get('apagoespecia','Cobros::apagoespecia',['filter'=>'autenticar']);
 		$cobros->get('apagoespecia/cargarDeudasEspeciales/(:any)','Cobros::cargarDeudasEspeciales/$1');
 		$cobros->post('apagoespecia/realizarAjusteParcial','Cobros::realizarAjusteParcial');
 		$cobros->get('acreacargo','Cobros::acreacargo',['filter'=>'autenticar']);
-		$cobros->get('acreacargo/buscarUsuariosTotal','Cobros::buscarUsuariosTotal');
-		$cobros->get('acreacargo/verificarMesCorriente/(:any)','Cobros::verificarMesCorriente/$1');
 		$cobros->get('acreacargo/agregandoCargos/(:any)','Cobros::agregandoCargos/$1');
 		$cobros->get('acreacargo/agregandoCargosSelec/(:any)','Cobros::agregandoCargosSelec/$1');
-		$cobros->get('acreacargo/mostrarResumenCargos','Cobros::mostrarResumenCargos');
+		$cobros->get('acreacargo/mostrarResumenCargos/(:any)','Cobros::mostrarResumenCargos/$1');
+		$cobros->get('acrearecargo','Cobros::acrearecargo',['filter'=>'autenticar']);
+		$cobros->get('acrearecargo/buscarIdUsuariosAdeudo','Cobros::buscarIdUsuariosAdeudo');
+		$cobros->get('acrearecargo/agregandoRecargos/(:any)','Cobros::agregandoRecargos/$1');
+		$cobros->get('acrearecargo/mostrarResumenRecargos','Cobros::mostrarResumenRecargos');
 		
 		$cobros->get('acobros/autoCompletarUsuario/(:any)','Cobros::autoCompletarUsuario/$1');
 		$cobros->get('acobros/cargarUsuarioGenerales/(:any)','Cobros::cargarUsuarioGenerales/$1');
 		$cobros->get('acobros/modificarTotalesConcepto/(:any)','Cobros::modificarTotalesConcepto/$1');
+		$cobros->get('acobros/buscarContratosActivos','Cobros::buscarContratosActivos');
+		$cobros->get('acobros/arregloContratosTotales/(:any)','Cobros::arregloContratosTotales/$1');
 
 	});
 
+	$admins->group('', function($comite){
+		$comite->get('regiscomite','Comite::regiscomite',['filter'=>'autenticar']);
+		$comite->get('regiscomite/llenarTablaComite','Comite::llenarTablaComite');
+		$comite->post('regiscomite/guardarComiteNuevo','Comite::guardarComiteNuevo');
+		$comite->get('regiscomite/buscarEditarComite/(:any)','Comite::buscarEditarComite/$1');
+		$comite->post('regiscomite/actualizarRegistroComite','Comite::actualizarRegistroComite');
+		$comite->get('regiscomite/eliminarRegistroComite/(:any)','Comite::eliminarRegistroComite/$1');
+		$comite->get('regiscomite/enviarCorreoComiteCred/(:any)','Comite::enviarCorreoComiteCred/$1');
+		$comite->get('reaccomite','Comite::reaccomite',['filter'=>'autenticar']);
+		$comite->get('reaccomite/autoCompletarStaffNombre/(:any)','Comite::autoCompletarStaffNombre/$1');
+		$comite->get('reaccomite/tablaStaffReactivar/(:any)','Comite::tablaStaffReactivar/$1');
+		$comite->get('acreaasamble','Comite::acreaasamble',['filter'=>'autenticar']);
+		$comite->get('acreaasamble/llenarTablaAsambleas','Comite::llenarTablaAsambleas');
+		$comite->post('acreaasamble/guardarAsambleaNueva','Comite::guardarAsambleaNueva');
+		$comite->get('acreaasamble/buscarEditarAsamblea/(:any)','Comite::buscarEditarAsamblea/$1');
+		$comite->post('acreaasamble/actualizarAsamblea','Comite::actualizarAsamblea');
+		$comite->get('acreaasamble/eliminarAsamblea/(:any)','Comite::eliminarAsamblea/$1');
+		$comite->get('aconvasamble','Comite::aconvasamble',['filter'=>'autenticar']);
+		$comite->get('aconvasamble/llenarTablaConvocatorias','Comite::llenarTablaConvocatorias');
+		$comite->get('aconvasamble/totalesUsuariosConvocados/(:any)','Comite::totalesUsuariosConvocados/$1');
+		$comite->get('aconvasamble/usuariosConvocados','Comite::usuariosConvocados');
+		$comite->post('aconvasamble/creandoInvitacionUsuario','Comite::creandoInvitacionUsuario');
+		$comite->get('aconvasamble/consultarAsambleaConvocada/(:any)','Comite::consultarAsambleaConvocada/$1');
+		$comite->get('aconvasamble/cerrarAsambleaConvocada/(:any)','Comite::cerrarAsambleaConvocada/$1');
+		$comite->get('aconvasamble/informeAsambleaAsistencias/(:any)','Comite::informeAsambleaAsistencias/$1');
+		$comite->get('aconvasamble/usuariosFaltantes/(:any)','Comite::usuariosFaltantes/$1');
+		$comite->post('aconvasamble/aplicandoSanciones','Comite::aplicandoSanciones');
+		$comite->get('aconvasamble/mostrarResumenAsamblea/(:any)','Comite::mostrarResumenAsamblea/$1');
+		$comite->get('asisasamblea','Comite::asisasamblea',['filter'=>'autenticar']);
+		$comite->get('asisasamblea/llenarComboAsambleas','Comite::llenarComboAsambleas');
+		$comite->get('asisasamblea/autoCompletarUsuario/(:any)','Comite::autoCompletarUsuario/$1');
+		$comite->get('asisasamblea/marcarAsistencia/(:any)','Comite::marcarAsistencia/$1');
+
+	});
+
+	$admins->group('', function($reportes){
+		$reportes->get('aimpcontrato','Reportes::aimpcontrato',['filter'=>'autenticar']);
+		$reportes->get('aimpcontrato/mostrarContratosActivos/(:any)','Reportes::mostrarContratosActivos/$1');
+		$reportes->get('areimtransfe','Reportes::areimtransfe',['filter'=>'autenticar']);
+		$reportes->get('areimtransfe/autoCompletarTransferencias/(:any)','Reportes::autoCompletarTransferencias/$1');
+		$reportes->get('areimtransfe/mostrarTransferContratos/(:any)','Reportes::mostrarTransferContratos/$1');
+		$reportes->get('areimpbajas','Reportes::areimpbajas',['filter'=>'autenticar']);
+		$reportes->get('areimpbajas/autoCompletarBajas/(:any)','Reportes::autoCompletarBajas/$1');
+		$reportes->get('areimpbajas/mostrarBajasContratos/(:any)','Reportes::mostrarBajasContratos/$1');
+		$reportes->get('areimreactiv','Reportes::areimreactiv',['filter'=>'autenticar']);
+		$reportes->get('areimreactiv/autoCompletarReactivados/(:any)','Reportes::autoCompletarReactivados/$1');
+		$reportes->get('areimreactiv/mostrarReactivosContratos/(:any)','Reportes::mostrarReactivosContratos/$1');
+		$reportes->get('areimcompago','Reportes::areimcompago',['filter'=>'autenticar']);
+		$reportes->get('areimcompago/llenarTablaRecibosPago','Reportes::llenarTablaRecibosPago');
+		$reportes->get('areimcomdomi','Reportes::areimcomdomi',['filter'=>'autenticar']);
+		$reportes->get('areimcomdomi/buscarComprobanteDomicilio/(:any)','Reportes::buscarComprobanteDomicilio/$1');
+		$reportes->get('alistacortes','Reportes::alistacortes',['filter'=>'autenticar']);
+		$reportes->get('alistacortes/llenatTablaDeudores','Reportes::llenatTablaDeudores');
+		$reportes->get('alistacortes/exportadorListaDeudas','Reportes::exportadorListaDeudas');
+		$reportes->get('acortecaja','Reportes::acortecaja',['filter'=>'autenticar']);
+		$reportes->get('acortecaja/listadoGeneraCorte/(:any)','Reportes::listadoGeneraCorte/$1');
+		$reportes->get('acortecaja/listadoGeneraCorteSem/(:any)','Reportes::listadoGeneraCorteSem/$1');
+		$reportes->get('acortecaja/llenarComboAnioMes','Reportes::llenarComboAnioMes');
+		$reportes->get('acortecaja/llenarComboMes/(:any)','Reportes::llenarComboMes/$1');
+		$reportes->get('acortecaja/llenarComboSemana/(:any)','Reportes::llenarComboSemana/$1');
+		$reportes->get('acortecaja/llenarComboDia/(:any)','Reportes::llenarComboDia/$1');
+		$reportes->get('acortecaja/listadoGeneraMeses/(:any)','Reportes::listadoGeneraMeses/$1');
+		$reportes->get('acortecaja/listadoGeneraDias/(:any)','Reportes::listadoGeneraDias/$1');
+		$reportes->get('acortecaja/llenarTablaPaginadaFolios/(:any)','Reportes::llenarTablaPaginadaFolios/$1');
+		$reportes->get('acortecaja/exportadorListaFolios/(:any)','Reportes::exportadorListaFolios/$1');
+		$reportes->get('reportedeuda','Reportes::reportedeuda');
+		$reportes->get('reportedeuda/mostrarDeudasDetalle/(:any)','Reportes::mostrarDeudasDetalle/$1');
+		
+		$reportes->get('areportes/imprimirContrato/(:any)','Reportes::imprimirContrato/$1');
+		$reportes->get('areportes/imprimirComprobantePago/(:any)','Reportes::imprimirComprobantePago/$1');
+		$reportes->get('areportes/imprimirAcuseBaja/(:any)','Reportes::imprimirAcuseBaja/$1');
+		$reportes->get('areportes/imprimirAcuseReactiva/(:any)','Reportes::imprimirAcuseReactiva/$1');
+		$reportes->get('areportes/imprimirReciboTransferencia/(:any)','Reportes::imprimirReciboTransferencia/$1');
+
+	});
+
+
 });
+
+$routes->resource('acatconcepto', ['controllers/Administrador'=>'Catalogos']);
+$routes->resource('acatcontrato', ['controllers/Administrador'=>'Catalogos']);
+$routes->resource('acatalogos', ['controllers/Administrador'=>'Catalogos']);
 
 $routes->resource('aregusuarios', ['controllers/Administrador'=>'Tramites']);
 $routes->resource('amodusuarios', ['controllers/Administrador'=>'Tramites']);
@@ -358,6 +285,7 @@ $routes->resource('aagrcontrato', ['controllers/Administrador'=>'Tramites']);
 $routes->resource('amodcontrato', ['controllers/Administrador'=>'Tramites']);
 $routes->resource('atracontrato', ['controllers/Administrador'=>'Tramites']);
 $routes->resource('abajcontrato', ['controllers/Administrador'=>'Tramites']);
+$routes->resource('amodubicacio', ['controllers/Administrador'=>'Tramites']);
 $routes->resource('aregconvenio', ['controllers/Administrador'=>'Tramites']);
 $routes->resource('aborcontrato', ['controllers/Administrador'=>'Tramites']);
 $routes->resource('aborusuarios', ['controllers/Administrador'=>'Tramites']);
@@ -366,7 +294,38 @@ $routes->resource('atramites', ['controllers/Administrador'=>'Tramites']);
 $routes->resource('apagoservic', ['controllers/Administrador'=>'Cobros']);
 $routes->resource('apagoespecia', ['controllers/Administrador'=>'Cobros']);
 $routes->resource('acreacargo', ['controllers/Administrador'=>'Cobros']);
+$routes->resource('acrearecargo', ['controllers/Administrador'=>'Cobros']);
 $routes->resource('acobros', ['controllers/Administrador'=>'Cobros']);
+
+$routes->resource('regiscomite', ['controllers/Administrador'=>'Comite']);
+$routes->resource('reaccomite', ['controllers/Administrador'=>'Comite']);
+$routes->resource('acreaasamble', ['controllers/Administrador'=>'Comite']);
+$routes->resource('aconvasamble', ['controllers/Administrador'=>'Comite']);
+$routes->resource('asisasamblea', ['controllers/Administrador'=>'Comite']);
+
+$routes->resource('aimpcontrato', ['controllers/Administrador'=>'Reportes']);
+$routes->resource('areimtransfe', ['controllers/Administrador'=>'Reportes']);
+$routes->resource('areimpbajas', ['controllers/Administrador'=>'Reportes']);
+$routes->resource('areimcompago', ['controllers/Administrador'=>'Reportes']);
+$routes->resource('areimcomdomi', ['controllers/Administrador'=>'Reportes']);
+$routes->resource('areimcomdomi', ['controllers/Administrador'=>'Reportes']);
+$routes->resource('alistacortes', ['controllers/Administrador'=>'Reportes']);
+$routes->resource('acortecaja', ['controllers/Administrador'=>'Reportes']);
+$routes->resource('areportes', ['controllers/Administrador'=>'Reportes']);
+$routes->resource('reportedeuda', ['controllers/Administrador'=>'Reportes']);
+
+$routes->resource('adashboard', ['controllers/Administrador'=>'Dashboard']);
+
+$routes->resource('reportegral', ['controllers/Auditoria'=>'Reportes']);
+
+
+$routes->group('', ['namespace'=>'App\Controllers\Cuenta'], function($cuenta){
+	$cuenta->group('',function($acceso){
+		$acceso->get('accesoadmin','Cuenta::accesoadmin');
+		$acceso->post('accesoadmin/verificandoCredencial','Cuenta::verificandoCredencial');
+
+	});
+});
 
 
 $routes->group('', ['namespace'=>'App\Controllers\Sistema'], function($sistema){
@@ -430,6 +389,7 @@ $routes->group('', ['namespace'=>'App\Controllers\Sistema'], function($sistema){
 		$catalogos->post('catperfiles/guardarPerfiles','Catalogos::guardarPerfiles');
 		$catalogos->get('catperfiles/buscarEditarPerfiles/(:any)','Catalogos::buscarEditarPerfiles/$1');
 		$catalogos->post('catperfiles/actualizarPerfiles','Catalogos::actualizarPerfiles');
+		$catalogos->get('catperfiles/eliminarPerfil/(:any)','Catalogos::eliminarPerfil/$1');
 
 		$catalogos->get('catestatus','Catalogos::catestatus',['filter'=>'roladmin']);
 		$catalogos->get('catestatus/llenarTablaEstatus','Catalogos::llenarTablaEstatus');
@@ -441,6 +401,7 @@ $routes->group('', ['namespace'=>'App\Controllers\Sistema'], function($sistema){
 		$catalogos->get('catalogos/llenarComboAreas','Catalogos::llenarComboAreas');
 		$catalogos->get('catalogos/llenarComboPuestos/(:any)','Catalogos::llenarComboPuestos/$1');
 		$catalogos->get('catalogos/armarMenuAsignaPerfiles','Catalogos::armarMenuAsignaPerfiles');
+		$catalogos->get('catalogos/llenarComboCatEstatus','Catalogos::llenarComboCatEstatus');
 		$catalogos->get('catalogos/llenarComboCatEstados','Catalogos::llenarComboCatEstados');
 		$catalogos->get('catalogos/llenarComboCatMunicipios/(:any)','Catalogos::llenarComboCatMunicipios/$1');
 		$catalogos->get('catalogos/llenarComboCatCodPostales/(:any)','Catalogos::llenarComboCatCodPostales/$1');
@@ -476,7 +437,6 @@ $routes->group('', ['namespace'=>'App\Controllers\Sistema'], function($sistema){
 	$sistema->group('', function($mailers){
 		$mailers->get('mailmuestra','Mailers::mailmuestra');
 
-
 	});
 
 
@@ -484,11 +444,11 @@ $routes->group('', ['namespace'=>'App\Controllers\Sistema'], function($sistema){
 
 });
 
-$routes->resource('menunivela', ['controller/Sistema'=>'Menuopcion']);
-$routes->resource('menunivelb', ['controller/Sistema'=>'Menuopcion']);
-$routes->resource('menunivelc', ['controller/Sistema'=>'Menuopcion']);
-$routes->resource('menuniveld', ['controller/Sistema'=>'Menuopcion']);
-$routes->resource('asignastaff', ['controller/Sistema'=>'Privilegios']);
+$routes->resource('menunivela', ['controllers/Sistema'=>'Menuopcion']);
+$routes->resource('menunivelb', ['controllers/Sistema'=>'Menuopcion']);
+$routes->resource('menunivelc', ['controllers/Sistema'=>'Menuopcion']);
+$routes->resource('menuniveld', ['controllers/Sistema'=>'Menuopcion']);
+$routes->resource('asignastaff', ['controllers/Sistema'=>'Privilegios']);
 
 
 /*
@@ -503,6 +463,7 @@ $routes->resource('asignastaff', ['controller/Sistema'=>'Privilegios']);
  *
  * You will have access to the $routes object within that file without
  * needing to reload it.
+ * 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
  */
 if (file_exists(APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php'))
 {
