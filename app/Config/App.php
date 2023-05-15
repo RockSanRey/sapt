@@ -23,7 +23,7 @@ class App extends BaseConfig
 	 *
 	 * @var string
 	 */
-	public $baseURL = 'https://sapt.teltipanhgo.org.mx/';
+	public $baseURL = 'https://sandboxsapt.teltipanhgo.org.mx/';
 
 	/**
 	 * --------------------------------------------------------------------------
