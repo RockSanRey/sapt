@@ -109,8 +109,6 @@
                           <div id="userListComplete" class="autocompletados-lg-a"></div>
                       </div>
                       <div class="tabla-contenedor"></div>
-                      <div class="tabla-contenedor"></div>
-                      <div class="tabla-contenedor"></div>
                   </div>
                 </div>
               </div>

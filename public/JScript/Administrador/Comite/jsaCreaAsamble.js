@@ -387,7 +387,7 @@ const eliminarCodigoAsamblea = async (botonEliminarReg) => {
         })
         .then((result)=>{
             if(result.isConfirmed){
-                fetch(`creaasamble/eliminarAsamblea/${idBusqueda}`)
+                fetch(`acreaasamble/eliminarAsamblea/${idBusqueda}`)
                 .then(respuestaEl=>respuestaEl.json())
                 .then(eliminado=>{
                     if(eliminado.estatus=='eliminado'){

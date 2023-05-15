@@ -27,6 +27,693 @@ class Comite extends BaseController
         }
     }
 
+    public function regiscomite()
+    {
+        $id = __FUNCTION__;
+        $respuesta=$this->llamandoParametrosWeb($id);
+        $cadena=array(
+            'titulo'=>'SAPT | '.$respuesta['TITULO_CONW'],
+            'tutiloPantalla'=>$respuesta['TITULOPANT_CONW'],
+            'robots'=>$respuesta['ROBOTS_CONW'],
+            'Keyword'=>$respuesta['KEYWORD_CONW'],
+            'descripcion'=>$respuesta['DESCRIPCION_CONW'],
+            'pantalla'=>$id,
+            'sesionIniciada'=>session(),
+        );
+        $sesionIniciada=session();
+        $log_extra=[
+            'user'=>$sesionIniciada->get('IDCLIENTE'),
+            'grupo'=>$sesionIniciada->get('NIVELCLIEN'),
+        ];
+        log_message('info','[REGCOMITE] Cargando modulo regiscomite para {user} con privilegios {grupo}.',$log_extra);
+        return view('Plantilla/vHeader',$cadena).view('Administrador/Comite/vRegisComite').view('Plantilla/vFooter');        
+    }
+
+    public function llenarTablaComite()
+    {
+        log_message('info','[REGCOMITE|Async] Solicitando datos para renderizado de tabla comite');
+        if($tablaDatos = $this->modeloComite->llenarDatosTablaComite()){
+            log_message('info','[REGCOMITE|Async] Envio de datos para renderizado de tabla comite');
+            return json_encode($tablaDatos);
+        }else {
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos.',
+                'estatus'=>'error',
+            ];
+            return json_encode($swalMensajes);
+
+        }
+
+    }
+
+    public function guardarComiteNuevo()
+    {
+        $log_extra=[
+            'user'=>session()->get('IDCLIENTE'),
+        ];
+        log_message('info','[REGCOMITE|Async] Verificando el método de envio para continuar proceso guardar');
+        if($this->request->getMethod('POST')){
+            log_message('info','[REGCOMITE|Async] Metodo envio reconocido continua proceso guardar');
+            $reglasValidacion = $this->validate([
+                'textNombre'=>[
+                    'label'=>'Nombre',
+                    'rules'=>'required|min_length[3]|max_length[40]|string',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                        'min_length'=>'{field} dene tener min {param} caracteres',
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textApaterno'=>[
+                    'label'=>'A. Paterno',
+                    'rules'=>'required|min_length[3]|max_length[40]|string',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                        'min_length'=>'{field} dene tener min {param} caracteres',
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textAmaterno'=>[
+                    'label'=>'A. Materno',
+                    'rules'=>'required|min_length[3]|max_length[40]|string',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                        'min_length'=>'{field} dene tener min {param} caracteres',
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textNacimiento'=>[
+                    'label'=>'F. Nacimiento',
+                    'rules'=>'max_length[15]|string',
+                    'errors'=>[
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textSexo'=>[
+                    'label'=>'Sexo',
+                    'rules'=>'max_length[15]|string',
+                    'errors'=>[
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textTelefono'=>[
+                    'label'=>'Telefono',
+                    'rules'=>'max_length[15]',
+                    'errors'=>[
+                        'numeric'=>'{field} solo números.',
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textMovil'=>[
+                    'label'=>'Movil',
+                    'rules'=>'max_length[15]',
+                    'errors'=>[
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textEmail'=>[
+                    'label'=>'Email',
+                    'rules'=>'max_length[250]|string',
+                    'errors'=>[
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textEstado'=>[
+                    'label'=>'Estado',
+                    'rules'=>'required',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                    ],
+                ],
+                'textMunicipio'=>[
+                    'label'=>'Municipio',
+                    'rules'=>'required',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                    ],
+                ],
+                'textCodiPostal'=>[
+                    'label'=>'C.P.',
+                    'rules'=>'required',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                    ],
+                ],
+                'textColonia'=>[
+                    'label'=>'Colonia',
+                    'rules'=>'required',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                    ],
+                ],
+                'textCalle'=>[
+                    'label'=>'Calle',
+                    'rules'=>'required|min_length[3]|max_length[40]|string',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                        'min_length'=>'{field} dene tener min {param} caracteres',
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textNexter'=>[
+                    'label'=>'N. Ext.',
+                    'rules'=>'required|min_length[1]|max_length[40]|string',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                        'min_length'=>'{field} dene tener min {param} caracteres',
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textNinter'=>[
+                    'label'=>'N. Int.',
+                    'rules'=>'max_length[40]|string',
+                    'errors'=>[
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textReferen'=>[
+                    'label'=>'Referencia',
+                    'rules'=>'max_length[80]|string',
+                    'errors'=>[
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textPuesto'=>[
+                    'label'=>'Puesto',
+                    'rules'=>'required',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                    ],
+                ],
+            ]);
+            log_message('info','[REGCOMITE|Async] Creando variables con arreglo de los campos del formulario');
+            $datosParaGuardar=[
+                $captura = session()->get('IDCLIENTE'),
+                $textNombre = $this->request->getPost('textNombre'),
+                $textApaterno = $this->request->getPost('textApaterno'),
+                $textAmaterno = $this->request->getPost('textAmaterno'),
+                $textNacimiento = $this->request->getPost('textNacimiento'),
+                $textSexo = $this->request->getPost('textSexo'),
+                $textTelefono = $this->request->getPost('textTelefono'),
+                $textMovil = $this->request->getPost('textMovil'),
+                $textEmail = $this->request->getPost('textEmail'),
+                $textEstado = $this->request->getPost('textEstado'),
+                $textMunicipio = $this->request->getPost('textMunicipio'),
+                $textCodiPostal = $this->request->getPost('textCodiPostal'),
+                $textColonia = $this->request->getPost('textColonia'),
+                $textCalle = $this->request->getPost('textCalle'),
+                $textNexter = $this->request->getPost('textNexter'),
+                $textNinter = $this->request->getPost('textNinter'),
+                $textReferen = $this->request->getPost('textReferen'),
+                $textPuesto = $this->request->getPost('textPuesto'),
+            ];
+            log_message('notice','[REGCOMITE|Async] {user} esta intentando grabar registros en comite.', $log_extra);
+            log_message('info','[REGCOMITE|Async] Inicializando Validación de reglas...');
+            if(!$reglasValidacion){
+                log_message('info','[REGCOMITE|Async] Reglas de validacion fueron rechazadas');
+                $swalMensajes=[
+                    'title'=>'Atención',
+                    'button'=>'Entendido',
+                    'icon'=>'info',
+                    'text'=>$this->validator->listErrors(),
+                    'estatus'=>'invalido',
+                ];
+
+                return json_encode($swalMensajes);
+            }else{
+                log_message('info','[REGCOMITE|Async] Reglas de validacion aceptadas');
+                log_message('info','[REGCOMITE|Async] Enviando datos verificar duplicidad');
+                if($datosDuplicados=$this->modeloComite->buscarDuplicadosComite($datosParaGuardar)){
+                    log_message('info','[REGCOMITE|Async] Retorno de datos esperando respuesta');
+                    $swalMensajes=[
+                        'title'=>'Duplicados',
+                        'button'=>'Ok',
+                        'icon'=>'warning',
+                        'text'=>'Los datos enviados ya existen en el sistema, revisar.',
+                        'estatus'=>'duplicado',
+                    ];
+                    return json_encode($swalMensajes);
+
+                }else {
+                    log_message('info','[REGCOMITE|Async] No se detecto registros duplicados.');
+                    if($this->modeloComite->guardarDatosComiteNuevo($datosParaGuardar)){
+                        log_message('info','[REGCOMITE|Async] Los registros se grabaron correctamente, continua proseso de asignacion.');
+                        $swalMensajes=[
+                            'title'=>'Guardado',
+                            'button'=>'Ok',
+                            'icon'=>'success',
+                            'text'=>'Los datos se han guardado correctamente.',
+                            'estatus'=>'guardado',
+                        ];
+                        return json_encode($swalMensajes);
+
+                    }else {
+                        log_message('info','[REGCOMITE|Async] Ocurrio un error al guardar los datos, notificando');
+                        $swalMensajes=[
+                            'title'=>'Error Servidor',
+                            'button'=>'Ok',
+                            'icon'=>'error',
+                            'text'=>'Ocurro un error al guardar los datos.',
+                            'estatus'=>'error',
+                        ];
+
+                        return json_encode($swalMensajes);
+                    }
+                }
+            }
+        }
+        else {
+            log_message('info','[REGCOMITE|Async] Metodo envio no reconocido termina proceso');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error envio no reconocido.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function buscarEditarComite($id)
+    {
+        log_message('info','[REGCOMITE|Async] Solicitando datos para renderizado de editar comite');
+        if($tablaDatos = $this->modeloComite->buscarDatosEditarComite($id)){
+            log_message('info','[REGCOMITE|Async] Envio de datos para renderizado de editar comite');
+            return json_encode($tablaDatos);
+        }else {
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos.',
+                'estatus'=>'error',
+            ];
+            echo json_encode($swalMensajes);
+
+        }
+
+    }
+
+    public function actualizarRegistroComite()
+    {
+        $log_extra=[
+            'user'=>session()->get('IDCLIENTE'),
+        ];
+        log_message('info','[REGCOMITE|Async] Verificando el método de envio para continuar proceso actualizar');
+        if($this->request->getMethod('POST')){
+            log_message('info','[REGCOMITE|Async] Metodo envio reconocido continua proceso guardar');
+            $reglasValidacion = $this->validate([
+                'textCliente'=>[
+                    'label'=>'Cliente',
+                    'rules'=>'required',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                    ],
+                ],
+                'textNombre'=>[
+                    'label'=>'Nombre',
+                    'rules'=>'required|min_length[3]|max_length[40]|string',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                        'min_length'=>'{field} dene tener min {param} caracteres',
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textApaterno'=>[
+                    'label'=>'A. Paterno',
+                    'rules'=>'required|min_length[3]|max_length[40]|string',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                        'min_length'=>'{field} dene tener min {param} caracteres',
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textAmaterno'=>[
+                    'label'=>'A. Materno',
+                    'rules'=>'required|min_length[3]|max_length[40]|string',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                        'min_length'=>'{field} dene tener min {param} caracteres',
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textNacimiento'=>[
+                    'label'=>'F. Nacimiento',
+                    'rules'=>'max_length[15]|string',
+                    'errors'=>[
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textSexo'=>[
+                    'label'=>'Sexo',
+                    'rules'=>'max_length[15]|string',
+                    'errors'=>[
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textTelefono'=>[
+                    'label'=>'Telefono',
+                    'rules'=>'max_length[15]',
+                    'errors'=>[
+                        'numeric'=>'{field} solo números.',
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textMovil'=>[
+                    'label'=>'Movil',
+                    'rules'=>'max_length[15]',
+                    'errors'=>[
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textEmail'=>[
+                    'label'=>'Email',
+                    'rules'=>'max_length[250]|string',
+                    'errors'=>[
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textUbicacion'=>[
+                    'label'=>'Ubicación',
+                    'rules'=>'required',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                    ],
+                ],
+                'textEstado'=>[
+                    'label'=>'Estado',
+                    'rules'=>'required',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                    ],
+                ],
+                'textMunicipio'=>[
+                    'label'=>'Municipio',
+                    'rules'=>'required',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                    ],
+                ],
+                'textCodiPostal'=>[
+                    'label'=>'C.P.',
+                    'rules'=>'required',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                    ],
+                ],
+                'textColonia'=>[
+                    'label'=>'Colonia',
+                    'rules'=>'required',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                    ],
+                ],
+                'textCalle'=>[
+                    'label'=>'Calle',
+                    'rules'=>'required|min_length[3]|max_length[40]|string',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                        'min_length'=>'{field} dene tener min {param} caracteres',
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textNexter'=>[
+                    'label'=>'N. Ext.',
+                    'rules'=>'required|min_length[1]|max_length[40]|string',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                        'min_length'=>'{field} dene tener min {param} caracteres',
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textNinter'=>[
+                    'label'=>'N. Int.',
+                    'rules'=>'max_length[40]|string',
+                    'errors'=>[
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textReferen'=>[
+                    'label'=>'Referencia',
+                    'rules'=>'max_length[80]|string',
+                    'errors'=>[
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textPuesto'=>[
+                    'label'=>'Puesto',
+                    'rules'=>'required',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                    ],
+                ],
+            ]);
+            log_message('info','[REGCOMITE|Async] Creando variables con arreglo de los campos del formulario');
+            $datosParaGuardar=[
+                $captura = session()->get('IDCLIENTE'),
+                $textCliente = $this->request->getPost('textCliente'),
+                $textNombre = $this->request->getPost('textNombre'),
+                $textApaterno = $this->request->getPost('textApaterno'),
+                $textAmaterno = $this->request->getPost('textAmaterno'),
+                $textNacimiento = $this->request->getPost('textNacimiento'),
+                $textSexo = $this->request->getPost('textSexo'),
+                $textTelefono = $this->request->getPost('textTelefono'),
+                $textMovil = $this->request->getPost('textMovil'),
+                $textEmail = $this->request->getPost('textEmail'),
+                $textUbicacion = $this->request->getPost('textUbicacion'),
+                $textEstado = $this->request->getPost('textEstado'),
+                $textMunicipio = $this->request->getPost('textMunicipio'),
+                $textCodiPostal = $this->request->getPost('textCodiPostal'),
+                $textColonia = $this->request->getPost('textColonia'),
+                $textCalle = $this->request->getPost('textCalle'),
+                $textNexter = $this->request->getPost('textNexter'),
+                $textNinter = $this->request->getPost('textNinter'),
+                $textReferen = $this->request->getPost('textReferen'),
+                $textPuesto = $this->request->getPost('textPuesto'),
+            ];
+            log_message('notice','[REGCOMITE|Async] {user} esta intentando actualizar registros en comite.', $log_extra);
+            log_message('info','[REGCOMITE|Async] Inicializando Validación de reglas...');
+            if(!$reglasValidacion){
+                log_message('info','[REGCOMITE|Async] Reglas de validacion fueron rechazadas');
+                $swalMensajes=[
+                    'title'=>'Atención',
+                    'button'=>'Entendido',
+                    'icon'=>'info',
+                    'text'=>$this->validator->listErrors(),
+                    'estatus'=>'invalido',
+                ];
+
+                return json_encode($swalMensajes);
+            }else{
+                log_message('info','[REGCOMITE|Async] Reglas de validacion aceptadas');
+                log_message('info','[REGCOMITE|Async] No se detecto registros duplicados.');
+                if($this->modeloComite->actualizarDatosRegistroComite($datosParaGuardar)){
+                    log_message('info','[REGCOMITE|Async] Los registros se grabaron correctamente, continua proseso de asignacion.');
+                    $swalMensajes=[
+                        'title'=>'Guardado',
+                        'button'=>'Ok',
+                        'icon'=>'warning',
+                        'text'=>'Los datos se han guardado correctamente.',
+                        'estatus'=>'guardado',
+                    ];
+                    return json_encode($swalMensajes);
+
+                }else {
+                    log_message('info','[REGCOMITE|Async] Ocurrio un error al guardar los datos, notificando');
+                    $swalMensajes=[
+                        'title'=>'Error Servidor',
+                        'button'=>'Ok',
+                        'icon'=>'error',
+                        'text'=>'Ocurro un error al guardar los datos.',
+                        'estatus'=>'error',
+                    ];
+
+                    return json_encode($swalMensajes);
+                }
+            }
+        }
+        else {
+            log_message('info','[REGCOMITE|Async] Metodo envio no reconocido termina proceso');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error envio no reconocido.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function eliminarRegistroComite($id)
+    {
+        log_message('info','[REGCOMITE|Async] Enviando datos para aplicar supreción de registros');
+        if($this->modeloComite->eliminarDatosRegistroComite($id)){
+            log_message('info','[REGCOMITE|Async] El proceso se ha completado correctamente, notificando');
+            $swalMensajes=[
+                'title'=>'Eliminado',
+                'button'=>'Ok',
+                'icon'=>'success',
+                'text'=>'El registro se ha eliminado correctamente.',
+                'estatus'=>'eliminado',
+            ];
+            return json_encode($swalMensajes);
+
+        }else {
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos.',
+                'estatus'=>'error',
+            ];
+            return json_encode($swalMensajes);
+
+        }
+
+    }
+
+    public function enviarCorreoComiteCred($id)
+    {
+        log_message('info','[ACTIVASTAFF|Async] Solicitando datos de solicitud para llenado de mensaje.');
+        if($datosMensajeMail = $this->modeloComite->buscarDatosCredencialesMail($id)){
+            log_message('info','[ACTIVASTAFF|Async] Generando plantilla para llenado de mensaje.');
+            $cadena=[
+                'armadoMensaje'=> $datosMensajeMail,
+            ];
+            $mensajeMail = view('Sistema/Mailers/vMailCredencialStaff', $cadena);
+            foreach ($datosMensajeMail as $filasCliente) {
+                $correo=base64_decode($filasCliente['EMAIL_RESPO']);
+            }
+            log_message('info','[ACTIVASTAFF|Async] Seteando configuración para envio de correo.');
+            $config['mailType']='html';
+            $config['protocol']='smtp';
+            $config['SMTPHost']='teltipanhgo.org.mx';
+            $config['SMTPUser']='registro@teltipanhgo.org.mx';
+            $config['SMTPPass']='IsRdPetggwXA2hI3';
+            $config['SMTPPort']='465';
+            $config['SMTPTimeout']='60';
+            $config['SMTPCrypto'] = 'ssl';
+            $config['charset']='utf-8';
+            $config['newline']="\r\n";
+            $config['crlf']="\r\n";
+            $config['wordWrap'] = true;
+            $config['validate']=true;
+
+            log_message('info','[ACTIVASTAFF|Async] Inicializando servicio de envio de correo.');
+            $email = \Config\Services::email();
+            $email->initialize($config);
+            $email->setFrom('registro@teltipanhgo.org.mx', 'Registro SAPT');
+            // $email->setTo('rsanchezr@masotek.com.mx');
+            $email->setTo($correo);
+            $email->setreplyTo('comite@teltipanhgo.org.mx','Comite SAPT');
+            $email->setSubject('Credenciales de acceso | SAPT');
+            $email->setMessage($mensajeMail);
+
+            if($email->send()){
+                log_message('info','[REGISTROSTAFF|Async] Se envío el email correctalente.');
+                $swalMensajes=[
+                    'title'=>'Proceso exitoso',
+                    'button'=>'Ok',
+                    'icon'=>'success',
+                    'text'=>'Se envió el correo de credenciales de acceso al staff.',
+                    'estatus'=>'enviado',
+                ];
+                return json_encode($swalMensajes);
+            }else {
+                var_dump($email->printDebugger());
+                log_message('critical','[REGISTROSTAFF|Async] Ocurrio un error en la configuración.');
+                $swalMensajes=[
+                    'title'=>'Proceso exitoso',
+                    'button'=>'Ok',
+                    'icon'=>'success',
+                    'text'=>'Ocurrió un erro el enviar el correo vea los logs.',
+                    'estatus'=>'error',
+                ];
+                return json_encode($swalMensajes);
+            }
+
+        }else{
+            log_message('info','[REGISTROSTAFF|Async] No se encontraron resultados o ocurrio un error, notificando.');
+            $swalMensajes=[
+                'title'=>'No datos',
+                'button'=>'Ok',
+                'icon'=>'warning',
+                'text'=>'No se encontraron registro o ocurrio un error.',
+                'estatus'=>'nofound',
+            ];
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function reaccomite()
+    {
+        $id = __FUNCTION__;
+        $respuesta=$this->llamandoParametrosWeb($id);
+        $cadena=array(
+            'titulo'=>'SAPT | '.$respuesta['TITULO_CONW'],
+            'tutiloPantalla'=>$respuesta['TITULOPANT_CONW'],
+            'robots'=>$respuesta['ROBOTS_CONW'],
+            'Keyword'=>$respuesta['KEYWORD_CONW'],
+            'descripcion'=>$respuesta['DESCRIPCION_CONW'],
+            'pantalla'=>$id,
+            'sesionIniciada'=>session(),
+        );
+        $sesionIniciada=session();
+        $log_extra=[
+            'user'=>$sesionIniciada->get('IDCLIENTE'),
+            'grupo'=>$sesionIniciada->get('NIVELCLIEN'),
+        ];
+        log_message('info','[REACCOMITE] Cargando modulo reaccomite para {user} con privilegios {grupo}.',$log_extra);
+        return view('Plantilla/vHeader',$cadena).view('Administrador/Comite/vReacComite').view('Plantilla/vFooter');        
+    }
+
+    public function autoCompletarStaffNombre($id)
+    {
+        log_message('info','[REACCOMITE|Async] Solicitando datos para renderizado de asambleas');
+        if($tablaDatos = $this->modeloComite->autoDatosCompletarStaffNombre($id)){
+            log_message('info','[REACCOMITE|Async] Envio de datos para renderizado de asambleas');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[REACCOMITE|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function tablaStaffReactivar($id)
+    {
+        log_message('info','[REACCOMITE|Async] Solicitando datos para renderizado de asambleas');
+        if($tablaDatos = $this->modeloComite->tablaDatosStaffReactivar($id)){
+            log_message('info','[REACCOMITE|Async] Envio de datos para renderizado de asambleas');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[REACCOMITE|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
     public function acreaasamble()
     {
         $id = __FUNCTION__;
@@ -343,13 +1030,12 @@ class Comite extends BaseController
         if($this->modeloComite->eliminarDatosAsamblea($datosParaEliminar)){
             log_message('info','[CREAASAMBLEA|Async] Envio de datos para renderizado de asambleas');
             $swalMensajes=[
-                'title'=>'Error Servidor',
+                'title'=>'Eliminado',
                 'button'=>'Ok',
-                'icon'=>'error',
-                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
-                'estatus'=>'error',
+                'icon'=>'success',
+                'text'=>'El registro se ha eliminado correctamente.',
+                'estatus'=>'eliminado',
             ];
-
             return json_encode($swalMensajes);
         }else {
             log_message('info','[CREAASAMBLEA|Async] Ocurrio un error al consultar los datos, notificando');
@@ -697,7 +1383,7 @@ class Comite extends BaseController
                 'estatus'=>'asistencia',
             ];
             return json_encode($swalMensajes);
-    }else {
+        }else {
             log_message('info','[ASISASAMBLEA|Async] Ocurrio un error al consultar los datos, notificando');
             $swalMensajes=[
                 'title'=>'Error Servidor',

@@ -79,41 +79,57 @@ const escaneadorCodigos = async () => {
 const lecturaCodigoBarras = async () => {
     try{
         let textCodigoBarras = document.querySelector('#textCodigoBarras');
-        textCodigoBarras.addEventListener('change', () => {
-            if(textCodigoBarras.length=14){
-                let idBusqueda = textCodigoBarras.value+'_BRCOD';
-                fetch(`asisasamblea/marcarAsistencia/${idBusqueda}`)
-                .then(respRender => respRender.json())
-                .then(respuestas => {
-                    if(respuestas.estatus=='error'){
-                        return Swal.fire({
-                            title: respuestas.title,
-                            icon: respuestas.icon,
-                            confirmButtonText: `${respuestas.button}`,
-                            confirmButtonColor: '#9C0000',
-                            html: respuestas.text,
-                        })
-
-                    }else{
-                        return Swal.fire({
-                            title: respuestas.title,
-                            icon: respuestas.icon,
-                            confirmButtonText: `${respuestas.button}`,
-                            confirmButtonColor: '#009C06',
-                            html: respuestas.text,
-                            showConfirmButton: false,
-                            timer: 1200,
-                        })
-                        .then((result) => {
-                            if(result.isDismissed){
-                                textCodigoBarras.value='';
-                                textCodigoBarras.focus();
-                            }
-                        })
-
-                    }
-
+        textCodigoBarras.addEventListener('input', () => {
+            if(isNaN(textCodigoBarras.value)){
+                return Swal.fire({
+                    title: 'Invalido',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#9C0000',
+                    html: 'Solo deben ser números',
+                    showConfirmButton: false,
+                    timer: 1000,
                 })
+                .then((result) => {
+                    if(result.isDismissed){
+                        textCodigoBarras.value='';
+                        textCodigoBarras.focus();
+                    }
+                })
+
+            }else{
+                if(textCodigoBarras.value.length==14){
+                    let idBusqueda = textCodigoBarras.value+'_BRCOD';
+                    fetch(`asisasamblea/marcarAsistencia/${idBusqueda}`)
+                    .then(respRender => respRender.json())
+                    .then(respuestas => {
+                        if(respuestas.estatus=='error'){
+                            return Swal.fire({
+                                title: respuestas.title,
+                                icon: respuestas.icon,
+                                confirmButtonText: `${respuestas.button}`,
+                                confirmButtonColor: '#9C0000',
+                                html: respuestas.text,
+                            })
+                        }else{
+                            return Swal.fire({
+                                title: respuestas.title,
+                                icon: respuestas.icon,
+                                confirmButtonText: `${respuestas.button}`,
+                                confirmButtonColor: '#009C06',
+                                html: respuestas.text,
+                                showConfirmButton: false,
+                                timer: 1000,
+                            })
+                            .then((result) => {
+                                if(result.isDismissed){
+                                    textCodigoBarras.value='';
+                                    textCodigoBarras.focus();
+                                }
+                            })
+                        }
+                    })
+                }
             }
         })
     } catch (errorAlert) {
@@ -156,9 +172,25 @@ const completarBusquedaUsuarios = async (textNombre) => {
         let textIdUsuario = document.querySelector('#textIdUsuario');
         let textAsamblea = document.querySelector('#textAsamblea');
         userListComplete.innerHTML='';
-        if(textNombre.value=='' || textNombre.value==null || textAsamblea.value==''){
+        if(textNombre.value=='' || textNombre.value==null){
             userListComplete.innerHTML='';
+        }else if(textAsamblea.value==''||textAsamblea.value==null){
+            return Swal.fire({
+                title: 'Invalido',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#9C0000',
+                html: 'No ha seleccionado una asamblea',
+                showConfirmButton: false,
+                timer: 1000,
+            })
+            .then((result) => {
+                if(result.isDismissed){
+                    textAsamblea.classList.add('is-invalid');
+                }
+            })
         }else{
+            textAsamblea.classList.remove('is-invalid');
             let idBusqueda = textNombre.value+'_'+textAsamblea.value;
             userListComplete.innerHTML=cargaAnimacion;
             fetch(`asisasamblea/autoCompletarUsuario/${idBusqueda}`)

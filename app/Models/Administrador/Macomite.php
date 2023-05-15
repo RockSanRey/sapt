@@ -26,6 +26,455 @@ class Macomite extends Model
         }
     }
 
+    public function llenarDatosTablaComite()
+    {
+        try {
+            $builder=$this->dbBuild->table('sys_responsables');
+            $builder->select("`IDUSUA_RESPO` AS `idTablePk`, `ID_RESPO`,CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS `NOMBRE`, SEXO_RESPO, TELEFONO_RESPO, FMODIF_RESPO, DESCRIPHOM_PUESTO, DESCRIPMUJ_PUESTO");
+            $builder->join('cat_puestos','CLAVE_PUESTO=PERFIL_RESPO');
+            $builder->whereNotIn('CLAVE_PUESTO', ['MASTER']);
+            $builder->where('ESTATUS_RESPO','ACTI');
+            $builder->orderBy('FMODIF_RESPO','DESC');
+            $builder->groupBy('IDUSUA_RESPO');
+            $resultado=$builder->get();
+
+            if($resultado->getNumRows()>0){
+                log_message('info','[REGCOMITE|Async/Q] Generando datos por consulta para renderizado de tabla comite.');
+                return $resultado->getResultArray();
+            }
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function buscarDuplicadosComite($datosParaGuardar)
+    {
+        try {
+            $builder=$this->dbBuild->table('sys_responsables');
+            $builder->select("NOMBRE_RESPO, APATERNO_RESPO, AMATERNO_RESPO");
+            $builder->where('NOMBRE_RESPO',$datosParaGuardar[1]);
+            $builder->where('APATERNO_RESPO',$datosParaGuardar[2]);
+            $builder->where('AMATERNO_RESPO',$datosParaGuardar[3]);
+            $builder->where('EMAIL_RESPO',$datosParaGuardar[8]);
+            $resultado=$builder->get();
+
+            if($resultado->getNumRows()>0){
+                log_message('info','[REGCOMITE|Async/Q] Generando datos por consulta de duplicados registro comite.');
+                return $resultado->getResultArray();
+            }
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function guardarDatosComiteNuevo($datosParaGuardar)
+    {
+        try {
+            $acentuado = ['á','é','í','ó','ú'];
+            $sinacento = ['a','e','i','o','ú'];
+            $nombre=str_replace($acentuado,$sinacento,$datosParaGuardar[1]);
+            $apaterno=str_replace($acentuado,$sinacento,$datosParaGuardar[2]);
+            $amaterno=str_replace($acentuado,$sinacento,$datosParaGuardar[3]);
+            $generaContrasena=substr($nombre, 0,4).substr($apaterno, 0,2).substr($amaterno, 0,2).'.'.date('his');
+
+            if(empty($datosParaGuardar[8])){
+                $idUsuarioAsignado=sha1(date('YmdHis'));
+                $generaUsuario=substr($nombre, 0,4).substr($apaterno, 0,2).substr($amaterno, 0,2);
+            }else{
+                $idUsuarioAsignado=sha1($datosParaGuardar[8]);
+                $generaUsuario=$datosParaGuardar[8];
+            }
+            log_message('info','[REGCOMITE|Async] Definiendo id de usuario y contraseña para asignar a comite');
+
+            $log_extra=[
+                'captur'=>$datosParaGuardar[0],
+                'item'=>$idUsuarioAsignado
+            ];
+            $builder=$this->dbBuild->table('sys_responsables');
+            $builder->selectMax('(ID_RESPO)+1','ID_RESPO');
+            $builder->where('ESTATUS_RESPO','ACTI');
+            $resultado=$builder->get();
+
+            if($resultado->getNumRows()>0){
+                foreach($resultado->getResultArray() as $filas){
+                    $secuenciaOrden=$filas['ID_RESPO'];
+                }
+                if($secuenciaOrden==''){
+                    $secuenciaOrden=1;
+                }
+                log_message('info','[REGCOMITE|Async/Q] Obteniendo secuencia para asignar a {item}',$log_extra);
+
+                $setGuardarComiteUsuario=[
+                    'FECHCAPT_RESPO'=>date('Y-m-d'),
+                    'HORACAPT_RESPO'=>date('H:i:s'),
+                    'CAPTURA_RESPO'=>$datosParaGuardar[0],
+                    'IDUSUA_RESPO'=>$idUsuarioAsignado,
+                    'ID_RESPO'=>str_pad($secuenciaOrden, 8, '0', STR_PAD_LEFT),
+                    'NOMBRE_RESPO'=>ucwords(mb_strtolower($datosParaGuardar[1])),
+                    'APATERNO_RESPO'=>ucwords(mb_strtolower($datosParaGuardar[2])),
+                    'AMATERNO_RESPO'=>ucwords(mb_strtolower($datosParaGuardar[3])),
+                    'AREA_RESPO'=>'ADMINISTRAD',
+                    'FNACIM_RESPO'=>$datosParaGuardar[4],
+                    'SEXO_RESPO'=>$datosParaGuardar[5],
+                    'PUESTO_RESPO'=>$datosParaGuardar[17],
+                    'TELEFONO_RESPO'=>$datosParaGuardar[6],
+                    'MOVIL_RESPO'=>$datosParaGuardar[7],
+                    'EMAIL_RESPO'=>base64_encode($generaUsuario),
+                    'CAMPUS_RESPO'=>'TELTI',
+                    'USUARIO_RESPO'=>base64_encode(base64_encode($generaUsuario)),
+                    'PASSWORD_RESPO'=>base64_encode(base64_encode(base64_encode($generaContrasena))),
+                    'IDMODIF_RESPO'=>$datosParaGuardar[0],
+                    'FMODIF_RESPO'=>date('Y-m-d'),
+                    'NIVELPERF_RESPO'=>'ADMINISTRAD',
+                    'PERFIL_RESPO'=>$datosParaGuardar[17],
+                    'ESTATUS_RESPO'=>'ACTI',
+                ];
+                $builderb=$this->dbBuild->table('sys_responsables');
+                $builderb->insert($setGuardarComiteUsuario);
+                log_message('notice','[REGCOMITE|Async/Q] {captur} creo un nuevo registro de responsable en el sistema continua proceso', $log_extra);
+
+                $builderc=$this->dbBuild->table('sys_ubicaciones');
+                $builderc->selectMax('(SECUENCIA_UBIC)+1','SECUENCIA_UBIC');
+                $builderc->where('IDUSUA_UBIC', $idUsuarioAsignado);
+                $builderc->where('ESTATUS_UBIC','ACTI');
+                $resultado0=$builderc->get();
+                foreach($resultado0->getResultArray() as $filas){
+                    $secuenciaUbic=$filas['SECUENCIA_UBIC'];
+                }
+                if($secuenciaUbic==''){
+                    $secuenciaUbic=1;
+                }
+
+                $builderh=$this->dbBuild->table('cat_perfiles');
+                $builderh->select('PERFIL_PERF');
+                $builderh->where('CLAVE_PERF',$datosParaGuardar[17]);
+                $builderh->where('ESTATUS_PERF','ACTI');
+                $resultado2=$builderh->get();
+
+                if($resultado2->getNumRows()>0){
+                    log_message('notice','[REGCOMITE|Async/Q] Se obtuvieron los privilegios del perfil solicitado integrando en registro');
+                    foreach($resultado2->getResultArray() as $filas){
+                        $opciones=$filas['PERFIL_PERF'];
+                    }
+
+                    $setPerfilUsuario=[
+                        'FECHCAPT_PERFUS'=>date('Y-m-d'),
+                        'HORACAPT_PERFUS'=>date('H:i:s'),
+                        'CAPTURA_PERFUS'=>$datosParaGuardar[0],
+                        'IDUSUA_PERFUS'=>$idUsuarioAsignado,
+                        'PERFIL_PERFUS'=>$datosParaGuardar[17],
+                        'OPCIONES_PERFUS'=>$opciones,
+                        'IDMODIF_PERFUS'=>$datosParaGuardar[0],
+                        'FMODIF_PERFUS'=>date('Y-m-d'),
+                    ];
+                    $builderg=$this->dbBuild->table('sys_perfilusuario');
+                    $builderg->insert($setPerfilUsuario);
+                    log_message('notice','[REGCOMITE|Async/Q] {captur} creo un nuevo registro de responsable y se le asigno sus privilegios en el sistema continua proceso', $log_extra);
+
+                }
+
+                $setAgregaUbicaiones = [
+                    'FECHCAPT_UBIC'=>date('Y-m-d'),
+                    'HORACAPT_UBIC'=>date('H:i:s'),
+                    'CAPTURA_UBIC'=>$datosParaGuardar[0],
+                    'IDUSUA_UBIC'=>$idUsuarioAsignado,
+                    'IDUBIC_UBIC'=>$idUsuarioAsignado.str_pad($secuenciaUbic,3,'0', STR_PAD_LEFT),
+                    'SECUENCIA_UBIC'=>str_pad($secuenciaUbic,3,'0', STR_PAD_LEFT),
+                    'NOMBRE_UBIC'=>'Principal',
+                    'PAIS_UBIC'=>'MX',
+                    'ESTADO_UBIC'=>$datosParaGuardar[9],
+                    'MUNICIPIO_UBIC'=>$datosParaGuardar[10],
+                    'CODIPOSTAL_UBIC'=>$datosParaGuardar[11],
+                    'COLONIA_UBIC'=>$datosParaGuardar[12],
+                    'CALLE_UBIC'=>$datosParaGuardar[13],
+                    'NEXTE_UBIC'=>$datosParaGuardar[14],
+                    'NINTE_UBIC'=>$datosParaGuardar[15],
+                    'REFERENCIA_UBIC'=>$datosParaGuardar[16],
+                    'IDMODIF_UBIC'=>$datosParaGuardar[0],
+                    'FMODIF_UBIC'=>date('Y-m-d'),
+                    'ESTATUS_UBIC'=>'ACTI',
+                ];
+                $builderd=$this->dbBuild->table('sys_ubicaciones');
+                $builderd->insert($setAgregaUbicaiones);
+                log_message('notice','[REGCOMITE|Async/Q] {captur} creo una ubicacion para el usuario en el sistema continua proceso', $log_extra);
+
+                $buildere=$this->dbBuild->table('cat_calles');
+                $buildere->select('CALLE_CALLE');
+                $buildere->where('COLON_CALLE',$datosParaGuardar[12]);
+                $buildere->where('CALLE_CALLE',$datosParaGuardar[13]);
+                $buildere->where('ESTATUS_CALLE','ACTI');
+                $resultado1=$buildere->get();
+                if(!$resultado1->getNumRows()>0){
+
+                    $builderf=$this->dbBuild->table('cat_calles');
+                    $builderf->selectMax('(SECUENCIA_CALLE)+1','SECUENCIA_CALLE');
+                    $builderf->where('COLON_CALLE',$datosParaGuardar[12]);
+                    $builderf->where('ESTATUS_CALLE','ACTI');
+                    $resultado=$builderf->get();
+
+                    if($resultado->getNumRows()>0){
+                        foreach($resultado->getResultArray() as $filas){
+                            $secuenciaCalle=$filas['SECUENCIA_CALLE'];
+                        }
+                        if($secuenciaCalle==''){
+                            $secuenciaCalle=1;
+                        }
+                        log_message('info','[REGCOMITE|Async/Q] Obteniendo secuencia para asignar a calle',$log_extra);
+                    }
+                    $setCalleNueva=[
+                        'FECHACAP_CALLE'=>date('Y-m-d'),
+                        'HORACAP_CALLE'=>date('H:i:s'),
+                        'CAPTURA_CALLE'=>$datosParaGuardar[0],
+                        'COLON_CALLE'=>$datosParaGuardar[12],
+                        'SECUENCIA_CALLE'=>str_pad($secuenciaCalle,4,'0', STR_PAD_LEFT),
+                        'CLVCALLE_CALLE'=>$datosParaGuardar[12].str_pad($secuenciaCalle,4,'0', STR_PAD_LEFT),
+                        'CALLE_CALLE'=>$datosParaGuardar[13],
+                        'IDMODIF_CALLE'=>$datosParaGuardar[0],
+                        'FMODIF_CALLE'=>date('Y-m-d'),
+                        'ESTATUS_CALLE'=>'ACTI',
+                    ];
+                    $builderf=$this->dbBuild->table('cat_calles');
+                    $builderf->insert($setCalleNueva);
+                    log_message('notice','[REGCOMITE|Async/Q] Agregando nueva calle al sistema');
+
+                }
+
+                return true;
+
+            }
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function buscarDatosEditarComite($id)
+    {
+        try {
+            $builder=$this->dbBuild->table('sys_responsables');
+            $builder->select("IDUSUA_RESPO, NOMBRE_RESPO, APATERNO_RESPO, AMATERNO_RESPO, EMAIL_RESPO,
+            FNACIM_RESPO, SEXO_RESPO, TELEFONO_RESPO, MOVIL_RESPO, ESTADO_UBIC, MUNICIPIO_UBIC,
+            CODIPOSTAL_UBIC, COLONIA_UBIC, CALLE_UBIC, NEXTE_UBIC, NINTE_UBIC, REFERENCIA_UBIC, IDUBIC_UBIC, PERFIL_RESPO");
+            $builder->join('sys_ubicaciones','IDUSUA_UBIC=IDUSUA_RESPO');
+            $builder->where('IDUSUA_RESPO', $id);
+            $builder->where('ESTATUS_RESPO','ACTI');
+            $builder->groupBy('IDUSUA_RESPO');
+            $resultado=$builder->get();
+
+            if($resultado->getNumRows()>0){
+                log_message('info','[REGUSUARIOS|Async/Q] Generando datos desde consulta para continuar edición de comite');
+                return $resultado->getResultArray();
+
+            }
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function actualizarDatosRegistroComite($datosParaGuardar)
+    {
+        try {
+            $log_extra=[
+                'captur'=>$datosParaGuardar[0],
+                'item'=>$idUsuarioAsignado
+            ];
+
+            $setActualizarUsuario=[
+                'NOMBRE_RESPO'=>ucwords(mb_strtolower($datosParaGuardar[2])),
+                'APATERNO_RESPO'=>ucwords(mb_strtolower($datosParaGuardar[3])),
+                'AMATERNO_RESPO'=>ucwords(mb_strtolower($datosParaGuardar[4])),
+                'AREA_RESPO'=>'ADMINISTRAD',
+                'FNACIM_RESPO'=>$datosParaGuardar[5],
+                'SEXO_RESPO'=>$datosParaGuardar[6],
+                'PUESTO_RESPO'=>$datosParaGuardar[18],
+                'TELEFONO_RESPO'=>$datosParaGuardar[7],
+                'MOVIL_RESPO'=>$datosParaGuardar[8],
+                'EMAIL_RESPO'=>$datosParaGuardar[9],
+                'PAIS_RESPO'=>'MX',
+                'ESTADO_RESPO'=>$datosParaGuardar[11],
+                'MUNICIPIO_RESPO'=>$datosParaGuardar[12],
+                'CODIPOSTAL_RESPO'=>$datosParaGuardar[13],
+                'COLONIA_RESPO'=>$datosParaGuardar[14],
+                'CALLE_RESPO'=>$datosParaGuardar[15],
+                'NEXTE_RESPO'=>$datosParaGuardar[16],
+                'NINTE_RESPO'=>$datosParaGuardar[17],
+                'CAMPUS_RESPO'=>'TELTI',
+                'USUARIO_RESPO'=>base64_encode(base64_encode($generaUsuario)),
+                'PASSWORD_RESPO'=>base64_encode(base64_encode(base64_encode($generaUsuario))),
+                'IDMODIF_RESPO'=>$datosParaGuardar[0],
+                'FMODIF_RESPO'=>date('Y-m-d'),
+                'NIVELPERF_RESPO'=>$datosParaGuardar[19],
+                'PERFIL_RESPO'=>$datosParaGuardar[19],
+                'ESTATUS_RESPO'=>'ACTI',
+            ];
+            $buildera=$this->dbBuild->table('sys_responsables');
+            $buildera->where('IDUSUA_RESPO', $datosParaGuardar[1]);
+            $buildera->set($setActualizarUsuario);
+            $buildera->update($setActualizarUsuario);
+            log_message('notice','[REGCOMITE|Async/Q] {captur} actualizó registro de responsable en el sistema continua proceso', $log_extra);
+
+            $builderb=$this->dbBuild->table('cat_perfiles');
+            $builderb->select('PERFIL_PERF');
+            $builderb->where('CLAVE_PERF',$datosParaGuardar[19]);
+            $builderb->where('ESTATUS_PERF','ACTI');
+            $resultado2=$builderb->get();
+
+            if($resultado2->getNumRows()>0){
+                log_message('notice','[REGCOMITE|Async/Q] Se obtuvieron los privilegios del perfil solicitado integrando en registro');
+                foreach($resultado2->getResultArray() as $filas){
+                    $opciones=$filas['PERFIL_PERF'];
+                }
+
+                $setPerfilUsuario=[
+                    'PERFIL_PERFUS'=>$datosParaGuardar[19],
+                    'OPCIONES_PERFUS'=>$opciones,
+                    'IDMODIF_PERFUS'=>$datosParaGuardar[0],
+                    'FMODIF_PERFUS'=>date('Y-m-d'),
+                ];
+                $builderc=$this->dbBuild->table('sys_perfilusuario');
+                $builderc->where('IDUSUA_PERFUS', $datosParaGuardar[1]);
+                $builderc->set($setPerfilUsuario);
+                $builderc->update($setPerfilUsuario);
+                log_message('notice','[REGCOMITE|Async/Q] {captur} actualizó registro de responsable y se le asigno sus privilegios en el sistema continua proceso', $log_extra);
+
+            }
+
+            $setActualizarUbicaiones = [
+                'PAIS_UBIC'=>'MX',
+                'ESTADO_UBIC'=>$datosParaGuardar[11],
+                'MUNICIPIO_UBIC'=>$datosParaGuardar[12],
+                'CODIPOSTAL_UBIC'=>$datosParaGuardar[13],
+                'COLONIA_UBIC'=>$datosParaGuardar[14],
+                'CALLE_UBIC'=>$datosParaGuardar[15],
+                'NEXTE_UBIC'=>$datosParaGuardar[16],
+                'NINTE_UBIC'=>$datosParaGuardar[17],
+                'REFERENCIA_UBIC'=>$datosParaGuardar[18],
+                'IDMODIF_UBIC'=>$datosParaGuardar[0],
+                'FMODIF_UBIC'=>date('Y-m-d'),
+                'ESTATUS_UBIC'=>'ACTI',
+            ];
+            $builderd=$this->dbBuild->table('sys_ubicaciones');
+            $builderd->where('IDUSUA_UBIC', $datosParaGuardar[1]);
+            $builderd->where('IDUBIC_UBIC', $datosParaGuardar[10]);
+            $builderd->set($setActualizarUbicaiones);
+            $builderd->update($setActualizarUbicaiones);
+            log_message('notice','[REGCOMITE|Async/Q] {captur} actualizó una ubicacion para el usuario en el sistema continua proceso', $log_extra);
+
+            return true;
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function eliminarDatosRegistroComite($id)
+    {
+        try {
+            $setActualUbicaciones=[
+                'FMODIF_UBIC'=>date('Y-m-d'),
+                'ESTATUS_UBIC'=>'BAJA',
+            ];
+            $builder=$this->dbBuild->table('sys_ubicaciones');
+            $builder->where('IDUSUA_UBIC',$id);
+            $builder->where('ESTATUS_UBIC','ACTI');
+            $builder->set($setActualUbicaciones);
+            $builder->update($setActualUbicaciones);
+            log_message('notice','[REGCOMITE|Async/Q] Registro eliminado de estructura ubicaciones correctamente update baja.');
+
+            $setActualResponsables=[
+                'FMODIF_RESPO'=>date('Y-m-d'),
+                'ESTATUS_RESPO'=>'BAJA',
+            ];
+            $buildere=$this->dbBuild->table('sys_responsables');
+            $buildere->where('IDUSUA_RESPO',$id);
+            $buildere->where('ESTATUS_RESPO','ACTI');
+            $buildere->set($setActualResponsables);
+            $buildere->update($setActualResponsables);
+            log_message('notice','[REGCOMITE|Async/Q] Registro eliminado de estructura responsables comite correctamente.');
+
+            return true;
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function buscarDatosCredencialesMail($id)
+    {
+        try {
+            $log_extra=[
+                'user'=>$id,
+            ];
+
+            $builderh=$this->dbBuild->table('sys_responsables');
+            $builderh->select("IDUSUA_RESPO,CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS NOMBRE,EMAIL_RESPO,USUARIO_RESPO,PASSWORD_RESPO,ESTATUS_RESPO");
+            $builderh->where('IDUSUA_RESPO',$id);
+            $builderh->where('ESTATUS_RESPO','ACTI');
+            $builderh->groupBy('IDUSUA_RESPO');
+            $resultado=$builderh->get();
+            
+            if($resultado->getNumRows()>0){
+                log_message('info','[ACTIVASTAFF|Async/Q] Datos para mensaje de credenciales de {user}.', $log_extra);
+                return $resultado->getResultArray();
+            }
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+    }
+
+    public function autoDatosCompletarStaffNombre($id)
+    {
+        try {
+            $parametro=explode('_',$id);
+            $builder=$this->dbBuild->table('sys_responsables');
+            $builder->select("IDUSUA_RESPO, CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS `NOMBRE`, ID_RESPO");
+            $builder->like('NOMBRE_RESPO', $parametro[1],'after');
+            $builder->where('ESTATUS_RESPO','BAJA');
+            $builder->orderBy('NOMBRE_RESPO','APATERNO_RESPO','ASC');
+            $builder->groupBy('IDUSUA_RESPO');
+            $builder->limit(50);
+            $resultado=$builder->get();
+
+            if($resultado->getNumRows()>0){
+                return $resultado->getResultArray();
+            }
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function tablaDatosStaffReactivar($id)
+    {
+        try {
+            $builder=$this->dbBuild->table('sys_responsables');
+            $builder->select("IDUSUA_RESPO,CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS `NOMBRE`");
+            $builder->where('IDUSUA_RESPO',$id);
+            $builder->orderBy('NOMBRE_RESPO','APATERNO_RESPO','ASC');
+            $builder->groupBy('IDUSUA_RESPO');
+            $builder->limit(50);
+            $resultado=$builder->get();
+
+            if($resultado->getNumRows()>0){
+                return $resultado->getResultArray();
+            }
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+    }
+
     public function llenarDatosTablaAsambleas()
     {
         try {
@@ -100,8 +549,8 @@ class Macomite extends Model
             log_message('notice','[CREAASAMBLE|Async/Q] {captur} creo un nuevocódigo de asamblea continua proceso', $log_extra);
 
             $setGuardarConceptos=[
-                'FECHACON_CONC'=>date('Y-m-d'),
-                'HORACON_CONC'=>date('H:i:s'),
+                'FECHACAP_CONC'=>date('Y-m-d'),
+                'HORACAP_CONC'=>date('H:i:s'),
                 'CAPTURA_CONC'=>$datosParaGuardar[0],
                 'CLAVE_CONC'=>ucwords(mb_strtoupper($datosParaGuardar[1])),
                 'DESCRIPCION_CONC'=>$datosParaGuardar[2],
@@ -200,7 +649,7 @@ class Macomite extends Model
             $buildera->where('CODIGO_ASAM',$datosParaEliminar[1]);
             $buildera->where('ESTATUS_ASAM','ACTI');
             $buildera->delete();
-            log_message('notice','[CREAASAMBLE|Async/Q] {captur} elimino código de asamblea.');
+            log_message('notice','[CREAASAMBLE|Async/Q] {captur} elimino código de asamblea.',$log_extra);
 
             $builderb=$this->dbBuild->query('ALTER TABLE `sys_comite_asambleas` AUTO_INCREMENT = 1');
             log_message('notice','[CREAASAMBLE|Async/Q] Reindexando tabla tras eliminación.');
@@ -209,7 +658,7 @@ class Macomite extends Model
             $builderc->where('CLAVE_CONC',$datosParaEliminar[1]);
             $builderc->where('ESTATUS_CONC','ACTI');
             $builderc->delete();
-            log_message('notice','[CREAASAMBLE|Async/Q] Registro eliminado de estructura responsables usuarios correctamente.');
+            log_message('notice','[CREAASAMBLE|Async/Q] Registro eliminado de estructura conceptos correctamente.');
 
             $builderd=$this->dbBuild->query('ALTER TABLE `cat_conceptos` AUTO_INCREMENT = 1');
             log_message('notice','[CREAASAMBLE|Async/Q] Reindexando tabla tras eliminación.');
