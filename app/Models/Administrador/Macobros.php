@@ -37,7 +37,7 @@ class Macobros extends Model
             log_message('info','[PAGOSERVICIO|Async/Q] Comprobando atrasos en pagos de servicios para {user}', $log_extra);
             $builder=$this->dbBuild->table('sys_clientes_detalles');
             $builder->select('CODIGO_DETA');
-            $builder->where('USUARIO_DETA', $parametros[0]);
+            // $builder->where('USUARIO_DETA', $parametros[0]);
             $builder->where('CONTRATO_DETA', $parametros[1]);
             $builder->where('CODIGO_DETA <',date('Ym').$datosRevisar[2]);
             $builder->like('CODIGO_DETA',$datosRevisar[2],'before');
@@ -51,7 +51,7 @@ class Macobros extends Model
                     $buildera=$this->dbBuild->table('sys_clientes_detalles');
                     $buildera->select('CODIGO_DETA','ESTATUS_DETA');
                     $buildera->where('CODIGO_DETA', substr($mesRecargos,0,6).'RSA');
-                    $buildera->where('USUARIO_DETA', $parametros[0]);
+                    // $buildera->where('USUARIO_DETA', $parametros[0]);
                     $buildera->where('CONTRATO_DETA', $parametros[1]);
                     $buildera->whereIn('ESTATUS_DETA', ['ADEU','PAGA']);
                     $resultado1=$buildera->get();
@@ -101,13 +101,12 @@ class Macobros extends Model
             $builderc->select("CONCAT(USUARIO_DETA,'_',CONTRATO_DETA,'_',CODIGO_DETA) AS `idTablePk`, CODIGO_DETA, DESCRIPCION_CONC, 
             CANTIDAD_DETA, COSTO_DETA, TOTAL_DETA, ESTATUS_DETA");
             $builderc->join('cat_conceptos','CLAVE_CONC=CODIGO_DETA');
-            $builderc->where('USUARIO_DETA', $parametros[0]);
+            // $builderc->where('USUARIO_DETA', $parametros[0]);
             $builderc->where('CONTRATO_DETA', $parametros[1]);
-            $builderc->like('CODIGO_DETA', date('Ym').$datosRevisar[2]);
+            $builderc->like('CODIGO_DETA', date('Ym'),'after');
             $builderc->whereIn('ESTATUS_DETA',['ADEU','PAGA']);
             $builderc->groupBy('CODIGO_DETA');
             $resultado3=$builderc->get();
-
             if(!$resultado3->getNumRows()>0){
                 log_message('info','[PAGOSERVICIO|Async/Q] No hay mes corriente cargado en los registros de {user}', $log_extra);
 
@@ -149,91 +148,91 @@ class Macobros extends Model
             }
 
             $arregloMultas=['SNEXTA','202210EXT','INASCORTE','TIRAZ','TIRAT','PASAG','JARDI','JARDT','RECONA','OFENZ','CORTE','RECONE','202201RSA','202202RSA','202203RSA','202204RSA','202205RSA','202206RSA','202207RSA','202208RSA','202209RSA','202210RSA','202211RSA','202212RSA'];
-            // if($parametros[2]=='TARNOR' || $parametros[2]=='TARMAY'){
-            //     log_message('info','[PAGOSERVICIO|Async/Q] Verificando si se aplica condonacion de mes para {user}', $log_extra);
-            //     $builderg=$this->dbBuild->table('sys_clientes_detalles');
-            //     $builderg->select('CODIGO_DETA, ESTATUS_DETA');
-            //     $builderg->whereIn('CODIGO_DETA',$arregloMultas);
-            //     $builderg->where('USUARIO_DETA', $parametros[0]);
-            //     $builderg->where('CONTRATO_DETA', $parametros[1]);
-            //     $resultado5=$builderg->get();
-            //     if(!$resultado5->getNumRows()>0){
-            //         log_message('info','[PAGOSERVICIO|Async/Q] No hay multas detectadas para {user}', $log_extra);
-            //         $builderh=$this->dbBuild->table('sys_clientes_detalles');
-            //         $builderh->select("CODIGO_DETA, ESTATUS_DETA");
-            //         $builderh->where('CODIGO_DETA',$datosRevisar[3]);
-            //         $builderh->where('USUARIO_DETA', $parametros[0]);
-            //         $builderh->where('CONTRATO_DETA', $parametros[1]);
-            //         $builderh->like('FECHACAP_DETA',date('Y'),'after');
-            //         $resultados6=$builderh->get();
-            //         if($resultados6->getNumRows()>0){
-            //             log_message('info','[PAGOSERVICIO|Async/Q] Ya esta agregada condonación de mes enero para {user}', $log_extra);                    
-            //         }else{
-            //             $builderd=$this->dbBuild->query("
-            //             INSERT INTO sys_clientes_detalles(
-            //                 `FECHACAP_DETA`,
-            //                 `HORACAP_DETA`,
-            //                 `CAPTURA_DETA`,
-            //                 `USUARIO_DETA`,
-            //                 `CONTRATO_DETA`,
-            //                 `CODIGO_DETA`,
-            //                 `CANTIDAD_DETA`,
-            //                 `COSTO_DETA`,
-            //                 `TOTAL_DETA`,
-            //                 `IDMODIF_DETA`,
-            //                 `FMODIF_DETA`,
-            //                 `ESTATUS_DETA`
-            //             )
-            //                 SELECT
-            //                 curdate(),
-            //                 curtime(),
-            //                 '".$datosRevisar[0]."',
-            //                 '".$parametros[0]."',
-            //                 '".$parametros[1]."',
-            //                 CLAVE_CONC,
-            //                 '1',
-            //                 COSTO_CONC,
-            //                 COSTO_CONC,
-            //                 '".$datosRevisar[0]."',
-            //                 curdate(),
-            //                 'ADEU'
-            //                 FROM cat_conceptos
-            //                 WHERE
-            //                 CLAVE_CONC like '".$datosRevisar[3]."' AND
-            //                 ESTATUS_CONC='ACTI'
-            //             ");
-            //             log_message('info','[PAGOSERVICIO|Async/Q] Creando condonación de mes enero para pagar de {user}', $log_extra);
-
-            //         }
+            if(date('m')=='01'){
+                if($parametros[2]=='TARNOR' || $parametros[2]=='TARMAY'){
+                    log_message('info','[PAGOSERVICIO|Async/Q] Verificando si se aplica condonacion de mes para {user}', $log_extra);
+                    $builderg=$this->dbBuild->table('sys_clientes_detalles');
+                    $builderg->select('CODIGO_DETA, ESTATUS_DETA');
+                    $builderg->whereIn('CODIGO_DETA',$arregloMultas);
+                    // $builderg->where('USUARIO_DETA', $parametros[0]);
+                    $builderg->where('CONTRATO_DETA', $parametros[1]);
+                    $resultado5=$builderg->get();
+                    if(!$resultado5->getNumRows()>0){
+                        log_message('info','[PAGOSERVICIO|Async/Q] No hay multas detectadas para {user}', $log_extra);
+                        $builderh=$this->dbBuild->table('sys_clientes_detalles');
+                        $builderh->select("CODIGO_DETA, ESTATUS_DETA");
+                        $builderh->where('CODIGO_DETA',$datosRevisar[3]);
+                        // $builderh->where('USUARIO_DETA', $parametros[0]);
+                        $builderh->where('CONTRATO_DETA', $parametros[1]);
+                        $builderh->like('FECHACAP_DETA',date('Y'),'after');
+                        $resultados6=$builderh->get();
+                        if($resultados6->getNumRows()>0){
+                            log_message('info','[PAGOSERVICIO|Async/Q] Ya esta agregada condonación de mes enero para {user}', $log_extra);                    
+                        }else{
+                            $builderd=$this->dbBuild->query("
+                            INSERT INTO sys_clientes_detalles(
+                                `FECHACAP_DETA`,
+                                `HORACAP_DETA`,
+                                `CAPTURA_DETA`,
+                                `USUARIO_DETA`,
+                                `CONTRATO_DETA`,
+                                `CODIGO_DETA`,
+                                `CANTIDAD_DETA`,
+                                `COSTO_DETA`,
+                                `TOTAL_DETA`,
+                                `IDMODIF_DETA`,
+                                `FMODIF_DETA`,
+                                `ESTATUS_DETA`
+                            )
+                                SELECT
+                                curdate(),
+                                curtime(),
+                                '".$datosRevisar[0]."',
+                                '".$parametros[0]."',
+                                '".$parametros[1]."',
+                                CLAVE_CONC,
+                                '1',
+                                COSTO_CONC,
+                                COSTO_CONC,
+                                '".$datosRevisar[0]."',
+                                curdate(),
+                                'ADEU'
+                                FROM cat_conceptos
+                                WHERE
+                                CLAVE_CONC like '".$datosRevisar[3]."' AND
+                                ESTATUS_CONC='ACTI'
+                            ");
+                            log_message('info','[PAGOSERVICIO|Async/Q] Creando condonación de mes enero para pagar de {user}', $log_extra);
     
-            //     }
-    
-            // }
+                        }
+        
+                    }
+        
+                }
+            }
 
             $buildere=$this->dbBuild->table('sys_clientes_detalles');
             $buildere->select("CONCAT(USUARIO_DETA,'_',CONTRATO_DETA,'_',CODIGO_DETA) AS `idTablePk`, CODIGO_DETA, DESCRIPCION_CONC, 
             CANTIDAD_DETA, COSTO_DETA, TOTAL_DETA, ESTATUS_DETA");
             $buildere->join('cat_conceptos','CLAVE_CONC=CODIGO_DETA');
-            $buildere->where('USUARIO_DETA', $parametros[0]);
+            // $buildere->where('USUARIO_DETA', $parametros[0]);
             $buildere->where('CONTRATO_DETA', $parametros[1]);
             $buildere->where('ESTATUS_DETA','ADEU');
             $buildere->groupBy('CODIGO_DETA');
             $buildere->orderBy('CODIGO_DETA', 'ASC');
             $resultado2=$buildere->get();
-
             if($resultado2->getNumRows()>0){
                 log_message('info','[PAGOSERVICIO|Async/Q] Generando datos desde consulta enviando datos para renderizar detalle de {user}', $log_extra);
                 $datosDetalle=$resultado2->getResultArray();
             }
 
             $builderf=$this->dbBuild->table('sys_clientes_detalles');
-            $builderf->select("SUM(TOTAL_DETA) AS TOTAL_DETA");
+            $builderf->select("CONTRATO_DETA,SUM(TOTAL_DETA) AS TOTAL_DETA");
             $builderf->join('cat_conceptos','CLAVE_CONC=CODIGO_DETA');
-            $builderf->where('USUARIO_DETA', $parametros[0]);
+            // $builderf->where('USUARIO_DETA', $parametros[0]);
             $builderf->where('CONTRATO_DETA', $parametros[1]);
             $builderf->where('ESTATUS_DETA', 'ADEU');
             $resultado3=$builderf->get();
-
             if($resultado3->getNumRows()>0){
                 log_message('info','[PAGOSERVICIO|Async/Q] Generando datos desde consulta para actualizar el costo del pedido');
                 $datosTotal=$resultado3->getResultArray();
@@ -263,7 +262,7 @@ class Macobros extends Model
             $builder->select("CODIGO_DETA, DESCRIPCION_CONC, CANTIDAD_DETA, COSTO_DETA, TOTAL_DETA, DESCRIPCION_ESTAT");
             $builder->join('cat_conceptos','CLAVE_CONC=CODIGO_DETA');
             $builder->join('cat_estatus','CLAVE_ESTAT=ESTATUS_DETA');
-            $builder->where('USUARIO_DETA', $parametros[0]);
+            // $builder->where('USUARIO_DETA', $parametros[0]);
             $builder->where('CONTRATO_DETA', $parametros[1]);
             $builder->where('ESTATUS_DETA','PAGA');
             $builder->groupBy('CODIGO_DETA');
@@ -290,7 +289,7 @@ class Macobros extends Model
             $builder=$this->dbBuild->table('sys_clientes_detalles');
             $builder->select("CODIGO_DETA, DESCRIPCION_CONC, COSTO_DETA");
             $builder->join('cat_conceptos','CLAVE_CONC=CODIGO_DETA');
-            $builder->where('USUARIO_DETA',$parametros[0]);
+            // $builder->where('USUARIO_DETA',$parametros[0]);
             $builder->where('CONTRATO_DETA',$parametros[1]);
             $builder->where('CODIGO_DETA',$datosParaAgregar[2]);
             $builder->where('ESTATUS_DETA','ADEU');
@@ -364,7 +363,7 @@ class Macobros extends Model
             $builder=$this->dbBuild->table('sys_clientes_detalles');
             $builder->select("CODIGO_DETA, DESCRIPCION_CONC, COSTO_DETA");
             $builder->join('cat_conceptos','CODIGO_DETA=CLAVE_CONC');
-            $builder->where('USUARIO_DETA',$parametros[0]);
+            // $builder->where('USUARIO_DETA',$parametros[0]);
             $builder->where('CONTRATO_DETA',$parametros[1]);
             $builder->whereIn('CODIGO_DETA',$datosParaAgregar[2]);
             $builder->whereIn('ESTATUS_DETA',['ADEU','PAGA']);
@@ -435,17 +434,21 @@ class Macobros extends Model
                 'item'=>$parametros[0],
                 'item2'=>$parametros[2],
             ];
-
+            $parametro=explode('_',$datosParaEliminar[1]);
+            $setEliminar=[
+                'ESPECIAL_DETA'=>$datosParaEliminar[2],
+                'IDMODIF_DETA'=>$datosParaEliminar[0],
+                'FMODIF_DETA'=>date('Y-m-d'),
+                'ESTATUS_DETA'=>'CANC',
+            ];
             $builder=$this->dbBuild->table('sys_clientes_detalles');
             $builder->where('USUARIO_DETA',$parametros[0]);
             $builder->where('CONTRATO_DETA',$parametros[1]);
             $builder->where('CODIGO_DETA',$parametros[2]);
             $builder->where('ESTATUS_DETA','ADEU');
-            $builder->delete();
+            $builder->set($setEliminar);
+            $builder->update($setEliminar);
             log_message('notice','[PAGOSERVICIO|Async/Q] {user} elimino el registro {item2} de estructura detalle pago de {item}.', $log_extra);
-
-            $buildera=$this->dbBuild->query('ALTER TABLE `sys_clientes_detalles` AUTO_INCREMENT = 1');
-            log_message('notice','[PAGOSERVICIO|Async/Q] Reindexando tabla tras eliminación.');
 
             return true;
 
@@ -524,7 +527,7 @@ class Macobros extends Model
             $buildere=$this->dbBuild->table('sys_clientes_detalles');
             $buildere->select("SUM(TOTAL_DETA) AS TOTAL_DETA");
             $buildere->join('cat_conceptos','CLAVE_CONC=CODIGO_DETA');
-            $buildere->where('USUARIO_DETA', $parametros[0]);
+            // $buildere->where('USUARIO_DETA', $parametros[0]);
             $buildere->where('CONTRATO_DETA', $parametros[1]);
             $buildere->where('ESTATUS_DETA', 'ADEU');
             $resultado2=$buildere->get();
@@ -735,6 +738,27 @@ class Macobros extends Model
 
     }
 
+    public function calculoDatosTotalDeuda($id)
+    {
+        try {
+            $parametros=explode('_',$id);
+            $builderf=$this->dbBuild->table('sys_clientes_detalles');
+            $builderf->select("CONTRATO_DETA,SUM(TOTAL_DETA) AS TOTAL_DETA");
+            $builderf->join('cat_conceptos','CLAVE_CONC=CODIGO_DETA');
+            // $builderf->where('USUARIO_DETA', $parametros[0]);
+            $builderf->where('CONTRATO_DETA', $parametros[1]);
+            $builderf->where('ESTATUS_DETA', 'ADEU');
+            $resultado3=$builderf->get();
+            if($resultado3->getNumRows()>0){
+                log_message('info','[PAGOSERVICIO|Async/Q] Generando datos desde consulta para actualizar el costo del pedido');
+                return $resultado3->getResultArray();
+            }
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+    }
+
     public function cargarDatosDeudasEspeciales($datosRevisar)
     {
         try {
@@ -748,7 +772,7 @@ class Macobros extends Model
             $buildere->select("CONCAT(USUARIO_DETA,'_',CONTRATO_DETA,'_',CODIGO_DETA) AS `idTablePk`, CODIGO_DETA, DESCRIPCION_CONC, 
             CANTIDAD_DETA, COSTO_DETA, TOTAL_DETA, ESTATUS_DETA");
             $buildere->join('cat_conceptos','CLAVE_CONC=CODIGO_DETA');
-            $buildere->where('USUARIO_DETA', $parametros[0]);
+            // $buildere->where('USUARIO_DETA', $parametros[0]);
             $buildere->where('CONTRATO_DETA', $parametros[1]);
             $buildere->where('ESTATUS_DETA','ADEU');
             $buildere->groupBy('CODIGO_DETA');
@@ -761,9 +785,9 @@ class Macobros extends Model
             }
 
             $buildere=$this->dbBuild->table('sys_clientes_detalles');
-            $buildere->select("SUM(TOTAL_DETA) AS TOTAL_DETA");
+            $buildere->select("CONTRATO_DETA,SUM(TOTAL_DETA) AS TOTAL_DETA");
             $buildere->join('cat_conceptos','CLAVE_CONC=CODIGO_DETA');
-            $buildere->where('USUARIO_DETA', $parametros[0]);
+            // $buildere->where('USUARIO_DETA', $parametros[0]);
             $buildere->where('CONTRATO_DETA', $parametros[1]);
             $buildere->where('ESTATUS_DETA', 'ADEU');
             $resultado3=$buildere->get();
@@ -885,7 +909,7 @@ class Macobros extends Model
     public function agregandoDatosCargos($datosModificar)
     {
         try {
-            $parametros = explode('_',$datosModificar[0]);
+            $parametros = explode('_',$datosModificar[1]);
             $log_extra=[
                 'user'=>$parametros[3],
             ];
@@ -893,13 +917,15 @@ class Macobros extends Model
             $builder=$this->dbBuild->table('sys_clientes_detalles');
             $builder->select("CONCAT(USUARIO_DETA,'_',CONTRATO_DETA,'_',CODIGO_DETA) AS `idTablePk`, CODIGO_DETA, DESCRIPCION_CONC, CANTIDAD_DETA, COSTO_DETA, TOTAL_DETA, ESTATUS_DETA");
             $builder->join('cat_conceptos','CLAVE_CONC=CODIGO_DETA');
-            $builder->where('USUARIO_DETA', $parametros[3]);
-            $builder->where('CONTRATO_DETA', $parametros[2]);
-            $builder->where('CODIGO_DETA', date('Ym').$datosModificar[1]);
-            $builder->whereIn('ESTATUS_DETA',['ADEU','PAGA']);
+            $builder->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_DETA');
+            // $builder->where('USUARIO_DETA', $parametros[3]);
+            $builder->like('CONTRATO_CCONT', $parametros[2],'after');
+            // $builder->like('CODIGO_DETA', date('Ym').$datosModificar[1]);
+            $builder->like('CODIGO_DETA', date('Ym'),'after');
+            $builder->whereIn('ESTATUS_DETA',['ADEU','PAGA','CANC']);
+            $builder->where('ESTATUS_CCONT','ACTI');
             $builder->groupBy('CODIGO_DETA');
             $resultado=$builder->get();
-
             if($resultado->getNumRows()>0){
                 log_message('info','[CREARCARGO|Async/Q] Mes corriente esta aplicado para {user}', $log_extra);
                 return true;
@@ -958,10 +984,13 @@ class Macobros extends Model
             $builder=$this->dbBuild->table('sys_clientes_detalles');
             $builder->select("CONCAT(USUARIO_DETA,'_',CONTRATO_DETA,'_',CODIGO_DETA) AS `idTablePk`, CODIGO_DETA, DESCRIPCION_CONC, CANTIDAD_DETA, COSTO_DETA, TOTAL_DETA, ESTATUS_DETA");
             $builder->join('cat_conceptos','CLAVE_CONC=CODIGO_DETA');
-            $builder->where('USUARIO_DETA', $parametros[3]);
-            $builder->where('CONTRATO_DETA', $parametros[2]);
-            $builder->where('CODIGO_DETA', $parametros[4].$datosModificar[1]);
-            $builder->whereIn('ESTATUS_DETA',['ADEU','PAGA']);
+            $builder->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_DETA');
+            // $builder->where('USUARIO_DETA', $parametros[3]);
+            $builder->like('CONTRATO_DETA', $parametros[2], 'after');
+            // $builder->like('CODIGO_DETA', $parametros[4].$datosModificar[1],'after');
+            $builder->like('CODIGO_DETA', $parametros[4],'after');
+            $builder->whereIn('ESTATUS_DETA',['ADEU','PAGA','CANC']);
+            $builder->where('ESTATUS_CCONT','ACTI');
             $builder->groupBy('CODIGO_DETA');
             $resultado=$builder->get();
 
@@ -1152,12 +1181,24 @@ class Macobros extends Model
     public function autocompletarDatosUsuario($id)
     {
         try {
-
+            $parametro=explode('_',$id);
+            if($parametro[0]=='NOMBR'){
+                $campoBusqueda='NOMBRE_CLIEN';
+                $datoBusqueda=$parametro[1];
+                $comodin='after';
+            }elseif($parametro[0]=='IDUSU'){
+                $campoBusqueda='CODBARR_CLIEN';
+                $datoBusqueda=$parametro[1];
+                $comodin='both';
+            }elseif($parametro[0]=='CONTR'){
+                $campoBusqueda='CONTRATO_CCONT';
+                $datoBusqueda=$parametro[1];
+                $comodin='after';
+            }
             $builder=$this->dbBuild->table('sys_clientes');
             $builder->select("IDUSUA_CLIEN, CODBARR_CLIEN, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE");
             $builder->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
-            $builder->like('NOMBRE_CLIEN',$id,'after');
-            $builder->orLike('CODBARR_CLIEN',$id,'both');
+            $builder->like($campoBusqueda,$datoBusqueda,$comodin);
             $builder->where('ESTATUS_CCONT','ACTI');
             $builder->where('ESTATUS_CLIEN','ACTI');
             $builder->groupBy('IDUSUA_CLIEN');
@@ -1177,8 +1218,9 @@ class Macobros extends Model
     public function cargarDatosUsuarioGenerales($id)
     {
         try {
+
             $builder=$this->dbBuild->table('sys_clientes');
-            $builder->select("IDUSUA_CLIEN, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE");
+            $builder->select("IDUSUA_CLIEN,CODBARR_CLIEN,CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE");
             $builder->where('IDUSUA_CLIEN', $id);
             $builder->where('ESTATUS_CLIEN','ACTI');
             $resultado=$builder->get();
@@ -1190,7 +1232,7 @@ class Macobros extends Model
 
             $buildera=$this->dbBuild->table('sys_clientes');
             $buildera->select("CONCAT(IDUSUA_CLIEN,'_',CONTRATO_CCONT,'_',DESCUENTO_CCONT) AS `idTablePk`, CONTRATO_CCONT,
-            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_COLON) AS DIRECCION, DESCRIPCION_CTARI, ESTATUS_CCONT");
+            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_COLON) AS DIRECCION, DESCRIPCION_CTARI,DESCRIPCION_CPERM, ESTATUS_CCONT");
             $buildera->join('sys_clientes_contratos','IDUSUA_CLIEN=CLIENTE_CCONT');
             $buildera->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
             $buildera->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
@@ -1198,6 +1240,7 @@ class Macobros extends Model
             $buildera->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
             $buildera->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $buildera->join('cat_contratosTarifas','CLAVE_CTARI=DESCUENTO_CCONT');
+            $buildera->join('cat_contratosPermisos','CLAVE_CPERM=PERMISO_CCONT');
             $buildera->where('IDUSUA_CLIEN', $id);
             $buildera->where('ESTATUS_CLIEN','ACTI');
             $buildera->groupBy('CONTRATO_CCONT');

@@ -244,40 +244,45 @@ class Cobros extends BaseController
         }
     }
 
-    public function eliminarDetallesPago($id)
+    public function eliminarDetallesPago()
     {
         log_message('info','[PAGOSERVICIO|Async] Comprobando sesión iniciada en el sistema.');
         if(session()->get('logged_in')==1){
             $log_extra=[
                 'user'=>session()->get('IDCLIENTE'),
             ];
-            log_message('info','[PAGOSERVICIO|Async] Enviando metadata para eliminar datos de la estructura pago detalle.');
-            $datosParaEliminar=[
-                $cajero= session()->get('IDCLIENTE'),
-                $metaData= $id,
-            ];
-            if($this->modeloCobros->eliminarDatosDetallesPago($datosParaEliminar)){
-                log_message('info','[PAGOSERVICIO|Async] Los registros se eliminaron correctamente, continua proseso de asignacion.');
-                $swalMensajes=[
-                    'title'=>'Eliminados',
-                    'button'=>'Ok',
-                    'icon'=>'success',
-                    'text'=>'El registro se elimino correctamente.',
-                    'estatus'=>'eliminado',
+            log_message('info','[PAGOSERVICIO|Async] Verificando el método de envio para continuar proceso guardar');
+            if($this->request->getMethod('POST')){
+                $camposJson=json_decode($this->request->getBody());
+                log_message('info','[PAGOSERVICIO|Async] Enviando metadata para eliminar datos de la estructura pago detalle.');
+                $datosParaEliminar=[
+                    $captura = session()->get('IDCLIENTE'),
+                    $idBusqueda = $camposJson->idBusqueda,
+                    $textMotivo = $camposJson->textMotivo,
                 ];
+                if($this->modeloCobros->eliminarDatosDetallesPago($datosParaEliminar)){
+                    log_message('info','[PAGOSERVICIO|Async] Los registros se eliminaron correctamente, continua proseso de asignacion.');
+                    $swalMensajes=[
+                        'title'=>'Eliminados',
+                        'button'=>'Ok',
+                        'icon'=>'success',
+                        'text'=>'El registro se elimino correctamente.',
+                        'estatus'=>'eliminado',
+                    ];
 
-                return json_encode($swalMensajes);
-            }else {
-                log_message('info','[PAGOSERVICIO|Async] Ocurrio un error al solicitar los datos, notificando');
-                $swalMensajes=[
-                    'title'=>'Error Servidor',
-                    'button'=>'Ok',
-                    'icon'=>'error',
-                    'text'=>'Ocurro un error al procesar el evento notificando.',
-                    'estatus'=>'error',
-                ];
+                    return json_encode($swalMensajes);
+                }else {
+                    log_message('info','[PAGOSERVICIO|Async] Ocurrio un error al solicitar los datos, notificando');
+                    $swalMensajes=[
+                        'title'=>'Error Servidor',
+                        'button'=>'Ok',
+                        'icon'=>'error',
+                        'text'=>'Ocurro un error al procesar el evento notificando.',
+                        'estatus'=>'error',
+                    ];
 
-                return json_encode($swalMensajes);
+                    return json_encode($swalMensajes);
+                }
             }
         }
     }
@@ -432,6 +437,26 @@ class Cobros extends BaseController
         }
     }
 
+    public function calculoTotalDeuda($id)
+    {
+        log_message('info','[PAGOSERVICIO|Async] Solicitando datos para renderizado de calculo deuda');
+        if($tablaDatos = $this->modeloCobros->calculoDatosTotalDeuda($id)){
+            log_message('info','[PAGOSERVICIO|Async] Envio de datos para renderizado de calculo deuda');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[PAGOSERVICIO|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
     public function apagoespecia()
     {
         $id = __FUNCTION__;
@@ -581,24 +606,28 @@ class Cobros extends BaseController
         log_message('info','[CREACARGO|Async] Comprobar tarifa que tiene aplicado');
         if($tarifa[1]=='TARNOR'){
             $datosModificar=[
+                $captura=session()->get('IDCLIENTE'),
                 $idClaves=$id,
                 $claveDeuda='CSA',
             ];
         }
         if($tarifa[1]=='TARMAY'){
             $datosModificar=[
+                $captura=session()->get('IDCLIENTE'),
                 $idClaves=$id,
                 $claveDeuda='CSAD',
             ];
         }
         if($tarifa[1]=='TARNEG'){
             $datosModificar=[
+                $captura=session()->get('IDCLIENTE'),
                 $idClaves=$id,
                 $claveDeuda='CSAN',
             ];
         }
         if($tarifa[1]=='TARESP'){
             $datosModificar=[
+                $captura=session()->get('IDCLIENTE'),
                 $idClaves=$id,
                 $claveDeuda='CSAE',
             ];
