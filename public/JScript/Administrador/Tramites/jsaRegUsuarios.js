@@ -82,11 +82,14 @@ const plantillaFormulario = async () => {
                     </div>
                 </div>
                 <div class="row">
-                    <div class="form-group col-md-4 col-6 mb-1">
+                    <div class="form-group col-md-4 col-4 mb-1">
                         <input type="text" name="textNacimiento" value="" class="form-control form-control-sm" id="textNacimiento" maxlength="13" placeholder="F Nacim.*" readonly>
                     </div>
-                    <div class="form-group col-md-3 col-6 mb-1">
+                    <div class="form-group col-md-3 col-4 mb-1">
                     <select name="textSexo" id="textSexo" class="custom-select custom-select-sm"></select>
+                    </div>
+                    <div class="form-group col-md-4 col-4 mb-1">
+                        <input type="text" name="textCurp" value="" class="form-control form-control-sm" id="textCurp" maxlength="18" placeholder="CURP">
                     </div>
                 </div>
                 <div class="row">
@@ -195,22 +198,11 @@ const obtenerListadoUsuarios = async () => {
                 </thead>
             `;
             const cuerpoTablaUsuarios = document.createElement('tbody');
-            if(respuestas.estatus=='error'){
-                cuerpoTablaUsuarios.innerHTML=`
-                    <tr>
-                        <td colspan="2">${respuestas.text}</td>
-                    </tr>
-                `;
+            if(respuestas.estatus=='error' || respuestas.estatus=='nodata'){
+                cuerpoTablaUsuarios.innerHTML=`<tr><td colspan="2">No hay datos para mostrar</td></tr>`;
                 tablaUsuarios.appendChild(cuerpoTablaUsuarios);
                 listadoUsuariosMes.innerHTML='';
                 listadoUsuariosMes.appendChild(tablaUsuarios);
-                return Swal.fire({
-                    title: respuestas.title,
-                    icon: respuestas.icon,
-                    html: respuestas.text,
-                    showConfirmButton: false,
-                    timer: 1000,
-                });
 
             }else{
                 respuestas.forEach(usuarios => {
@@ -504,8 +496,9 @@ const guardarUsuarioNuevo = async () => {
     try{
         let formRegistroCRUD = document.querySelector('#formRegistroCRUD');
         let labelTitleModal = document.querySelector('#labelTitleModal');
-        if(validarNombre() && validarApaterno() && validarAmaterno() && validarNacimiento() && validarSexo() && validarTelefono() && validarMovil() && validarEmail()
-     && validarEstado() && validarMunicipio() && validarCodiPostal() && validarColonia() && validarCalle() && validarNexter() && validarNinter() && validarReferen()){
+        if(validarNombre() && validarApaterno() && validarAmaterno() && validarNacimiento() && validarSexo() && validarCurp() && 
+        validarTelefono() && validarMovil() && validarEmail() && validarEstado() && validarMunicipio() && validarCodiPostal() && 
+        validarColonia() && validarCalle() && validarNexter() && validarNinter() && validarReferen()){
             botonGuardar.innerHTML='Espere... '+cargaAnimacion;
             const crearDatos = new FormData(formRegistroCRUD);
             fetch('aregusuarios/guardarUsuarioNuevo', {
@@ -842,7 +835,6 @@ const buscandoDatosEditar = async (botonEditarEl) => {
                                         </div>
                                         <div class="form-group col-md-4 col-12 mb-1">
                                             <input type="text" name="textAmaterno" value="${cliente.AMATERNO_CLIEN}" class="form-control form-control-sm" id="textAmaterno" maxlength="13" placeholder="A. Materno">
-
                                         </div>
                                     </div>
                                     <div class="row">
@@ -851,6 +843,9 @@ const buscandoDatosEditar = async (botonEditarEl) => {
                                         </div>
                                         <div class="form-group col-md-3 col-12 mb-1">
                                         <select name="textSexo" id="textSexo" class="custom-select custom-select-sm"></select>
+                                        </div>
+                                        <div class="form-group col-md-4 col-12 mb-1">
+                                            <input type="text" name="textCurp" value="${cliente.CURP_CLIEN}" class="form-control form-control-sm" id="textCurp" maxlength="18" placeholder="CURP">
                                         </div>
                                     </div>
                                     <div class="row">
@@ -1134,9 +1129,10 @@ const llenarComboColoniasSelect = async (selCodiPostal, textColonia, selColonia)
 
 const actualizarUsuarioDatos = async () => {
     try{
-        if(validarNombre() && validarUbicacion() && validarApaterno() && validarAmaterno() && validarNacimiento() && validarTelefono() && validarMovil() && validarEmail()
-     && validarEstado() && validarMunicipio() && validarCodiPostal() && validarColonia() && validarCalle() && validarNexter() && validarNinter() && validarReferen()){
-            botonActualizar.innerHTML='Espere...<div class="spinner-grow spinner-grow-sm" role="status"><span class="sr-only">Loading...</span></div>';
+        if(validarNombre() && validarUbicacion() && validarApaterno() && validarAmaterno() && validarNacimiento() && validarSexo() && 
+        validarCurp() && validarTelefono() && validarMovil() && validarEmail() && validarEstado() && validarMunicipio() && 
+        validarCodiPostal() && validarColonia() && validarCalle() && validarNexter() && validarNinter() && validarReferen()){
+            botonActualizar.innerHTML='Espere... '+cargaAnimacion;
             const crearDatos = new FormData(formRegistroCRUD);
             fetch('aregusuarios/actualizarRegistroUsuario', {
                 method: 'POST',
@@ -1218,8 +1214,9 @@ const exportarContratoNuevo = async (botonExportContrato) => {
                     docImprimir.rect(150, 22, 55, 6);
                     docImprimir.rect(150, 28, 55, 6);
                     docImprimir.rect(10, 37, 195, 24);
-                    docImprimir.rect(10, 37, 125, 6);
-                    docImprimir.rect(135, 37, 70, 6);
+                    docImprimir.rect(10, 37, 100, 6);
+                    docImprimir.rect(110, 37, 50, 6);
+                    docImprimir.rect(160, 37, 45, 6);
                     docImprimir.rect(10, 43, 90, 6);
                     docImprimir.rect(100, 43, 63, 6);
                     docImprimir.rect(163, 43, 42, 6);
@@ -1243,7 +1240,8 @@ const exportarContratoNuevo = async (botonExportContrato) => {
                     docImprimir.text('Hora:',151,24, 'left');
                     docImprimir.text('Impresión:',151,30, 'left');
                     docImprimir.text('Cliente:',11,39, 'left');
-                    docImprimir.text('Tipo Contrato:',136,39, 'left');
+                    docImprimir.text('Tipo Contrato:',111,39, 'left');
+                    docImprimir.text('Id Usuario:',161,39, 'left');
                     docImprimir.text('Calle y Numero:',11,46, 'left');
                     docImprimir.text('Colonia:',101,46, 'left');
                     docImprimir.text('Cod. Postal:',164,46, 'left');
@@ -1285,7 +1283,8 @@ const exportarContratoNuevo = async (botonExportContrato) => {
                         docImprimir.text(contrato.NOMBRE,160,218, 'center');
                         docImprimir.setFontSize(11);
                         docImprimir.text(contrato.NOMBRE,19,42, 'left');
-                        docImprimir.text(contrato.DESCRIPCION_CONT,151,42, 'left');
+                        docImprimir.text(contrato.DESCRIPCION_CONT,131,42, 'left');
+                        docImprimir.text(contrato.CODBARR_CLIEN,203,42, 'right');
                         docImprimir.text(contrato.CALLES,26,48, 'left');
                         docImprimir.text(contrato.COLONIA_COLON,109,48, 'left');
                         docImprimir.text(contrato.CODIPOST_CODPOS,176,48, 'left');
@@ -1408,13 +1407,17 @@ const imprimirContrato = async (botonImprimContrato) => {
                         `;
                         detalleContrato=`
                             <tr>
-                                <td colspan="8" style="border: 1px solid rgb(20,179,237)">
+                                <td colspan="6" style="border: 1px solid rgb(20,179,237)">
                                     <div style="position: absolute; margin-left:3px; font-size:6px;">Cliente:</div>
                                     <div style="text-align: center; font-size:14px;">${contrato.NOMBRE}</div>
                                 </td>
                                 <td colspan="4" style="border: 1px solid rgb(20,179,237)">
                                     <div style="position: absolute; margin-left:3px; font-size:6px;">Tipo Contrato:</div>
                                     <div style="text-align: center; font-size:14px;">${contrato.DESCRIPCION_CONT}</div>
+                                </td>
+                                <td colspan="2" style="border: 1px solid rgb(20,179,237)">
+                                    <div style="position: absolute; margin-left:3px; font-size:6px;">Id Usuario:</div>
+                                    <div style="text-align: right; font-size:14px;">${contrato.CODBARR_CLIEN}</div>
                                 </td>
                             </tr>
                             <tr>
@@ -1733,6 +1736,40 @@ function validarSexo(){
             confirmButtonColor: '#9C0000',
             icon: 'error',
             text: 'Sexo es requerido',
+        }).then((result)=>{
+            if(result.isConfirmed){
+                inputError(inputForm);
+            }
+        })
+        return false;
+    }
+    inputValido(inputForm);
+    return true;
+
+}
+
+function validarCurp(){
+    let inputForm = document.querySelector("#textCurp");
+    if(inputForm.value==null || inputForm.value==''){
+        Swal.fire({
+            title: 'Campo Inválido',
+            confirmButtonText: 'Revisar',
+            confirmButtonColor: '#9C0000',
+            icon: 'error',
+            text: 'CURP es requerido',
+        }).then((result)=>{
+            if(result.isConfirmed){
+                inputError(inputForm);
+            }
+        })
+        return false;
+    }else if (inputForm.length == 18) {
+        Swal.fire({
+            title: 'Campo Inválido',
+            confirmButtonText: 'Revisar',
+            confirmButtonColor: '#9C0000',
+            icon: 'error',
+            text: 'CURP máx 18 caracteres',
         }).then((result)=>{
             if(result.isConfirmed){
                 inputError(inputForm);

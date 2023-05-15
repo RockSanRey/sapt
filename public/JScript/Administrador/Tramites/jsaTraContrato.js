@@ -133,7 +133,6 @@ const buscarContratoInformacion = async (textIdContrato) => {
             let idBusqueda = textIdContrato.value;
             let busquedaContratos = document.querySelector('#busquedaContratos');
             let datosContratoDetalle = document.querySelector('#datosContratoDetalle');
-            let plantillaContrato = document.querySelector('#plantillaContrato');
             datosContratoDetalle.innerHTML=cargaAnimacion;
             fetch(`atracontrato/llenarTablaContratoTransferir/${idBusqueda}`)
             .then(respRender => respRender.json())
@@ -161,6 +160,8 @@ const buscarContratoInformacion = async (textIdContrato) => {
                     const columnaDetalles = document.createElement('td');
                     columnaDetalles.classList.add('fuente-12p','col');
                     columnaDetalles.innerHTML=`
+                        <input type="hidden" id="textTransfiriente" name="textTransfiriente" value="${contrato.CONTRATO_CCONT}_${contrato.IDUSUA_CLIEN}">
+                        <input type="hidden" id="textTransferido" name="textTransferido" value="">
                         <div class="row">
                             <div class="col-md-2 col-12"><small>Contrato:</small> ${contrato.CONTRATO_CCONT}</div>
                             <div class="col-md-10 col-12">
@@ -266,7 +267,10 @@ const crearUsuarioTransferido = async (botonNuevoUsuario) => {
                                 <input type="text" name="textNacimiento" value="" class="form-control form-control-sm" id="textNacimiento" maxlength="13" placeholder="F Nacim.*" readonly>
                             </div>
                             <div class="form-group col-md-3 col-6 mb-1">
-                            <select name="textSexo" id="textSexo" class="custom-select custom-select-sm"></select>
+                                <select name="textSexo" id="textSexo" class="custom-select custom-select-sm"></select>
+                            </div>
+                            <div class="form-group col-md-4 col-4 mb-1">
+                                <input type="text" name="textCurp" value="" class="form-control form-control-sm" id="textCurp" maxlength="18" placeholder="CURP">
                             </div>
                         </div>
                         <div class="row">
@@ -618,7 +622,10 @@ const buscarUsuarioInformacion = async (textIdUsuario) => {
                                         <input type="text" name="textNacimiento" value="${usuario.FNACIM_CLIEN}" class="form-control form-control-sm" id="textNacimiento" maxlength="13" placeholder="F Nacim.*" readonly>
                                     </div>
                                     <div class="form-group col-md-3 col-6 mb-1">
-                                    <select name="textSexo" id="textSexo" class="custom-select custom-select-sm"></select>
+                                        <select name="textSexo" id="textSexo" class="custom-select custom-select-sm"></select>
+                                    </div>
+                                    <div class="form-group col-md-4 col-12 mb-1">
+                                        <input type="text" name="textCurp" value="${usuario.CURP_CLIEN}" class="form-control form-control-sm" id="textCurp" maxlength="18" placeholder="CURP">
                                     </div>
                                 </div>
                                 <div class="row">
@@ -855,9 +862,9 @@ const guardarUsuarioTransferencia = async () => {
         let labelTitleModal = document.querySelector('#labelTitleModal');
         let plantillaTransferencia = document.querySelector('#plantillaTransferencia');
         let textIdCliente = document.querySelector('#textIdCliente');
-        if(validarNombre() && validarApaterno() && validarAmaterno() && validarNacimiento() && validarSexo() && validarTelefono()
-        && validarMovil() && validarEmail() && validarEstado() && validarMunicipio() && validarCodiPostal() && validarColonia()
-        && validarCalle() && validarNexter() && validarNinter() && validarReferen()){
+        if(validarNombre() && validarApaterno() && validarAmaterno() && validarNacimiento() && validarSexo() && validarCurp() 
+        && validarTelefono() && validarMovil() && validarEmail() && validarEstado() && validarMunicipio() && validarCodiPostal() 
+        && validarColonia() && validarCalle() && validarNexter() && validarNinter() && validarReferen()){
             botonGuardar.innerHTML='Espere... '+cargaAnimacion;
             const crearDatos = new FormData(formRegistroCRUD);
             fetch('atracontrato/guardarUsuarioTransferir', {
@@ -960,9 +967,9 @@ const actualizarUsuarioTransferencia = async () => {
         let labelTitleModal = document.querySelector('#labelTitleModal');
         let plantillaTransferencia = document.querySelector('#plantillaTransferencia');
         let textIdCliente = document.querySelector('#textIdCliente');
-        if(validarCliente() && validarNombre() && validarApaterno() && validarAmaterno() && validarNacimiento() && validarSexo() && validarTelefono()
-        && validarMovil() && validarEmail() && validarEstado() && validarMunicipio() && validarCodiPostal() && validarColonia()
-        && validarCalle() && validarNexter() && validarNinter() && validarReferen()){
+        if(validarCliente() && validarNombre() && validarApaterno() && validarAmaterno() && validarNacimiento() && validarSexo() 
+        && validarCurp() && validarTelefono() && validarMovil() && validarEmail() && validarEstado() && validarMunicipio() && 
+        validarCodiPostal() && validarColonia() && validarCalle() && validarNexter() && validarNinter() && validarReferen()){
             botonAsignar.innerHTML='Espere... '+cargaAnimacion;
             const crearDatos = new FormData(formRegistroCRUD);
             fetch('atracontrato/actualizarUsuarioTransferir', {
@@ -1208,6 +1215,8 @@ const transferirContrato = async () => {
         let formRegistroCRUD = document.querySelector('#formRegistroCRUD');
         if(validarCliente() && validarUbicacion() && validarContrato() && validarTipoContrato() && validarExpContrato()
         && validarPermisos() && validarDescuento() && validarComentarios()){
+            let textTransfiriente = document.querySelector('#textTransfiriente');
+            let textTransferido = document.querySelector('#textTransferido');
             let textIdCliente = document.querySelector('#textIdCliente');
             let textContratoT = document.querySelector('#textContratoT');
             let textIdContrato = document.querySelector('#textIdContrato');
@@ -1238,12 +1247,13 @@ const transferirContrato = async () => {
                     }).then((result) => {
                         if((result.isConfirmed)){
                             botonContrato.innerHTML='Transferir Contrato';
-                            textIdContrato.value = textIdCliente.value+'_'+textContratoT.value;
-                            buscarContratoInformacion(textIdContrato);
+                            textIdContrato.value = textTransfiriente.value+'_'+textIdCliente.value;
+                            textTransferido.value = textIdCliente.value+'_'+textContratoT.value;
+                            buscarContratoInformacion(textTransferido);
                             const botonImprimirRecibo = document.createElement('button');
                             botonImprimirRecibo.classList.add('btn','btn-sm','btn-info');
                             botonImprimirRecibo.setAttribute('datarecib',textIdContrato.value);
-                            botonImprimirRecibo.innerHTML='<i class="fas fa-pdf-file"></i> Imprimir Recibo';
+                            botonImprimirRecibo.innerHTML='<i class="fas fa-file-pdf"></i> Imprimir Recibo';
                             botonImprimirRecibo.addEventListener('click', ()=> {
                                 imprimirReciboTransferencia(botonImprimirRecibo);
                             })
@@ -1671,6 +1681,40 @@ function validarSexo(){
             confirmButtonColor: '#9C0000',
             icon: 'error',
             text: 'Sexo es requerido',
+        }).then((result)=>{
+            if(result.isConfirmed){
+                inputError(inputForm);
+            }
+        })
+        return false;
+    }
+    inputValido(inputForm);
+    return true;
+
+}
+
+function validarCurp(){
+    let inputForm = document.querySelector("#textCurp");
+    if(inputForm.value==null || inputForm.value==''){
+        Swal.fire({
+            title: 'Campo Inválido',
+            confirmButtonText: 'Revisar',
+            confirmButtonColor: '#9C0000',
+            icon: 'error',
+            text: 'CURP es requerido',
+        }).then((result)=>{
+            if(result.isConfirmed){
+                inputError(inputForm);
+            }
+        })
+        return false;
+    }else if (inputForm.length==18) {
+        Swal.fire({
+            title: 'Campo Inválido',
+            confirmButtonText: 'Revisar',
+            confirmButtonColor: '#9C0000',
+            icon: 'error',
+            text: 'CURP máx 18 caracteres',
         }).then((result)=>{
             if(result.isConfirmed){
                 inputError(inputForm);

@@ -61,6 +61,7 @@ class Matramites extends Model
             $builder->where('NOMBRE_CLIEN',$datosParaGuardar[1]);
             $builder->where('APATERNO_CLIEN',$datosParaGuardar[2]);
             $builder->where('AMATERNO_CLIEN',$datosParaGuardar[3]);
+            $builder->where('CURP_CLIEN',mb_strtoupper($datosParaGuardar[6]));
             $builder->where('ESTATUS_CLIEN','ACTI');
             $resultado=$builder->get();
 
@@ -89,8 +90,8 @@ class Matramites extends Model
                 $idUsuarioAsignado=sha1(date('YmdHis'));
                 $generaUsuario=substr($nombre, 0,4).substr($apaterno, 0,2).substr($amaterno, 0,2);
             }else{
-                $idUsuarioAsignado=sha1($datosParaGuardar[8]);
-                $generaUsuario=$datosParaGuardar[8];
+                $idUsuarioAsignado=sha1($datosParaGuardar[9]);
+                $generaUsuario=$datosParaGuardar[9];
             }
             log_message('info','[REGUSUARIOS|Async] Definiendo id de usuario y contraseña para asignar a usuario');
 
@@ -123,16 +124,18 @@ class Matramites extends Model
                 'NOMBRE_CLIEN'=>ucwords(mb_strtolower($datosParaGuardar[1])),
                 'APATERNO_CLIEN'=>ucwords(mb_strtolower($datosParaGuardar[2])),
                 'AMATERNO_CLIEN'=>ucwords(mb_strtolower($datosParaGuardar[3])),
-                'AREA_CLIEN'=>'USUARIO',
+                'NOMCOMP_CLIEN'=>ucwords(mb_strtolower($datosParaGuardar[1])).' '.ucwords(mb_strtolower($datosParaGuardar[2])).' '.ucwords(mb_strtolower($datosParaGuardar[3])),
                 'FNACIM_CLIEN'=>$datosParaGuardar[4],
                 'SEXO_CLIEN'=>$datosParaGuardar[5],
-                'PUESTO_CLIEN'=>'USUARIO',
-                'TELEFONO_CLIEN'=>$datosParaGuardar[6],
-                'MOVIL_CLIEN'=>$datosParaGuardar[7],
-                'EMAIL_CLIEN'=>base64_encode($datosParaGuardar[8]),
+                'CURP_CLIEN'=>mb_strtoupper($datosParaGuardar[6]),
+                'TELEFONO_CLIEN'=>$datosParaGuardar[7],
+                'MOVIL_CLIEN'=>$datosParaGuardar[8],
+                'EMAIL_CLIEN'=>base64_encode($datosParaGuardar[9]),
                 'CAMPUS_CLIEN'=>'TELTI',
                 'USUARIO_CLIEN'=>base64_encode(base64_encode($generaUsuario)),
                 'PASSWORD_CLIEN'=>base64_encode(base64_encode(base64_encode($generaContrasena))),
+                'AREA_CLIEN'=>'USUARIO',
+                'PUESTO_CLIEN'=>'USUARIO',
                 'NIVELPERF_CLIEN'=>'USUARIO',
                 'PERFIL_CLIEN'=>'USUARIO',
                 'IDMODIF_CLIEN'=>$datosParaGuardar[0],
@@ -167,14 +170,14 @@ class Matramites extends Model
                 'SECUENCIA_UBIC'=>str_pad($secuenciaUbic,3,'0', STR_PAD_LEFT),
                 'NOMBRE_UBIC'=>'Principal',
                 'PAIS_UBIC'=>'MX',
-                'ESTADO_UBIC'=>$datosParaGuardar[9],
-                'MUNICIPIO_UBIC'=>$datosParaGuardar[10],
-                'CODIPOSTAL_UBIC'=>$datosParaGuardar[11],
-                'COLONIA_UBIC'=>$datosParaGuardar[12],
-                'CALLE_UBIC'=>$datosParaGuardar[13],
-                'NEXTE_UBIC'=>$datosParaGuardar[14],
-                'NINTE_UBIC'=>$datosParaGuardar[15],
-                'REFERENCIA_UBIC'=>$datosParaGuardar[16],
+                'ESTADO_UBIC'=>$datosParaGuardar[10],
+                'MUNICIPIO_UBIC'=>$datosParaGuardar[11],
+                'CODIPOSTAL_UBIC'=>$datosParaGuardar[12],
+                'COLONIA_UBIC'=>$datosParaGuardar[13],
+                'CALLE_UBIC'=>$datosParaGuardar[14],
+                'NEXTE_UBIC'=>$datosParaGuardar[15],
+                'NINTE_UBIC'=>$datosParaGuardar[16],
+                'REFERENCIA_UBIC'=>$datosParaGuardar[17],
                 'IDMODIF_UBIC'=>$datosParaGuardar[0],
                 'FMODIF_UBIC'=>date('Y-m-d'),
                 'ESTATUS_UBIC'=>'ACTI',
@@ -185,15 +188,15 @@ class Matramites extends Model
 
             $buildere=$this->dbBuild->table('cat_calles');
             $buildere->select('CALLE_CALLE');
-            $buildere->where('COLON_CALLE',$datosParaGuardar[12]);
-            $buildere->where('CALLE_CALLE',$datosParaGuardar[13]);
+            $buildere->where('COLON_CALLE',$datosParaGuardar[13]);
+            $buildere->where('CALLE_CALLE',$datosParaGuardar[14]);
             $buildere->where('ESTATUS_CALLE','ACTI');
             $resultado1=$buildere->get();
             if(!$resultado1->getNumRows()>0){
 
                 $builderf=$this->dbBuild->table('cat_calles');
                 $builderf->selectMax('(SECUENCIA_CALLE)+1','SECUENCIA_CALLE');
-                $builderf->where('COLON_CALLE',$datosParaGuardar[12]);
+                $builderf->where('COLON_CALLE',$datosParaGuardar[13]);
                 $builderf->where('ESTATUS_CALLE','ACTI');
                 $resultado=$builderf->get();
 
@@ -210,10 +213,10 @@ class Matramites extends Model
                     'FECHACAP_CALLE'=>date('Y-m-d'),
                     'HORACAP_CALLE'=>date('H:i:s'),
                     'CAPTURA_CALLE'=>$datosParaGuardar[0],
-                    'COLON_CALLE'=>$datosParaGuardar[12],
+                    'COLON_CALLE'=>$datosParaGuardar[13],
                     'SECUENCIA_CALLE'=>str_pad($secuenciaCalle,4,'0', STR_PAD_LEFT),
-                    'CLVCALLE_CALLE'=>$datosParaGuardar[12].str_pad($secuenciaCalle,4,'0', STR_PAD_LEFT),
-                    'CALLE_CALLE'=>$datosParaGuardar[13],
+                    'CLVCALLE_CALLE'=>$datosParaGuardar[13].str_pad($secuenciaCalle,4,'0', STR_PAD_LEFT),
+                    'CALLE_CALLE'=>$datosParaGuardar[14],
                     'IDMODIF_CALLE'=>$datosParaGuardar[0],
                     'FMODIF_CALLE'=>date('Y-m-d'),
                     'ESTATUS_CALLE'=>'ACTI',
@@ -527,7 +530,7 @@ class Matramites extends Model
             $parametro=explode('_',$id);
             $builder=$this->dbBuild->table('sys_clientes');
             $builder->select("IDUSUA_CLIEN, NOMBRE_CLIEN, APATERNO_CLIEN, AMATERNO_CLIEN, EMAIL_CLIEN,
-            FNACIM_CLIEN, SEXO_CLIEN, TELEFONO_CLIEN, MOVIL_CLIEN, ESTADO_UBIC, MUNICIPIO_UBIC,
+            FNACIM_CLIEN, SEXO_CLIEN, CURP_CLIEN, TELEFONO_CLIEN, MOVIL_CLIEN, ESTADO_UBIC, MUNICIPIO_UBIC,
             CODIPOSTAL_UBIC, COLONIA_UBIC, CALLE_UBIC, NEXTE_UBIC, NINTE_UBIC, REFERENCIA_UBIC, IDUBIC_UBIC");
             $builder->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
             $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
@@ -556,13 +559,13 @@ class Matramites extends Model
             'NOMBRE_CLIEN'=>ucwords(mb_strtolower($datosParaGuardar[3])),
             'APATERNO_CLIEN'=>ucwords(mb_strtolower($datosParaGuardar[4])),
             'AMATERNO_CLIEN'=>ucwords(mb_strtolower($datosParaGuardar[5])),
-            'AREA_CLIEN'=>'USUARIO',
+            'NOMCOMP_CLIEN'=>ucwords(mb_strtolower($datosParaGuardar[3])).' '.ucwords(mb_strtolower($datosParaGuardar[4])).' '.ucwords(mb_strtolower($datosParaGuardar[5])),
             'FNACIM_CLIEN'=>$datosParaGuardar[6],
             'SEXO_CLIEN'=>$datosParaGuardar[7],
-            'PUESTO_CLIEN'=>'USUARIO',
-            'TELEFONO_CLIEN'=>$datosParaGuardar[8],
-            'MOVIL_CLIEN'=>$datosParaGuardar[9],
-            'EMAIL_CLIEN'=>base64_encode($datosParaGuardar[10]),
+            'CURP_CLIEN'=>mb_strtoupper($datosParaGuardar[8]),
+            'TELEFONO_CLIEN'=>$datosParaGuardar[9],
+            'MOVIL_CLIEN'=>$datosParaGuardar[10],
+            'EMAIL_CLIEN'=>base64_encode($datosParaGuardar[11]),
             'CAMPUS_CLIEN'=>'TELTI',
             'IDMODIF_CLIEN'=>$datosParaGuardar[0],
             'FMODIF_CLIEN'=>date('Y-m-d'),
@@ -576,14 +579,14 @@ class Matramites extends Model
         log_message('info','[REGUSUARIOS|Async/Q] {captur} actualizo un registro de cliente en el sistema continua proceso', $log_extra);
 
         $setActualizaUbica=[
-            'ESTADO_UBIC'=>$datosParaGuardar[11],
-            'MUNICIPIO_UBIC'=>$datosParaGuardar[12],
-            'CODIPOSTAL_UBIC'=>$datosParaGuardar[13],
-            'COLONIA_UBIC'=>$datosParaGuardar[14],
-            'CALLE_UBIC'=>$datosParaGuardar[15],
-            'NEXTE_UBIC'=>$datosParaGuardar[16],
-            'NINTE_UBIC'=>$datosParaGuardar[17],
-            'REFERENCIA_UBIC'=>$datosParaGuardar[18],
+            'ESTADO_UBIC'=>$datosParaGuardar[12],
+            'MUNICIPIO_UBIC'=>$datosParaGuardar[13],
+            'CODIPOSTAL_UBIC'=>$datosParaGuardar[14],
+            'COLONIA_UBIC'=>$datosParaGuardar[15],
+            'CALLE_UBIC'=>$datosParaGuardar[16],
+            'NEXTE_UBIC'=>$datosParaGuardar[17],
+            'NINTE_UBIC'=>$datosParaGuardar[18],
+            'REFERENCIA_UBIC'=>$datosParaGuardar[19],
             'IDMODIF_UBIC'=>$datosParaGuardar[0],
             'FMODIF_UBIC'=>date('Y-m-d'),
         ];
@@ -631,7 +634,7 @@ class Matramites extends Model
 
             $builder=$this->dbBuild->table('sys_clientes');
             $builder->select("IDUSUA_CLIEN, NOMBRE_CLIEN, APATERNO_CLIEN, AMATERNO_CLIEN, EMAIL_CLIEN,
-            FNACIM_CLIEN, SEXO_CLIEN, TELEFONO_CLIEN, MOVIL_CLIEN");
+            FNACIM_CLIEN, SEXO_CLIEN, CURP_CLIEN, TELEFONO_CLIEN, MOVIL_CLIEN");
             $builder->where('IDUSUA_CLIEN', $id);
             $builder->where('ESTATUS_CLIEN','ACTI');
             $builder->groupBy('IDUSUA_CLIEN');
@@ -655,16 +658,18 @@ class Matramites extends Model
                 'captur'=>$datosParaGuardar[0],
             ];
             $setActualizaCliente=[
-                'NOMBRE_CLIEN'=>ucwords(mb_strtolower($datosParaGuardar[3])),
-                'APATERNO_CLIEN'=>ucwords(mb_strtolower($datosParaGuardar[4])),
-                'AMATERNO_CLIEN'=>ucwords(mb_strtolower($datosParaGuardar[5])),
-                'AREA_CLIEN'=>'USUARIO',
-                'FNACIM_CLIEN'=>$datosParaGuardar[6],
-                'SEXO_CLIEN'=>$datosParaGuardar[7],
-                'PUESTO_CLIEN'=>'USUARIO',
+                'NOMBRE_CLIEN'=>ucwords(mb_strtolower($datosParaGuardar[2])),
+                'APATERNO_CLIEN'=>ucwords(mb_strtolower($datosParaGuardar[3])),
+                'AMATERNO_CLIEN'=>ucwords(mb_strtolower($datosParaGuardar[4])),
+                'NOMCOMP_CLIEN'=>ucwords(mb_strtolower($datosParaGuardar[2])).' '.ucwords(mb_strtolower($datosParaGuardar[3])).' '.ucwords(mb_strtolower($datosParaGuardar[4])),
+                'FNACIM_CLIEN'=>$datosParaGuardar[5],
+                'SEXO_CLIEN'=>$datosParaGuardar[6],
+                'CURP_CLIEN'=>mb_strtoupper($datosParaGuardar[7]),
                 'TELEFONO_CLIEN'=>$datosParaGuardar[8],
                 'MOVIL_CLIEN'=>$datosParaGuardar[9],
                 'EMAIL_CLIEN'=>base64_encode($datosParaGuardar[10]),
+                'AREA_CLIEN'=>'USUARIO',
+                'PUESTO_CLIEN'=>'USUARIO',
                 'IDMODIF_CLIEN'=>$datosParaGuardar[0],
                 'FMODIF_CLIEN'=>date('Y-m-d'),
             ];
@@ -1182,7 +1187,7 @@ class Matramites extends Model
             $parametro=explode('_',$id);
 
             $builder=$this->dbBuild->table('sys_clientes');
-            $builder->select("CONCAT(IDUSUA_CLIEN,'_',CONTRATO_CCONT,'_',IDUBIC_UBIC) AS idTablePk, CONTRATO_CCONT, 
+            $builder->select("CONCAT(IDUSUA_CLIEN,'_',CONTRATO_CCONT,'_',IDUBIC_UBIC) AS idTablePk,IDUSUA_CLIEN,CONTRATO_CCONT, 
             CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE,NOMBRE_ESTA,NOMBRE_MUNIC,
             CODIPOST_CODPOS,COLONIA_COLON,CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES,DESCRIPCION_CONT, 
             DESCRIPCION_CEXP,DESCRIPCION_CPERM,DESCRIPCION_CTARI,FECHACAP_CCONT,COMENTS_CCONT");
@@ -1432,7 +1437,7 @@ class Matramites extends Model
 
             $builder=$this->dbBuild->table('sys_clientes');
             $builder->select("IDUSUA_CLIEN, NOMBRE_CLIEN, APATERNO_CLIEN, AMATERNO_CLIEN, EMAIL_CLIEN,
-            FNACIM_CLIEN, SEXO_CLIEN, TELEFONO_CLIEN, MOVIL_CLIEN");
+            FNACIM_CLIEN, SEXO_CLIEN, CURP_CLIEN, TELEFONO_CLIEN, MOVIL_CLIEN");
             $builder->where('IDUSUA_CLIEN', $id);
             $builder->where('ESTATUS_CLIEN','ACTI');
             $builder->groupBy('IDUSUA_CLIEN');
@@ -2181,7 +2186,7 @@ class Matramites extends Model
             $builder->where('IDUSUA_UBIC',$parametro[0]);
             $builder->delete();
             log_message('notice','[BORUSUARIOS|Async/Q] Eliminando datos de ubicacion de {user}.', $log_extra);
-            $builderd=$db->query('ALTER TABLE `sys_clientes_ubicaciones` AUTO_INCREMENT = 1;');
+            $builderd=$this->dbBuild->query('ALTER TABLE `sys_clientes_ubicaciones` AUTO_INCREMENT = 1;');
             log_message('notice','[BORUSUARIOS|Async/Q] Reindexando tabla tras eliminación.');
 
             $buildera=$this->dbBuild->table('sys_clientes_detalles');
@@ -2190,7 +2195,7 @@ class Matramites extends Model
             $buildera->where('ESTATUS_DETA','ADEU');
             $buildera->delete();
             log_message('notice','[BORUSUARIOS|Async/Q] Eliminando datos de pagos detalle de {user}.', $log_extra);
-            $buildere=$db->query('ALTER TABLE `sys_clientes_ubicaciones` AUTO_INCREMENT = 1;');
+            $buildere=$this->dbBuild->query('ALTER TABLE `sys_clientes_ubicaciones` AUTO_INCREMENT = 1;');
             log_message('notice','[BORUSUARIOS|Async/Q] Reindexando tabla tras eliminación.');
 
             $builderb=$this->dbBuild->table('sys_clientes_contratos');
@@ -2198,14 +2203,14 @@ class Matramites extends Model
             $builderb->where('CONTRATO_CCONT',$parametro[1]);
             $builderb->delete();
             log_message('notice','[BORUSUARIOS|Async/Q] Eliminando datos de contrato de {user}.', $log_extra);
-            $builderf=$db->query('ALTER TABLE `sys_clientes_ubicaciones` AUTO_INCREMENT = 1;');
+            $builderf=$this->dbBuild->query('ALTER TABLE `sys_clientes_ubicaciones` AUTO_INCREMENT = 1;');
             log_message('notice','[BORUSUARIOS|Async/Q] Reindexando tabla tras eliminación.');
 
             $builderc=$this->dbBuild->table('sys_clientes');
             $builderc->where('IDUSUA_CLIEN',$parametro[0]);
             $builderc->delete();
             log_message('notice','[BORUSUARIOS|Async/Q] Eliminado datos de {user}', $log_extra);
-            $builderg=$db->query('ALTER TABLE `sys_clientes_ubicaciones` AUTO_INCREMENT = 1;');
+            $builderg=$this->dbBuild->query('ALTER TABLE `sys_clientes_ubicaciones` AUTO_INCREMENT = 1;');
             log_message('notice','[BORUSUARIOS|Async/Q] Reindexando tabla tras eliminación.');
 
             return true;

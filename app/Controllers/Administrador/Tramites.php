@@ -123,6 +123,14 @@ class Tramites extends BaseController
                         'max_length'=>'{field} dene tener max {param} caracteres',
                     ],
                 ],
+                'textCurp'=>[
+                    'label'=>'CURP',
+                    'rules'=>'required|max_length[18]|string',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
                 'textTelefono'=>[
                     'label'=>'Telefono',
                     'rules'=>'max_length[15]',
@@ -214,6 +222,7 @@ class Tramites extends BaseController
                 $textAmaterno = $this->request->getPost('textAmaterno'),
                 $textNacimiento = $this->request->getPost('textNacimiento'),
                 $textSexo = $this->request->getPost('textSexo'),
+                $textCurp = $this->request->getPost('textCurp'),
                 $textTelefono = $this->request->getPost('textTelefono'),
                 $textMovil = $this->request->getPost('textMovil'),
                 $textEmail = $this->request->getPost('textEmail'),
@@ -420,10 +429,18 @@ class Tramites extends BaseController
                         'max_length'=>'{field} dene tener max {param} caracteres',
                     ],
                 ],
-                'textNacimiento'=>[
+                'textSexo'=>[
                     'label'=>'Sexo',
-                    'rules'=>'max_length[15]|string',
+                    'rules'=>'max_length[5]|string',
                     'errors'=>[
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textCurp'=>[
+                    'label'=>'CURP',
+                    'rules'=>'required|max_length[18]|string',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
                         'max_length'=>'{field} dene tener max {param} caracteres',
                     ],
                 ],
@@ -520,6 +537,7 @@ class Tramites extends BaseController
                 $textAmaterno = $this->request->getPost('textAmaterno'),
                 $textNacimiento = $this->request->getPost('textNacimiento'),
                 $textSexo = $this->request->getPost('textSexo'),
+                $textCurp = $this->request->getPost('textCurp'),
                 $textTelefono = $this->request->getPost('textTelefono'),
                 $textMovil = $this->request->getPost('textMovil'),
                 $textEmail = $this->request->getPost('textEmail'),
@@ -701,10 +719,18 @@ class Tramites extends BaseController
                         'max_length'=>'{field} dene tener max {param} caracteres',
                     ],
                 ],
-                'textNacimiento'=>[
+                'textSexo'=>[
                     'label'=>'Sexo',
                     'rules'=>'max_length[15]|string',
                     'errors'=>[
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
+                'textCurp'=>[
+                    'label'=>'CURP',
+                    'rules'=>'required|max_length[18]|string',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
                         'max_length'=>'{field} dene tener max {param} caracteres',
                     ],
                 ],
@@ -735,12 +761,12 @@ class Tramites extends BaseController
             $datosParaGuardar=[
                 $captura = session()->get('IDCLIENTE'),
                 $textCliente = $this->request->getPost('textCliente'),
-                $textUbicacion = $this->request->getPost('textUbicacion'),
                 $textNombre = $this->request->getPost('textNombre'),
                 $textApaterno = $this->request->getPost('textApaterno'),
                 $textAmaterno = $this->request->getPost('textAmaterno'),
                 $textNacimiento = $this->request->getPost('textNacimiento'),
                 $textSexo = $this->request->getPost('textSexo'),
+                $textCurp = $this->request->getPost('textCurp'),
                 $textTelefono = $this->request->getPost('textTelefono'),
                 $textMovil = $this->request->getPost('textMovil'),
                 $textEmail = $this->request->getPost('textEmail'),

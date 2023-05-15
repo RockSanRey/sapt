@@ -277,6 +277,9 @@ const buscandoDatosEditar = async (botonEditarUsuario) => {
                                         <div class="form-group col-md-3 col-12 mb-1">
                                         <select name="textSexo" id="textSexo" class="custom-select custom-select-sm"></select>
                                         </div>
+                                        <div class="form-group col-md-4 col-12 mb-1">
+                                            <input type="text" name="textCurp" value="${cliente.CURP_CLIEN}" class="form-control form-control-sm" id="textCurp" maxlength="18" placeholder="CURP">
+                                        </div>
                                     </div>
                                     <div class="row">
                                         <div class="form-group col-md-3 col-12 mb-1">
@@ -512,9 +515,9 @@ const llenarComboColoniasSelect = async (selCodiPostal, textColonia, selColonia)
 
 const actualizarRegistroUsuario = async () => {
     try{
-        if(validarCliente() && validarNombre() && validarApaterno() && validarAmaterno() && validarNacimiento() &&
-        validarTelefono() && validarMovil() && validarEmail() && validarSexo()){
-            botonActualizar.innerHTML='Espere...<div class="spinner-grow spinner-grow-sm" role="status"><span class="sr-only">Loading...</span></div>';
+        if(validarCliente() && validarNombre() && validarApaterno() && validarAmaterno() && validarNacimiento() && validarSexo() &&
+        validarCurp() && validarTelefono() && validarMovil() && validarEmail()){
+            botonActualizar.innerHTML='Espere...'+cargaAnimacion;
             const crearDatos = new FormData(formRegistroCRUD);
             fetch('amodusuarios/actualizarUsuarioInformacion', {
                 method: 'POST',
@@ -713,6 +716,40 @@ function validarSexo(){
             confirmButtonColor: '#9C0000',
             icon: 'error',
             text: 'Sexo es requerido',
+        }).then((result)=>{
+            if(result.isConfirmed){
+                inputError(inputForm);
+            }
+        })
+        return false;
+    }
+    inputValido(inputForm);
+    return true;
+
+}
+
+function validarCurp(){
+    let inputForm = document.querySelector("#textCurp");
+    if(inputForm.value==null || inputForm.value==''){
+        Swal.fire({
+            title: 'Campo Inválido',
+            confirmButtonText: 'Revisar',
+            confirmButtonColor: '#9C0000',
+            icon: 'error',
+            text: 'CURP es requerido',
+        }).then((result)=>{
+            if(result.isConfirmed){
+                inputError(inputForm);
+            }
+        })
+        return false;
+    }else if (inputForm.length == 18) {
+        Swal.fire({
+            title: 'Campo Inválido',
+            confirmButtonText: 'Revisar',
+            confirmButtonColor: '#9C0000',
+            icon: 'error',
+            text: 'CURP máx 18 caracteres',
         }).then((result)=>{
             if(result.isConfirmed){
                 inputError(inputForm);
