@@ -8,11 +8,15 @@ document.addEventListener('DOMContentLoaded', () => {
 const plantillaSelector = async () => {
     try{
         let inicialCargosUsuarios = document.querySelector('#inicialCargosUsuarios');
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1);
         inicialCargosUsuarios.innerHTML=`
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
                         <input type="hidden" id="textCaptura" name="textCaptura" value="">
+                        <input type="hidden" id="textMesActual" name="textMesActual" value="${year}-${String(month).padStart(2,'0')}">
                         <button class="btn btn-sm btn-info" id="botonIniciarActual">Cargar mes Corriente</button>
                     </div>
                 </div>
@@ -61,7 +65,11 @@ const contratosMesCorriente = async () => {
     try {
         let grupoProgreso = document.querySelector('#grupoProgreso');
         let textCaptura = document.querySelector('#textCaptura');
+        let avanceProgresoCargos = document.querySelector('#avanceProgresoCargos');
+        let avisoModificadoUser = document.querySelector('#avisoModificadoUser');
         grupoProgreso.innerHTML=cargaAnimacion;
+        avanceProgresoCargos.innerHTML='';
+        avisoModificadoUser.innerHTML='';
         fetch('acobros/buscarContratosActivos')
         .then(respRender => respRender.json())
         .then(respuestas => {
@@ -122,8 +130,10 @@ const iniciarProcesoCargos = async (botonProcesoCreaCargos) => {
                 let avisoModificadoUser = document.querySelector('#avisoModificadoUser');
                 let inicialCargosUsuarios = document.querySelector('#inicialCargosUsuarios');
                 let avanceProgresoCargos = document.querySelector('#avanceProgresoCargos');
+                let textMesActual = document.querySelector('#textMesActual');
                 avisoModificadoUser.innerHTML=cargaAnimacion;
                 avisoModificadoUser.classList.remove('alert-warning','alert-success');
+                let busquedaResul = '';
                 fetch(`acobros/arregloContratosTotales/${captura}`)
                 .then(respRender => respRender.json())
                 .then(respuestas => {
@@ -156,6 +166,7 @@ const iniciarProcesoCargos = async (botonProcesoCreaCargos) => {
                                     })
                                 }
                             }
+                            busquedaResul=textMesActual.value;
                         }else{
                             if(totalContratos>0){
                                 for (let contador = 0; contador < totalContratos; contador++) {
@@ -174,21 +185,22 @@ const iniciarProcesoCargos = async (botonProcesoCreaCargos) => {
                                     })
                                 }
                             }
+                            busquedaResul=textMes.value;
 
                         }
-                        fetch(`acreacargo/mostrarResumenCargos/${textMes.value}`)
+                        fetch(`acreacargo/mostrarResumenCargos/${busquedaResul}`)
                         .then(respRenderB => respRenderB.json())
                         .then(respuestas1 => {
                             avisoModificadoUser.innerHTML='';
                             if(respuestas1==null || respuestas1.estatus=='error'){
-                                avisoModificadoUser.classList.add('alert','alert-warning');
                                 const filaResumen = document.createElement('div');
+                                filaResumen.classList.add('alert','alert-warning');
                                 filaResumen.innerHTML=`No se generaron cargas para ningun tipo de tarifa todos estaban aplicados.`;
                                 avisoModificadoUser.appendChild(filaResumen);
                             }else{
-                                avisoModificadoUser.classList.add('alert','alert-success');
                                 respuestas1.forEach(resumen => {
                                     const filaResumen = document.createElement('div');
+                                    filaResumen.classList.add('alert','alert-success');
                                     filaResumen.innerHTML=`<i class="fas fa-check"></i> ${resumen.DESCRIPCION_CTARI}: ${resumen.CREADOS} con un monto de $${parseFloat(resumen.PORPAGAR)}.`;
                                     avisoModificadoUser.appendChild(filaResumen);
                                 })
@@ -200,7 +212,7 @@ const iniciarProcesoCargos = async (botonProcesoCreaCargos) => {
                                 inicialCargosUsuarios.innerHTML='';
                                 avanceProgresoCargos.innerHTML='';
                                 avisoModificadoUser.innerHTML='';
-                                avisoModificadoUser.classList.remove('alert','alert-success','alert-warning');
+                                
                                 plantillaSelector();
                             })
                             avisoModificadoUser.appendChild(botonResetear);

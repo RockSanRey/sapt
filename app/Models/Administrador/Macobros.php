@@ -53,7 +53,7 @@ class Macobros extends Model
                     $buildera->where('CODIGO_DETA', substr($mesRecargos,0,6).'RSA');
                     // $buildera->where('USUARIO_DETA', $parametros[0]);
                     $buildera->where('CONTRATO_DETA', $parametros[1]);
-                    $buildera->whereIn('ESTATUS_DETA', ['ADEU','PAGA']);
+                    $buildera->whereIn('ESTATUS_DETA', ['ADEU','PAGA','CANC']);
                     $resultado1=$buildera->get();
                     if(!$resultado1->getNumRows()>0){
                         log_message('info','[PAGOSERVICIO|Async/Q] No se encontraron recargos aplicados para {user}', $log_extra);
@@ -147,8 +147,9 @@ class Macobros extends Model
 
             }
 
-            $arregloMultas=['SNEXTA','202210EXT','INASCORTE','TIRAZ','TIRAT','PASAG','JARDI','JARDT','RECONA','OFENZ','CORTE','RECONE','202201RSA','202202RSA','202203RSA','202204RSA','202205RSA','202206RSA','202207RSA','202208RSA','202209RSA','202210RSA','202211RSA','202212RSA'];
             if(date('m')=='01'){
+                $anioPasado=date('Y')-1;
+                $arregloMultas=['SNEXTA','202210EXT','INASCORTE','TIRAZ','TIRAT','PASAG','JARDI','JARDT','RECONA','OFENZ','CORTE','RECONE',$anioPasado.'01RSA',$anioPasado.'02RSA',$anioPasado.'03RSA',$anioPasado.'04RSA',$anioPasado.'05RSA',$anioPasado.'06RSA',$anioPasado.'07RSA',$anioPasado.'08RSA',$anioPasado.'09RSA',$anioPasado.'10RSA',$anioPasado.'11RSA',$anioPasado.'12RSA'];
                 if($parametros[2]=='TARNOR' || $parametros[2]=='TARMAY'){
                     log_message('info','[PAGOSERVICIO|Async/Q] Verificando si se aplica condonacion de mes para {user}', $log_extra);
                     $builderg=$this->dbBuild->table('sys_clientes_detalles');
@@ -1151,9 +1152,8 @@ class Macobros extends Model
     public function mostrarDatosResumenRecargos()
     {
         try {
-            $db= \Config\Database::connect();
 
-            $builder=$db->table('sys_clientes_detalles');
+            $builder=$this->dbBuild->table('sys_clientes_detalles');
             $builder->select("CODIGO_DETA, DESCUENTO_CCONT, COUNT(CONTRATO_DETA) AS CREADOS, SUM(TOTAL_DETA) AS PORPAGAR");
             $builder->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_DETA');
             $builder->where('FECHACAP_DETA',date('Y-m-d'));
