@@ -1158,23 +1158,181 @@ class Matramites extends Model
             $log_extra=[
                 'captur'=>$datosParaGuardar[0],
             ];
-            $setActualizaContrato=[
-                'TIPO_CCONT'=>$datosParaGuardar[3],
-                'MODO_CCONT'=>$datosParaGuardar[4],
-                'PERMISO_CCONT'=>$datosParaGuardar[5],
-                'DESCUENTO_CCONT'=>$datosParaGuardar[6],
-                'COMENTS_CCONT'=>$datosParaGuardar[7],
-                'IDMODIF_CCONT'=>$datosParaGuardar[0],
-                'FMODIF_CCONT'=>date('Y-m-d'),
-            ];
-            $builder=$this->dbBuild->table('sys_clientes_contratos');
-            $builder->where('CLIENTE_CCONT',$datosParaGuardar[1]);
-            $builder->where('CONTRATO_CCONT',$datosParaGuardar[2]);
-            $builder->set($setActualizaContrato);
-            $builder->update($setActualizaContrato);
-            log_message('notice','[MODCONTRATO|Async/Q] {captur} actualizo un registro de contrato en el sistema continua proceso', $log_extra);
 
-            return true;
+            $idTramite=date('YmdHis');
+            $buildera=$this->dbBuild->table('sys_clientes_contratosModificado');
+            $buildera->selectMax('(CONSECUTIVO_CMODIF)+1','CONSECUTIVO_CMODIF');
+            $resultado0=$buildera->get();
+            if($resultado0->getNumRows()>0){
+                log_message('info','[MODCONTRATO|Async/Q] Obteniendo secuencia para asignar a {item}',$log_extra);
+                foreach($resultado0->getResultArray() as $filas){
+                    $secuencia=$filas['CONSECUTIVO_CMODIF'];
+                }
+            }else{
+                $secuencia=1;
+            }
+
+            if($datosParaGuardar[8]=='TIPO'){
+                $setActualizaContrato=[
+                    'TIPO_CCONT'=>$datosParaGuardar[3],
+                    // 'MODO_CCONT'=>$datosParaGuardar[4],
+                    // 'PERMISO_CCONT'=>$datosParaGuardar[5],
+                    // 'DESCUENTO_CCONT'=>$datosParaGuardar[6],
+                    'COMENTS_CCONT'=>$datosParaGuardar[7],
+                    'IDMODIF_CCONT'=>$datosParaGuardar[0],
+                    'FMODIF_CCONT'=>date('Y-m-d'),
+                ];
+                $builder=$this->dbBuild->table('sys_clientes_contratos');
+                $builder->where('CLIENTE_CCONT',$datosParaGuardar[1]);
+                $builder->where('CONTRATO_CCONT',$datosParaGuardar[2]);
+                $builder->set($setActualizaContrato);
+                $builder->update($setActualizaContrato);
+                log_message('notice','[MODCONTRATO|Async/Q] {captur} modifico el tipo de contrato en el sistema continua proceso', $log_extra);
+
+                $setGuardaModificado=[
+                    'FECHACAP_CMODIF'=>date('Y-m-d'),
+                    'HORACAP_CMODIF'=>date('H:i:s'),
+                    'CAPTURA_CMODIF'=>$datosParaGuardar[0],
+                    'FOLIO_CMODIF'=>$idTramite,
+                    'CONSECUTIVO_CMODIF'=>str_pad($secuencia,6,'0', STR_PAD_LEFT),
+                    'CONTRATO_CMODIF'=>$datosParaGuardar[2],
+                    'TIPOMOD_CMODIF'=>$datosParaGuardar[8],
+                    'USUARIO_CMODIF'=>$datosParaGuardar[1],
+                    'MOTCAMBIO_CMODIF'=>$datosParaGuardar[9],
+                    'FCAMBIO_CMODIF'=>date('Y-m-d'),
+                    'IDCAMBIO_CMODIF'=>$datosParaGuardar[0],
+                    'IDMODIF_CMODIF'=>$datosParaGuardar[0],
+                    'FMODIF_CMODIF'=>date('Y-m-d'),
+                    'ESTATUS_CMODIF'=>'ACTI',
+                ];
+                $builderb=$this->dbBuild->table('sys_clientes_contratosModificado');
+                $builderb->insert($setGuardaModificado);
+                log_message('notice','[MODCONTRATO|Async/Q] creando registro de modificacion del contrato.', $log_extra);
+
+            }elseif($datosParaGuardar[8]=='MODO'){
+                $setActualizaContrato=[
+                    // 'TIPO_CCONT'=>$datosParaGuardar[3],
+                    'MODO_CCONT'=>$datosParaGuardar[4],
+                    // 'PERMISO_CCONT'=>$datosParaGuardar[5],
+                    // 'DESCUENTO_CCONT'=>$datosParaGuardar[6],
+                    'COMENTS_CCONT'=>$datosParaGuardar[7],
+                    'IDMODIF_CCONT'=>$datosParaGuardar[0],
+                    'FMODIF_CCONT'=>date('Y-m-d'),
+                ];
+                $builder=$this->dbBuild->table('sys_clientes_contratos');
+                $builder->where('CLIENTE_CCONT',$datosParaGuardar[1]);
+                $builder->where('CONTRATO_CCONT',$datosParaGuardar[2]);
+                $builder->set($setActualizaContrato);
+                $builder->update($setActualizaContrato);
+                log_message('notice','[MODCONTRATO|Async/Q] {captur} modifico el modo de contrato en el sistema continua proceso', $log_extra);
+
+                $setGuardaModificado=[
+                    'FECHACAP_CMODIF'=>date('Y-m-d'),
+                    'HORACAP_CMODIF'=>date('H:i:s'),
+                    'CAPTURA_CMODIF'=>$datosParaGuardar[0],
+                    'FOLIO_CMODIF'=>$idTramite,
+                    'CONSECUTIVO_CMODIF'=>str_pad($secuencia,6,'0', STR_PAD_LEFT),
+                    'CONTRATO_CMODIF'=>$datosParaGuardar[2],
+                    'TIPOMOD_CMODIF'=>$datosParaGuardar[8],
+                    'USUARIO_CMODIF'=>$datosParaGuardar[1],
+                    'MOTCAMBIO_CMODIF'=>$datosParaGuardar[9],
+                    'FCAMBIO_CMODIF'=>date('Y-m-d'),
+                    'IDCAMBIO_CMODIF'=>$datosParaGuardar[0],
+                    'IDMODIF_CMODIF'=>$datosParaGuardar[0],
+                    'FMODIF_CMODIF'=>date('Y-m-d'),
+                    'ESTATUS_CMODIF'=>'ACTI',
+                ];
+                $builderb=$this->dbBuild->table('sys_clientes_contratosModificado');
+                $builderb->insert($setGuardaModificado);
+                log_message('notice','[MODCONTRATO|Async/Q] creando registro de modificacion del contrato.', $log_extra);
+
+            }elseif($datosParaGuardar[8]=='PERM'){
+                $setActualizaContrato=[
+                    // 'TIPO_CCONT'=>$datosParaGuardar[3],
+                    // 'MODO_CCONT'=>$datosParaGuardar[4],
+                    'PERMISO_CCONT'=>$datosParaGuardar[5],
+                    // 'DESCUENTO_CCONT'=>$datosParaGuardar[6],
+                    'COMENTS_CCONT'=>$datosParaGuardar[7],
+                    'IDMODIF_CCONT'=>$datosParaGuardar[0],
+                    'FMODIF_CCONT'=>date('Y-m-d'),
+                ];
+                $builder=$this->dbBuild->table('sys_clientes_contratos');
+                $builder->where('CLIENTE_CCONT',$datosParaGuardar[1]);
+                $builder->where('CONTRATO_CCONT',$datosParaGuardar[2]);
+                $builder->set($setActualizaContrato);
+                $builder->update($setActualizaContrato);
+                log_message('notice','[MODCONTRATO|Async/Q] {captur} modifico el permiso de contrato en el sistema continua proceso', $log_extra);
+
+                $setGuardaModificado=[
+                    'FECHACAP_CMODIF'=>date('Y-m-d'),
+                    'HORACAP_CMODIF'=>date('H:i:s'),
+                    'CAPTURA_CMODIF'=>$datosParaGuardar[0],
+                    'FOLIO_CMODIF'=>$idTramite,
+                    'CONSECUTIVO_CMODIF'=>str_pad($secuencia,6,'0', STR_PAD_LEFT),
+                    'CONTRATO_CMODIF'=>$datosParaGuardar[2],
+                    'TIPOMOD_CMODIF'=>$datosParaGuardar[8],
+                    'USUARIO_CMODIF'=>$datosParaGuardar[1],
+                    'MOTCAMBIO_CMODIF'=>$datosParaGuardar[9],
+                    'FCAMBIO_CMODIF'=>date('Y-m-d'),
+                    'IDCAMBIO_CMODIF'=>$datosParaGuardar[0],
+                    'IDMODIF_CMODIF'=>$datosParaGuardar[0],
+                    'FMODIF_CMODIF'=>date('Y-m-d'),
+                    'ESTATUS_CMODIF'=>'ACTI',
+                ];
+                $builderb=$this->dbBuild->table('sys_clientes_contratosModificado');
+                $builderb->insert($setGuardaModificado);
+                log_message('notice','[MODCONTRATO|Async/Q] creando registro de modificacion del contrato.', $log_extra);
+
+            }elseif($datosParaGuardar[8]=='TARIF'){
+                $setActualizaContrato=[
+                    // 'TIPO_CCONT'=>$datosParaGuardar[3],
+                    // 'MODO_CCONT'=>$datosParaGuardar[4],
+                    // 'PERMISO_CCONT'=>$datosParaGuardar[5],
+                    'DESCUENTO_CCONT'=>$datosParaGuardar[6],
+                    'COMENTS_CCONT'=>$datosParaGuardar[7],
+                    'IDMODIF_CCONT'=>$datosParaGuardar[0],
+                    'FMODIF_CCONT'=>date('Y-m-d'),
+                ];
+                $builder=$this->dbBuild->table('sys_clientes_contratos');
+                $builder->where('CLIENTE_CCONT',$datosParaGuardar[1]);
+                $builder->where('CONTRATO_CCONT',$datosParaGuardar[2]);
+                $builder->set($setActualizaContrato);
+                $builder->update($setActualizaContrato);
+                log_message('notice','[MODCONTRATO|Async/Q] {captur} modifico el permiso de contrato en el sistema continua proceso', $log_extra);
+
+                $setGuardaModificado=[
+                    'FECHACAP_CMODIF'=>date('Y-m-d'),
+                    'HORACAP_CMODIF'=>date('H:i:s'),
+                    'CAPTURA_CMODIF'=>$datosParaGuardar[0],
+                    'FOLIO_CMODIF'=>$idTramite,
+                    'CONSECUTIVO_CMODIF'=>str_pad($secuencia,6,'0', STR_PAD_LEFT),
+                    'CONTRATO_CMODIF'=>$datosParaGuardar[2],
+                    'TIPOMOD_CMODIF'=>$datosParaGuardar[8],
+                    'USUARIO_CMODIF'=>$datosParaGuardar[1],
+                    'MOTCAMBIO_CMODIF'=>$datosParaGuardar[9],
+                    'FCAMBIO_CMODIF'=>date('Y-m-d'),
+                    'IDCAMBIO_CMODIF'=>$datosParaGuardar[0],
+                    'IDMODIF_CMODIF'=>$datosParaGuardar[0],
+                    'FMODIF_CMODIF'=>date('Y-m-d'),
+                    'ESTATUS_CMODIF'=>'ACTI',
+                ];
+                $builderb=$this->dbBuild->table('sys_clientes_contratosModificado');
+                $builderb->insert($setGuardaModificado);
+                log_message('notice','[MODCONTRATO|Async/Q] creando registro de modificacion del contrato.', $log_extra);
+
+            }
+
+            $builderc=$this->dbBuild->table('sys_clientes_contratosModificado');
+            $builderc->select("FOLIO_CMODIF,CONTRATO_CMODIF,TIPOMOD_CMODIF,FCAMBIO_CMODIF");
+            $builderc->where('CONTRATO_CMODIF',$datosParaGuardar[2]);
+            $builderc->where('FOLIO_CMODIF',$idTramite);
+            $builderc->where('ESTATUS_CMODIF','ACTI');
+            $builderc->orderBy('FMODIF_CMODIF','ASC');
+            $resultado1=$builderc->get();
+            if($resultado1->getNumRows()>0){
+                return $resultado1->getResultArray();
+            }
+
 
         } catch (Exception $errorElement) {
             return json_encode($errorElement.message());

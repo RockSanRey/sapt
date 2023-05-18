@@ -1059,6 +1059,14 @@ class Tramites extends BaseController
                         'max_length'=>'{field} dene tener max {param} caracteres',
                     ],
                 ],
+                'textMotivo'=>[
+                    'label'=>'Motivo',
+                    'rules'=>'required|max_length[400]|string',
+                    'errors'=>[
+                        'required'=>'{field} es requerido.',
+                        'max_length'=>'{field} dene tener max {param} caracteres',
+                    ],
+                ],
             ]);
             log_message('info','[MODCONTRATO|Async] Creando variables con arreglo de los campos del formulario');
             $datosParaGuardar=[
@@ -1070,6 +1078,8 @@ class Tramites extends BaseController
                 $textPermisos = $this->request->getPost('textPermisos'),
                 $textDescuento = $this->request->getPost('textDescuento'),
                 $textComentarios = $this->request->getPost('textComentarios'),
+                $textTipoModif = $this->request->getPost('textTipoModif'),
+                $textMotivo = $this->request->getPost('textMotivo'),
             ];
             log_message('notice','[MODCONTRATO|Async] {user} esta intentando modificar registros en contratos.', $log_extra);
             log_message('info','[MODCONTRATO|Async] Inicializando Validación de reglas...');
@@ -1086,17 +1096,9 @@ class Tramites extends BaseController
                 return json_encode($swalMensajes);
             }else{
                 log_message('info','[MODCONTRATO|Async] Reglas de validacion aceptadas');
-                if($this->modeloTramites->actualizarDatosContratoDetalle($datosParaGuardar)){
-                    log_message('info','[MODCONTRATO|Async] Los registros se grabaron correctamente, continua proseso de asignacion.');
-                    $swalMensajes=[
-                        'title'=>'Actualizado',
-                        'button'=>'Ok',
-                        'icon'=>'success',
-                        'text'=>'Se actualizó el registro correctamente',
-                        'estatus'=>'actualizado',
-                    ];
-
-                    return json_encode($swalMensajes);
+                if($acuseRecibo=$this->modeloTramites->actualizarDatosContratoDetalle($datosParaGuardar)){
+                    log_message('info','[MODCONTRATO|Async] Los registros se grabaron correctamente, notificando modificacion.');
+                    return json_encode($acuseRecibo);
 
                 }else {
                     log_message('info','[MODCONTRATO|Async] Ocurrio un error al guardar los datos, notificando');

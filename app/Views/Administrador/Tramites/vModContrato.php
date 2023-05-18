@@ -13,6 +13,7 @@
         <div class="card-body p-2">
             <div id="busquedaContratos"></div>
             <form id="datosContratoDetalle"></form>
+            <div id="acuseReciboModificado" class="d-none"></div>
             <button type="button" class="btn btn-sm btn-info" id="botonActualizar">Actualizar</button>
         </div>
         <div class="card-footer bg-white p-2 fuente-12p">
