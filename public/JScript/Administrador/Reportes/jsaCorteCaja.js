@@ -824,7 +824,7 @@ const generarCorteMensual = async (textCorteMeses) => {
                     cuerpoTablaContenidoReporte.innerHTML=`
                         ${columnasTabla}
                         <tr>
-                            <td colspan="12" style="text-align:center; padding:10px;">Reporte Corte Anual ${textAnioCorte.value}</td>
+                            <td colspan="12" style="text-align:center; padding:10px;">Reporte Corte Mensual ${textAnioCorte.value}</td>
                         </tr>
                         <tr>
                             <td colspan="12" style="background-color: rgb(46,46,46); text-align:center; color:#FFF;">Total Ingresos</td>
@@ -1057,7 +1057,7 @@ const generarCorteSemanal = async (textCorteSemana) => {
                     cuerpoTablaContenidoReporte.innerHTML=`
                         ${columnasTabla}
                         <tr>
-                            <td colspan="12" style="text-align:center; padding:10px;">Reporte Corte Anual ${textAnioCorte.value}</td>
+                            <td colspan="12" style="text-align:center; padding:10px;">Reporte Corte Semanal ${textAnioCorte.value}</td>
                         </tr>
                         <tr>
                             <td colspan="12" style="background-color: rgb(46,46,46); text-align:center; color:#FFF;">Total Ingresos</td>

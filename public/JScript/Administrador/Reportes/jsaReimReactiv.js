@@ -301,7 +301,7 @@ const imprimirReactivacion = async (botonImprimirReactiva) => {
                 ${mensajeBaja}
                 <tr>
                     <td colspan="12">
-                        <div style="text-align: left; padding:10px;">El presente documento da fe y legalidad de la reactivación efectuada.</div>
+                        <div style="text-align: left; padding:10px;">El presente documento da fe y legalidad de la modificación de contrato efectuada.</div>
                     </td>
                 </tr>
                 <tr>

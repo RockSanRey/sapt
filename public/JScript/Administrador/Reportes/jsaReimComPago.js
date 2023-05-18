@@ -21,14 +21,10 @@ const obtenerListadoRecibos = async () => {
             `;
             const cuerpoTablaRecibosPagos = document.createElement('tbody');
             if(respuestas.estatus=='error' || respuestas.estatus=='nodata'){
-                return Swal.fire({
-                    title: respuestas.title,
-                    icon: respuestas.icon,
-                    confirmButtonText: `${respuestas.button}`,
-                    confirmButtonColor: '#9C0000',
-                    html: respuestas.text,
-                })
-
+                cuerpoTablaRecibosPagos.innerHTML=`<tr><td colspan="2">No hay datos para mostrar</td></tr>`;
+                tablaRecibosPagos.appendChild(cuerpoTablaRecibosPagos);
+                detalleDatosRecibos.innerHTML='';
+                detalleDatosRecibos.appendChild(tablaRecibosPagos);
             }else{
                 if(respuestas==null){
 
@@ -194,8 +190,8 @@ const reimprimirReciboPago = async (botonReimprimirRecibo) => {
                             <div style="text-align: center; font-size:10px;">${usuarios.DESCRIPCION_CONT}</div>
                         </td>
                         <td colspan="2" style="border: 1px solid rgb(20,179,237)">
-                            <div style="position: absolute; margin-left:3px; font-size:6px;">Tarifa:</div>
-                            <div style="text-align: center; font-size:10px;">${tipoTarifa}</div>
+                            <div style="position: absolute; margin-left:3px; font-size:6px;">Id Usua:</div>
+                            <div style="text-align: right; margin-right: 5px; font-size:10px;">${usuarios.CODBARR_CLIEN}</div>
                         </td>
                         <td colspan="3" style="border: 1px solid rgb(20,179,237)">
                             <div style="position: absolute; margin-left:3px; font-size:6px;">Folio:</div>
@@ -209,7 +205,7 @@ const reimprimirReciboPago = async (botonReimprimirRecibo) => {
                         </td>
                         <td colspan="4" style="border: 1px solid rgb(20,179,237)">
                             <div style="position: absolute; margin-left:3px; font-size:6px;">Colonia:</div>
-                            <div style="text-align: center; font-size:10px;">${usuarios.COLONIA_CODPOS}</div>
+                            <div style="text-align: center; font-size:10px;">${usuarios.COLONIA_COLON}</div>
                         </td>
                         <td colspan="4" style="border: 1px solid rgb(20,179,237)">
                             <div style="position: absolute; margin-left:3px; font-size:6px;">Codigo Postal:</div>
@@ -223,7 +219,7 @@ const reimprimirReciboPago = async (botonReimprimirRecibo) => {
                         </td>
                         <td colspan="4" style="border: 1px solid rgb(20,179,237)">
                             <div style="position: absolute; margin-left:3px; font-size:6px;">Estado:</div>
-                            <div style="text-align: center; font-size:10px;">${usuarios.ESTADO_ESTA}</div>
+                            <div style="text-align: center; font-size:10px;">${usuarios.NOMBRE_ESTA}</div>
                         </td>
                         <td colspan="4" style="border: 1px solid rgb(20,179,237)">
                             <div style="position: absolute; margin-left:3px; font-size:6px;">Telefono:</div>
@@ -501,8 +497,9 @@ const exportarReciboPago = async (botonExportarPdf) => {
             docImprimir.rect(164, 13, 45, 4);
             docImprimir.rect(164, 17, 45, 4);
             docImprimir.rect(7, 25, 202, 12);
-            docImprimir.rect(7, 25, 112, 4);
-            docImprimir.rect(119, 25, 39, 4);
+            docImprimir.rect(7, 25, 87, 4);
+            docImprimir.rect(94, 25, 29, 4);
+            docImprimir.rect(123, 25, 35, 4);
             docImprimir.rect(158, 25, 51, 4);
             docImprimir.rect(7, 29, 85, 4);
             docImprimir.rect(92, 29, 65, 4);
@@ -532,7 +529,8 @@ const exportarReciboPago = async (botonExportarPdf) => {
             docImprimir.text('Hora:',165,15, 'left');
             docImprimir.text('Impresión:',165,19, 'left');
             docImprimir.text('Cliente:',8,27, 'left');
-            docImprimir.text('Tipo Contrato:',120,27, 'left');
+            docImprimir.text('Tipo Contrato:',95,27, 'left');
+            docImprimir.text('Id Usuario:',124,27, 'left');
             docImprimir.text('Folio:',159,27, 'left');
             docImprimir.text('Calle y Numero:',8,31, 'left');
             docImprimir.text('Colonia:',93,31, 'left');
@@ -551,13 +549,14 @@ const exportarReciboPago = async (botonExportarPdf) => {
                 docImprimir.text(usuarios.CONTRATO_CCONT,208,8, 'right');
                 docImprimir.text(fechaImpress,208,20, 'right');
                 docImprimir.text(usuarios.NOMBRE,15,28, 'left');
-                docImprimir.text(usuarios.DESCRIPCION_CONT,131,28, 'left');
+                docImprimir.text(usuarios.DESCRIPCION_CONT,106,28, 'left');
+                docImprimir.text(usuarios.CODBARR_CLIEN,132,28, 'left');
                 docImprimir.text(usuarios.IDCOBRO_COBR+'-'+usuarios.CONSECUTIVO_COBR,208,28, 'right');
                 docImprimir.text(usuarios.CALLES,20,32, 'left');
-                docImprimir.text(usuarios.COLONIA_CODPOS,100,32, 'left');
+                docImprimir.text(usuarios.COLONIA_COLON,100,32, 'left');
                 docImprimir.text(usuarios.CODIPOST_CODPOS,168,32, 'left');
                 docImprimir.text(usuarios.NOMBRE_MUNIC,16,36, 'left');
-                docImprimir.text(usuarios.ESTADO_ESTA,79,36, 'left');
+                docImprimir.text(usuarios.NOMBRE_ESTA,79,36, 'left');
                 docImprimir.text(usuarios.TELEFONO_CLIEN+' '+usuarios.MOVIL_CLIEN,160,36, 'left');
                 JsBarcode('#codigo_qr', usuarios.CODBARR_CLIEN, {
                     displayValue: false,

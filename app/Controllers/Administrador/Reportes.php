@@ -255,6 +255,66 @@ class Reportes extends BaseController
         }
     }
 
+    public function impmodifica()
+    {
+        $id = __FUNCTION__;
+        $respuesta=$this->llamandoParametrosWeb($id);
+        $cadena=array(
+            'titulo'=>'SAPT | '.$respuesta['TITULO_CONW'],
+            'tutiloPantalla'=>$respuesta['TITULOPANT_CONW'],
+            'robots'=>$respuesta['ROBOTS_CONW'],
+            'Keyword'=>$respuesta['KEYWORD_CONW'],
+            'descripcion'=>$respuesta['DESCRIPCION_CONW'],
+            'pantalla'=>'areimcompago',
+            'sesionIniciada'=>session(),
+        );
+        $sesionIniciada=session();
+        $log_extra=[
+            'user'=>$sesionIniciada->get('IDCLIENTE'),
+            'grupo'=>$sesionIniciada->get('NIVELCLIEN'),
+        ];
+        log_message('info','[AIMPMODIFICA] Cargando modulo impmodifica para {user} con privilegios {grupo}.',$log_extra);
+        return view('Plantilla/vHeader',$cadena).view('Administrador/Reportes/vImpModifica').view('Plantilla/vFooter');        
+    }
+
+    public function autocompletarContratoMod($id)
+    {
+        if($tablaDatos = $this->modeloReportes->autocompletarDatosContratoMod($id)){
+            log_message('info','[AIMPMODIFICA|Async] Envio de datos para renderizado de autocompletar contratos');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[AIMPMODIFICA|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function contratosModificadosLista($id)
+    {
+        if($tablaDatos = $this->modeloReportes->contratosDatosModificadosLista($id)){
+            log_message('info','[AIMPMODIFICA|Async] Envio de datos para renderizado de lista contratos modificados');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[AIMPMODIFICA|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
     public function areimcompago()
     {
         $id = __FUNCTION__;
@@ -623,7 +683,77 @@ class Reportes extends BaseController
         }
     }
 
+    public function reportedeuda()
+    {
+        $id = __FUNCTION__;
+        $respuesta=$this->llamandoParametrosWeb($id);
+        $cadena=array(
+            'titulo'=>'SAPT | '.$respuesta['TITULO_CONW'],
+            'tutiloPantalla'=>$respuesta['TITULOPANT_CONW'],
+            'robots'=>$respuesta['ROBOTS_CONW'],
+            'Keyword'=>$respuesta['KEYWORD_CONW'],
+            'descripcion'=>$respuesta['DESCRIPCION_CONW'],
+            'pantalla'=>$id,
+            'sesionIniciada'=>session(),
+        );
+        $sesionIniciada=session();
+        $log_extra=[
+            'user'=>$sesionIniciada->get('IDCLIENTE'),
+            'grupo'=>$sesionIniciada->get('NIVELCLIEN'),
+        ];
+        log_message('info','[ACORTECAJA] Cargando modulo reportedeuda para {user} con privilegios {grupo}.',$log_extra);
+        return view('Plantilla/vHeader',$cadena).view('Administrador/Reportes/vReporteDeuda').view('Plantilla/vFooter');        
+    }
 
+    public function mostrarDeudasDetalle($id)
+    {
+        log_message('info','[REPORTEDEUDA|Async] Solicitando datos para renderizado detalles reuda');
+        $tarifa=explode('_',$id);
+        log_message('info','[CREACARGO|Async] Comprobar tarifa que tiene aplicado');
+        if($tarifa[2]=='TARNOR'){
+            $datosModificar=[
+                $captura=session()->get('IDCLIENTE'),
+                $idClaves=$id,
+                $claveDeuda='CSA',
+            ];
+        }
+        if($tarifa[2]=='TARMAY'){
+            $datosModificar=[
+                $captura=session()->get('IDCLIENTE'),
+                $idClaves=$id,
+                $claveDeuda='CSAD',
+            ];
+        }
+        if($tarifa[2]=='TARNEG'){
+            $datosModificar=[
+                $captura=session()->get('IDCLIENTE'),
+                $idClaves=$id,
+                $claveDeuda='CSAN',
+            ];
+        }
+        if($tarifa[2]=='TARESP'){
+            $datosModificar=[
+                $captura=session()->get('IDCLIENTE'),
+                $idClaves=$id,
+                $claveDeuda='CSAE',
+            ];
+        }
+        if($tablaDatos = $this->modeloReportes->mostrarDatosDeudasDetalle($datosModificar)){
+            log_message('info','[REPORTEDEUDA|Async] Envio de datos para renderizado detalles reuda');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[REPORTEDEUDA|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
     
 
     
@@ -729,6 +859,25 @@ class Reportes extends BaseController
         }
     }
 
+    public function imprimirAcuseModifica($id)
+    {
+        log_message('info','[AREPORTES|Async] Solicitando datos para renderizado de recibo modificacion');
+        if($tablaDatos = $this->modeloReportes->imprimirDatosAcuseModifica($id)){
+            log_message('info','[AREPORTES|Async] Envio de datos para renderizado de recibo modificacion');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[AREPORTES|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
 
 
 

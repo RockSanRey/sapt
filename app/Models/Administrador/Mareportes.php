@@ -198,6 +198,53 @@ class Mareportes extends Model
 
     }
 
+    public function autocompletarDatosContratoMod($id)
+    {
+        try {
+            $builder=$this->dbBuild->table('sys_clientes_contratosModificado');
+            $builder->select("CONTRATO_CMODIF, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS CLIENTE");
+            $builder->join('sys_clientes','IDUSUA_CLIEN=USUARIO_CMODIF');
+            $builder->like('CONTRATO_CMODIF', $id,'both');
+            $builder->where('ESTATUS_CMODIF','ACTI');
+            $builder->groupBy('CONTRATO_CMODIF');
+            $resultado=$builder->get();
+
+            if($resultado->getNumRows()>0){
+                log_message('info','[AIMPMODIFICA|Async/Q] Generando datos desde consulta autocompletar contrato');
+                return $resultado->getResultArray();
+    
+            }
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+        
+    }
+
+    public function contratosDatosModificadosLista($id)
+    {
+        try {
+            $builder=$this->dbBuild->table('sys_clientes_contratosModificado');
+            $builder->select("CONCAT(FOLIO_CMODIF,'_',CONTRATO_CMODIF) AS idTablePk, CONTRATO_CMODIF, 
+            CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS CLIENTE,TIPOMOD_CMODIF,FOLIO_CMODIF");
+            $builder->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_CMODIF');
+            $builder->join('sys_clientes','IDUSUA_CLIEN=CLIENTE_CCONT');
+            $builder->where('CONTRATO_CMODIF', $id);
+            $builder->where('ESTATUS_CMODIF','ACTI');
+            $builder->groupBy('FOLIO_CMODIF');
+            $builder->orderBy('FMODIF_CMODIF','DESC');
+            $resultado=$builder->get();
+
+            if($resultado->getNumRows()>0){
+                log_message('info','[AIMPMODIFICA|Async/Q] Generando datos desde consulta para listas contrato modificado');
+                return $resultado->getResultArray();
+    
+            }
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+        
+    }
+
     public function llenarDatosTablaRecibosPago()
     {
         try {
@@ -215,7 +262,8 @@ class Mareportes extends Model
             $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builder->join('cat_estatus','CLAVE_ESTAT=ESTATUS_COBR');
             $builder->where('CONTRATO_COBR=CONTRATO_CCONT');
-            $builder->like('FMODIF_COBR', date('Y-m'),'after');
+            $builder->like('FMODIF_COBR', '2023-03','after');
+            // $builder->like('FMODIF_COBR', date('Y-m'),'after');
             $builder->where('ESTATUS_CLIEN','ACTI');
             $builder->where('ESTATUS_COBR','PAGA');
             $builder->groupBy('IDCOBRO_COBR');
@@ -236,11 +284,11 @@ class Mareportes extends Model
     {
         try {
             $builder=$this->dbBuild->table('sys_clientes');
-            $builder->select("CONCAT(IDCOBRO_COBR,'_',IDUSUA_CLIEN,'_',CONTRATO_COBR) AS idTablePk, IDCOBRO_COBR, CONSECUTIVO_COBR,
+            $builder->select("CONCAT(IDCOBRO_COBR,'_',IDUSUARIO_COBR,'_',CONTRATO_COBR) AS idTablePk, IDCOBRO_COBR, CONSECUTIVO_COBR,
             CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE, CONCEPTO_COBR,
               CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_COLON,' C.P.',CODIPOST_CODPOS,', ',NOMBRE_MUNIC,', ',NOMBRE_ESTA) AS DIRECCION,
               CONTRATO_CCONT, IDCOBRO_COBR, TOTAL_COBR, FMODIF_COBR, DESCRIPCION_ESTAT");
-            $builder->join('sys_clientes_contratos','IDUSUA_CLIEN=CLIENTE_CCONT');
+            $builder->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
             $builder->join('sys_clientes_cobros','CONTRATO_COBR=CONTRATO_CCONT');
             $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
             $builder->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
@@ -248,8 +296,7 @@ class Mareportes extends Model
             $builder->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
             $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builder->join('cat_estatus','CLAVE_ESTAT=ESTATUS_COBR');
-            $builder->where('CONTRATO_COBR=CONTRATO_CCONT');
-            $builder->where('IDUSUARIO_COBR', $id);
+            $builder->where('IDUSUA_CLIEN', $id);
             $builder->where('ESTATUS_CLIEN','ACTI');
             $builder->where('ESTATUS_COBR','PAGA');
             $builder->groupBy('IDCOBRO_COBR');
@@ -703,6 +750,232 @@ class Mareportes extends Model
 
     }
 
+    public function mostrarDatosDeudasDetalle($datosModificar)
+    {
+        try {
+
+            $parametros=explode('_',$datosModificar[1]);
+            $datosDetalle=null;
+            $log_extra=[
+                'user'=>$parametros[0],
+            ];
+
+            log_message('info','[PAGOSERVICIO|Async/Q] Comprobando atrasos en pagos de servicios para {user}', $log_extra);
+            $builder=$this->dbBuild->table('sys_clientes_detalles');
+            $builder->select("CODIGO_DETA,ESTATUS_DETA");
+            // $builder->where('USUARIO_DETA', $parametros[0]);
+            $builder->where('CONTRATO_DETA', $parametros[1]);
+            $builder->where('CODIGO_DETA <',date('Ym').$datosModificar[2]);
+            $builder->like('CODIGO_DETA',$datosModificar[2],'before');
+            $builder->where('ESTATUS_DETA','ADEU');
+            $resultado0=$builder->get();
+            if($resultado0->getNumRows()>0){
+                log_message('info','[PAGOSERVICIO|Async/Q] Se detectaron adeudos comprobando si se aplico recargos para {user}', $log_extra);
+                foreach ($resultado0->getResultArray() as $value) {
+                    $mesRecargos=$value['CODIGO_DETA'];
+
+                    $buildera=$this->dbBuild->table('sys_clientes_detalles');
+                    $buildera->select("CODIGO_DETA,ESTATUS_DETA");
+                    $buildera->where('CODIGO_DETA', substr($mesRecargos,0,6).'RSA');
+                    // $buildera->where('USUARIO_DETA', $parametros[0]);
+                    $buildera->where('CONTRATO_DETA', $parametros[1]);
+                    $buildera->whereIn('ESTATUS_DETA', ['ADEU','PAGA']);
+                    $resultado1=$buildera->get();
+                    if(!$resultado1->getNumRows()>0){
+                        log_message('info','[PAGOSERVICIO|Async/Q] No se encontraron recargos aplicados para {user}', $log_extra);
+                        $builderb=$this->dbBuild->query("
+                            INSERT INTO sys_clientes_detalles(
+                                `FECHACAP_DETA`,
+                                `HORACAP_DETA`,
+                                `CAPTURA_DETA`,
+                                `USUARIO_DETA`,
+                                `CONTRATO_DETA`,
+                                `CODIGO_DETA`,
+                                `CANTIDAD_DETA`,
+                                `COSTO_DETA`,
+                                `TOTAL_DETA`,
+                                `IDMODIF_DETA`,
+                                `FMODIF_DETA`,
+                                `ESTATUS_DETA`
+                            )
+                            SELECT
+                                curdate(),
+                                curtime(),
+                                '".$datosModificar[0]."',
+                                '".$parametros[0]."',
+                                '".$parametros[1]."',
+                                CLAVE_CONC,
+                                '1',
+                                COSTO_CONC,
+                                COSTO_CONC,
+                                '".$datosModificar[0]."',
+                                curdate(),
+                                'ADEU'
+                            FROM cat_conceptos
+                            WHERE
+                            CLAVE_CONC = '".substr($mesRecargos,0,6)."RSA' AND
+                            ESTATUS_CONC='ACTI'
+                        ");
+                        log_message('info','[PAGOSERVICIO|Async/Q] Creando recargos '.substr($mesRecargos,0,6).'RSA para {user}', $log_extra);
+
+                    }
+                }
+            }
+
+            log_message('info','[PAGOSERVICIO|Async] Comprobar que exista el concepto de mes corriente para {user}', $log_extra);
+            $builderc=$this->dbBuild->table('sys_clientes_detalles');
+            $builderc->select("CONCAT(USUARIO_DETA,'_',CONTRATO_DETA,'_',CODIGO_DETA) AS `idTablePk`, CODIGO_DETA, DESCRIPCION_CONC, 
+            CANTIDAD_DETA, COSTO_DETA, TOTAL_DETA, ESTATUS_DETA");
+            $builderc->join('cat_conceptos','CLAVE_CONC=CODIGO_DETA');
+            // $builderc->where('USUARIO_DETA', $parametros[0]);
+            $builderc->where('CONTRATO_DETA', $parametros[1]);
+            $builderc->like('CODIGO_DETA', date('Ym'),'after');
+            $builderc->whereIn('ESTATUS_DETA',['ADEU','PAGA']);
+            $builderc->groupBy('CODIGO_DETA');
+            $resultado3=$builderc->get();
+            if(!$resultado3->getNumRows()>0){
+                log_message('info','[PAGOSERVICIO|Async/Q] No hay mes corriente cargado en los registros de {user}', $log_extra);
+
+                $builderd=$this->dbBuild->query("
+                    INSERT INTO sys_clientes_detalles(
+                        `FECHACAP_DETA`,
+                        `HORACAP_DETA`,
+                        `CAPTURA_DETA`,
+                        `USUARIO_DETA`,
+                        `CONTRATO_DETA`,
+                        `CODIGO_DETA`,
+                        `CANTIDAD_DETA`,
+                        `COSTO_DETA`,
+                        `TOTAL_DETA`,
+                        `IDMODIF_DETA`,
+                        `FMODIF_DETA`,
+                        `ESTATUS_DETA`
+                    )
+                    SELECT
+                    curdate(),
+                    curtime(),
+                    '".$datosModificar[0]."',
+                    '".$parametros[0]."',
+                    '".$parametros[1]."',
+                    CLAVE_CONC,
+                    '1',
+                    COSTO_CONC,
+                    COSTO_CONC,
+                    '".$datosModificar[0]."',
+                    curdate(),
+                    'ADEU'
+                    FROM cat_conceptos
+                    WHERE
+                    CLAVE_CONC like '".date('Ym').$datosModificar[2]."' AND
+                    ESTATUS_CONC='ACTI'
+                ");
+                log_message('info','[PAGOSERVICIO|Async/Q] Creando mes corriente para pagar de {user}', $log_extra);
+
+            }
+
+            $arregloMultas=['SNEXTA','202210EXT','INASCORTE','TIRAZ','TIRAT','PASAG','JARDI','JARDT','RECONA','OFENZ','CORTE','RECONE','202201RSA','202202RSA','202203RSA','202204RSA','202205RSA','202206RSA','202207RSA','202208RSA','202209RSA','202210RSA','202211RSA','202212RSA'];
+            if(date('m')=='01'){
+                log_message('info','[PAGOSERVICIO|Async/Q] Revisando si es candidato a condonación de {user}', $log_extra);
+                if($parametros[2]=='TARNOR' || $parametros[2]=='TARMAY'){
+                    log_message('info','[PAGOSERVICIO|Async/Q] Verificando si se aplica condonacion de mes para {user}', $log_extra);
+                    $builderg=$this->dbBuild->table('sys_clientes_detalles');
+                    $builderg->select('CODIGO_DETA, ESTATUS_DETA');
+                    $builderg->whereIn('CODIGO_DETA',$arregloMultas);
+                    // $builderg->where('USUARIO_DETA', $parametros[0]);
+                    $builderg->where('CONTRATO_DETA', $parametros[1]);
+                    $resultado5=$builderg->get();
+                    if(!$resultado5->getNumRows()>0){
+                        log_message('info','[PAGOSERVICIO|Async/Q] No hay multas detectadas para {user}', $log_extra);
+                        $builderh=$this->dbBuild->table('sys_clientes_detalles');
+                        $builderh->select("CODIGO_DETA, ESTATUS_DETA");
+                        $builderh->where('CODIGO_DETA',$datosModificar[3]);
+                        // $builderh->where('USUARIO_DETA', $parametros[0]);
+                        $builderh->where('CONTRATO_DETA', $parametros[1]);
+                        $builderh->like('FECHACAP_DETA',date('Y'),'after');
+                        $resultados6=$builderh->get();
+                        if($resultados6->getNumRows()>0){
+                            log_message('info','[PAGOSERVICIO|Async/Q] Ya esta agregada condonación de mes enero para {user}', $log_extra);                    
+                        }else{
+                            $builderd=$this->dbBuild->query("
+                            INSERT INTO sys_clientes_detalles(
+                                `FECHACAP_DETA`,
+                                `HORACAP_DETA`,
+                                `CAPTURA_DETA`,
+                                `USUARIO_DETA`,
+                                `CONTRATO_DETA`,
+                                `CODIGO_DETA`,
+                                `CANTIDAD_DETA`,
+                                `COSTO_DETA`,
+                                `TOTAL_DETA`,
+                                `IDMODIF_DETA`,
+                                `FMODIF_DETA`,
+                                `ESTATUS_DETA`
+                            )
+                                SELECT
+                                curdate(),
+                                curtime(),
+                                '".$datosModificar[0]."',
+                                '".$parametros[0]."',
+                                '".$parametros[1]."',
+                                CLAVE_CONC,
+                                '1',
+                                COSTO_CONC,
+                                COSTO_CONC,
+                                '".$datosModificar[0]."',
+                                curdate(),
+                                'ADEU'
+                                FROM cat_conceptos
+                                WHERE
+                                CLAVE_CONC like '".$datosModificar[3]."' AND
+                                ESTATUS_CONC='ACTI'
+                            ");
+                            log_message('info','[PAGOSERVICIO|Async/Q] Creando condonación de mes enero para pagar de {user}', $log_extra);
+    
+                        }
+        
+                    }
+        
+                }
+
+            }
+
+            $buildere=$this->dbBuild->table('sys_clientes_detalles');
+            $buildere->select("CONCAT(USUARIO_DETA,'_',CONTRATO_DETA,'_',CODIGO_DETA) AS `idTablePk`, CODIGO_DETA, DESCRIPCION_CONC, 
+            CANTIDAD_DETA, COSTO_DETA, TOTAL_DETA, ESTATUS_DETA");
+            $buildere->join('cat_conceptos','CLAVE_CONC=CODIGO_DETA');
+            // $buildere->where('USUARIO_DETA', $parametros[0]);
+            $buildere->where('CONTRATO_DETA', $parametros[1]);
+            $buildere->where('ESTATUS_DETA','ADEU');
+            $buildere->groupBy('CODIGO_DETA');
+            $buildere->orderBy('CODIGO_DETA', 'ASC');
+            $resultado2=$buildere->get();
+            if($resultado2->getNumRows()>0){
+                log_message('info','[PAGOSERVICIO|Async/Q] Generando datos desde consulta enviando datos para renderizar detalle de {user}', $log_extra);
+                $datosDetalle=$resultado2->getResultArray();
+            }
+
+            $builderf=$this->dbBuild->table('sys_clientes_detalles');
+            $builderf->select("CONTRATO_DETA,SUM(TOTAL_DETA) AS TOTAL_DETA");
+            $builderf->join('cat_conceptos','CLAVE_CONC=CODIGO_DETA');
+            // $builderf->where('USUARIO_DETA', $parametros[0]);
+            $builderf->where('CONTRATO_DETA', $parametros[1]);
+            $builderf->where('ESTATUS_DETA', 'ADEU');
+            $resultado3=$builderf->get();
+            if($resultado3->getNumRows()>0){
+                log_message('info','[PAGOSERVICIO|Async/Q] Generando datos desde consulta para actualizar el costo del pedido');
+                $datosTotal=$resultado3->getResultArray();
+            }
+
+            return [
+                $datosDetalle,
+                $datosTotal,
+            ];
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
 
 
 
@@ -817,8 +1090,8 @@ class Mareportes extends Model
             EMAIL_CLIEN, TELEFONO_CLIEN, MOVIL_CLIEN, CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS CALLES, NOMBRE_ESTA, NOMBRE_MUNIC,
             CODIPOST_CODPOS, COLONIA_COLON, CONTRATO_CCONT, DESCUENTO_CCONT, DESCRIPCION_CONT, PERMISO_CCONT, IDCOBRO_COBR, FECHACAP_COBR, HORACAP_COBR, CONSECUTIVO_COBR");
             $builder->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
-            $builder->join('sys_clientes_detalles','USUARIO_DETA=IDUSUA_CLIEN');
-            $builder->join('sys_clientes_cobros','IDCOBRO_COBR=IDCOBRO_DETA');
+            $builder->join('sys_clientes_detalles','CONTRATO_DETA=CONTRATO_CCONT');
+            $builder->join('sys_clientes_cobros','CONTRATO_COBR=CONTRATO_CCONT');
             $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
             $builder->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
             $builder->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
@@ -826,13 +1099,13 @@ class Mareportes extends Model
             $builder->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
             $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builder->where('IDCOBRO_COBR', $parametros[0]);
-            $builder->where('IDUSUA_CLIEN',$parametros[1]);
+            $builder->where('USUARIO_DETA',$parametros[1]);
             $builder->where('CONTRATO_CCONT', $parametros[2]);
-            $builder->where('CONTRATO_COBR=CONTRATO_CCONT');
-            $builder->where('ESTATUS_CLIEN','ACTI');
+            $builder->where('IDCOBRO_COBR=IDCOBRO_DETA');
+            // $builder->whereIn('ESTATUS_CLIEN',['ACTI','BAJD','BAJT']);
             $builder->groupBy('IDUSUA_CLIEN');
             $resultado=$builder->get();
-
+            // print_r($builder);
             if($resultado->getNumRows()>0){
                 log_message('info','[AREPORTES|Async/Q] Generando datos desde consulta para obtener datos generales');
                 $datosUsuario=$resultado->getResultArray();
@@ -876,7 +1149,7 @@ class Mareportes extends Model
             $builderc->select("CONTRATO_DETA, SUM(TOTAL_DETA) as TOTAL_DEUDA");
             $builderc->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_DETA','left');
             $builderc->join('cat_conceptos','CODIGO_DETA=CLAVE_CONC');
-            $builderc->where('USUARIO_DETA',$parametros[1]);
+            $builderc->where('CONTRATO_DETA',$parametros[2]);
             $builderc->where('ESTATUS_DETA','ADEU');
             $builderc->groupBy('CONTRATO_DETA');
             $resultados2=$builderc->get();
@@ -1080,6 +1353,68 @@ class Mareportes extends Model
         }
     }
 
+    public function imprimirDatosAcuseModifica($id)
+    {
+        try {
+            $parametro=explode('_',$id);
+            $builder=$this->dbBuild->table('sys_clientes_contratosModificado');
+            $builder->select("FOLIO_CMODIF, FCAMBIO_CMODIF, HORACAP_CMODIF,CONTRATO_CMODIF,
+            CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS CLIENTE, CODBARR_CLIEN,
+            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC) AS DOMICILIOALTA,SEXO_CLIEN,
+            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_COLON,', C.P. ',CODIPOST_CODPOS,', ',NOMBRE_MUNIC) AS DOMICILIOCONTRATO,
+            DESCRIPCION_CONT, DESCRIPCION_CEXP, DESCRIPCION_CPERM, DESCRIPCION_CTARI,MOTCAMBIO_CMODIF,TIPOMOD_CMODIF
+            ");
+            $builder->join('sys_clientes','IDUSUA_CLIEN=USUARIO_CMODIF');
+            $builder->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_CMODIF');
+            $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
+            $builder->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
+            $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
+            $builder->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
+            $builder->join('cat_contratosExpedicion','CLAVE_CEXP=MODO_CCONT');
+            $builder->join('cat_contratosPermisos','CLAVE_CPERM=PERMISO_CCONT');
+            $builder->join('cat_contratosTarifas','CLAVE_CTARI=DESCUENTO_CCONT');
+            $builder->where('FOLIO_CMODIF',$parametro[0]);
+            $builder->where('CONTRATO_CMODIF',$parametro[1]);
+            $builder->groupBy('FOLIO_CMODIF');
+            $resultado=$builder->get();
+
+            if($resultado->getNumRows()>0){
+                $transfer= $resultado->getResultArray();
+            }
+            $buildera=$this->dbBuild->table('sys_responsables');
+            $buildera->select("CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS NOMBRE, SEXO_RESPO, DESCRIPHOM_PUESTO, DESCRIPMUJ_PUESTO");
+            $buildera->join('cat_puestos','CLAVE_PUESTO=PUESTO_RESPO');
+            $buildera->where('PUESTO_RESPO','COMIPRESI');
+            $buildera->where('ESTATUS_RESPO','ACTI');
+            $resultado0=$buildera->get();
+
+            if($resultado0->getNumRows()>0){
+                $presid= $resultado0->getResultArray();
+            }
+
+            $builderb=$this->dbBuild->table('sys_responsables');
+            $builderb->select("CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS NOMBRE, SEXO_RESPO, DESCRIPHOM_PUESTO, DESCRIPMUJ_PUESTO");
+            $builderb->join('cat_puestos','CLAVE_PUESTO=PUESTO_RESPO');
+            $builderb->where('PUESTO_RESPO','COMISECR');
+            $builderb->where('ESTATUS_RESPO','ACTI');
+            $resultado1=$builderb->get();
+
+            if($resultado1->getNumRows()>0){
+                $tesore= $resultado1->getResultArray();
+            }
+
+            return [
+                $transfer,
+                $presid,
+                $tesore,
+            ];
+
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+    }
     
 
 

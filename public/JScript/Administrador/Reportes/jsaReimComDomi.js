@@ -302,8 +302,8 @@ const reimprimirReciboPago = async (botonReimprimirRecibo) => {
                             <div style="text-align: center; font-size:10px;">${usuarios.DESCRIPCION_CONT}</div>
                         </td>
                         <td colspan="2" style="border: 1px solid rgb(20,179,237)">
-                            <div style="position: absolute; margin-left:3px; font-size:6px;">Tarifa:</div>
-                            <div style="text-align: center; font-size:10px;">${tipoTarifa}</div>
+                            <div style="position: absolute; margin-left:3px; font-size:6px;">Id Usua:</div>
+                            <div style="text-align: right; margin-right: 5px; font-size:10px;">${usuarios.CODBARR_CLIEN}</div>
                         </td>
                         <td colspan="3" style="border: 1px solid rgb(20,179,237)">
                             <div style="position: absolute; margin-left:3px; font-size:6px;">Folio:</div>
@@ -317,7 +317,7 @@ const reimprimirReciboPago = async (botonReimprimirRecibo) => {
                         </td>
                         <td colspan="4" style="border: 1px solid rgb(20,179,237)">
                             <div style="position: absolute; margin-left:3px; font-size:6px;">Colonia:</div>
-                            <div style="text-align: center; font-size:10px;">${usuarios.COLONIA_CODPOS}</div>
+                            <div style="text-align: center; font-size:10px;">${usuarios.COLONIA_COLON}</div>
                         </td>
                         <td colspan="4" style="border: 1px solid rgb(20,179,237)">
                             <div style="position: absolute; margin-left:3px; font-size:6px;">Codigo Postal:</div>
@@ -331,7 +331,7 @@ const reimprimirReciboPago = async (botonReimprimirRecibo) => {
                         </td>
                         <td colspan="4" style="border: 1px solid rgb(20,179,237)">
                             <div style="position: absolute; margin-left:3px; font-size:6px;">Estado:</div>
-                            <div style="text-align: center; font-size:10px;">${usuarios.ESTADO_ESTA}</div>
+                            <div style="text-align: center; font-size:10px;">${usuarios.NOMBRE_ESTA}</div>
                         </td>
                         <td colspan="4" style="border: 1px solid rgb(20,179,237)">
                             <div style="position: absolute; margin-left:3px; font-size:6px;">Telefono:</div>
