@@ -2389,7 +2389,7 @@ class Matramites extends Model
             $builder->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_CBAJA');
             $builder->like('CONTRATO_CBAJA',$id,'both');
             $builder->where('ESTATUS_CBAJA','ACTI');
-            $builder->where('ESTATUS_CCONT','INAC');
+            $builder->where('ESTATUS_CCONT','BAJT');
             $builder->groupBy('CONTRATO_CBAJA');
             $resultado=$builder->get();
             
