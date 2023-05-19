@@ -224,6 +224,7 @@ const mostrarContratosPagar = async (textIdUsuario) => {
             let datosContratosPago = document.querySelector('#datosContratosPago');
             let interaccionBotones = document.querySelector('#interaccionBotones');
             let datosDeudaDetalle = document.querySelector('#datosDeudaDetalle');
+            let textoContratoCobro = document.querySelector('#textoContratoCobro');
             let textoDeudaTotal = document.querySelector('#textoDeudaTotal');
             datosContratosPago.innerHTML=`
                 <input type="hidden" name="textIdUsuario" id="textIdUsuario" value="${textIdUsuario.value}">
@@ -311,6 +312,8 @@ const mostrarContratosPagar = async (textIdUsuario) => {
                 botonResetear.addEventListener('click', () => {
                     datosContratosPago.innerHTML='';
                     datosDeudaDetalle.innerHTML='';
+                    textoContratoCobro.innerHTML='';
+                    textoDeudaTotal.innerHTML='';
                     interaccionBotones.classList.add('d-none');
                     buscadorUsuarios();
                 })
