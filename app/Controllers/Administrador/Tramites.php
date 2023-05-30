@@ -2359,6 +2359,127 @@ class Tramites extends BaseController
         }
     }
 
+    public function aclaraciones()
+    {
+        $id = __FUNCTION__;
+        $respuesta=$this->llamandoParametrosWeb($id);
+        $cadena=array(
+            'titulo'=>'SAPT | '.$respuesta['TITULO_CONW'],
+            'tutiloPantalla'=>$respuesta['TITULOPANT_CONW'],
+            'robots'=>$respuesta['ROBOTS_CONW'],
+            'Keyword'=>$respuesta['KEYWORD_CONW'],
+            'descripcion'=>$respuesta['DESCRIPCION_CONW'],
+            'pantalla'=>'aregusuarios',
+            'sesionIniciada'=>session(),
+        );
+        $sesionIniciada=session();
+        $log_extra=[
+            'user'=>$sesionIniciada->get('IDCLIENTE'),
+            'grupo'=>$sesionIniciada->get('NIVELCLIEN'),
+        ];
+        log_message('info','[ACLARACIONES] Cargando modulo aclaraciones para {user} con privilegios {grupo}.',$log_extra);
+        return view('Plantilla/vHeader',$cadena).view('Administrador/Tramites/vAclaraciones').view('Plantilla/vFooter');
+    }
+
+    public function consultaEstatusCliente($id)
+    {
+        log_message('info','[ACLARACIONES|Async] Solicitando datos para renderizar estatus cliente');
+        if($tablaDatos = $this->modeloTramites->consultaDatosEstatusCliente($id)){
+            log_message('info','[ACLARACIONES|Async] Envio de datos para renderizar estatus cliente');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[ACLARACIONES|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function mostrarDetallesContratos($id)
+    {
+        log_message('info','[ACLARACIONES|Async] Solicitando datos para renderizar detalle contrato');
+        if($tablaDatos = $this->modeloTramites->mostrarDatosDetallesContratos($id)){
+            log_message('info','[ACLARACIONES|Async] Envio de datos para renderizar detalle contrato');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[ACLARACIONES|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function modificarCondonacion($id)
+    {
+        log_message('info','[ACLARACIONES|Async] Solicitando datos para calcular condonacion');
+        if($tablaDatos = $this->modeloTramites->modificarDatosCondonacion($id)){
+            log_message('info','[ACLARACIONES|Async] Envio de datos para calcular condonacion');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[ACLARACIONES|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function realizarCondonacionDeuda()
+    {
+        log_message('info','[ACLARACIONES|Async] Verificando el método de envio para continuar proceso guardar');
+        if($this->request->getMethod('POST')){
+            $log_extra=[
+                'user'=>session()->get('IDCLIENTE'),
+            ];
+            $campoJson=json_decode($this->request->getBody());
+            $datosParaCondonar=[
+                $captura = session()->get('IDCLIENTE'),
+                $textMovimiento = $campoJson->textMovimiento,
+                $condonacionCheck = $campoJson->condonacionCheck,
+                $textRazon = $campoJson->textRazon,
+                $textMotivo = $campoJson->textMotivo,
+                $totalDeuda = $campoJson->totalDeuda,
+                $totalCondonado = $campoJson->totalCondonado,
+                $totalRestante = $campoJson->totalRestante,
+            ];
+            
+            log_message('notice','[ACLARACIONES|Async] {user} esta intentando actualizar conceptos en detalles.', $log_extra);
+            if($datosTabla=$this->modeloTramites->realizarDatosCondonacionDeuda($datosParaCondonar)){
+                log_message('info','[ACLARACIONES|Async] Los registros se actualizaron correctamente, notificando.');
+                return json_encode($datosTabla);
+            }else {
+                log_message('info','[ACLARACIONES|Async] Ocurrio un error al guardar los datos, notificando');
+                $swalMensajes=[
+                    'title'=>'Error Servidor',
+                    'button'=>'Ok',
+                    'icon'=>'error',
+                    'text'=>'Ocurro un error al guardar los datos.',
+                    'estatus'=>'error',
+                ];
+
+                return json_encode($swalMensajes);
+            }
+        }
+    }
+
+
     public function aborcontrato()
     {
         $id = __FUNCTION__;
@@ -2532,10 +2653,31 @@ class Tramites extends BaseController
 
 
 
+
     public function autocompletarUsuario($id)
     {
         log_message('info','[TRAMITES|Async] Solicitando datos para renderizado de completar usuarios');
         if($tablaDatos = $this->modeloTramites->autocompletarDatosUsuario($id)){
+            log_message('info','[TRAMITES|Async] Envio de datos para renderizado de completar usuarios');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[TRAMITES|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
+
+    public function autoCompleteUserAclara($id)
+    {
+        log_message('info','[TRAMITES|Async] Solicitando datos para renderizado de completar usuarios');
+        if($tablaDatos = $this->modeloTramites->autoDatosCompleteUserAclara($id)){
             log_message('info','[TRAMITES|Async] Envio de datos para renderizado de completar usuarios');
             return json_encode($tablaDatos);
         }else {

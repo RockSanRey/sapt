@@ -558,6 +558,83 @@ const registrarConvenio = async () => {
     }
 }
 
+const buscarUsuarioCitatorio = async (botonCrearCitatorio) => {
+    try{
+        let labelTitleModal = document.querySelector('#labelTitleModal');
+        labelTitleModal.innerHTML='Crear citatorio';
+        botonConvenio.classList.add('d-none');
+        botonCitatorio.classList.remove('d-none');
+        let idBusqueda = botonCrearCitatorio.attributes.datacrearcita.value;
+        return Swal.fire({
+            title: 'Crear Citatorio',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Crear Citatoria',
+            confirmButtonColor: '#009C06',
+            cancelButtonColor: '#9C0000',
+            cancelButtonText: 'No, Mejor no',
+            html: '¿Desea buscar los datos para crear un citatorio nuevo?',
+        })
+        .then((result) => {
+            if(result.isConfirmed){
+                fetch(`aregconvenio/buscarUsuarioDeudor/${idBusqueda}`)
+                .then(respRender => respRender.json())
+                .then(respuestas => {
+                    if(respuestas.estatus=='error'){
+
+                    }else{
+                        respuestas.forEach(usuario => {
+                            datosUsuarioTemplate.innerHTML=`
+                                <div class="row">
+                                    <div class="form-group col-md-6 col-12">
+                                        <input type="hidden" value="${usuario.idTablePk}" name="textCliente" id="textCliente" />
+                                        <small>Usuario:</small>
+                                        <div class="form-control form-control-sm">${usuario.NOMBRE}</div>
+                                    </div>
+                                    <div class="form-group col-md-3 col-12">
+                                        <small>Contrato:</small>
+                                        <div class="form-control form-control-sm">${usuario.CONTRATO_CCONT}</div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-3 col-12">
+                                        <small>Hora de la cita:</small>
+                                        <input type="text" name="textFecha" id="textFecha" value="" class="form-control form-control-sm" maxlength="13" placeholder="F Nacim." readonly />
+                                    </div>
+                                </div>
+
+                            `;
+                        })
+                        let textFecha = document.querySelector('#textFecha');
+                        let fechaActual = new Date();
+                        let anioActual = fechaActual.getFullYear();
+                        let mesActual = fechaActual.getMonth();
+                        let diaActual = fechaActual.getDate();
+                        let selecionDia = new Datepicker(textFecha, {
+                            'range': true,
+                            'minDate': new Date(anioActual -0, mesActual, diaActual),
+                            'maxDate': new Date(anioActual +1, mesActual, diaActual),
+                            'format': 'yyyy-mm-dd',
+                            'language': 'es',
+                            'autohide': 'true'
+                        });
+
+
+                    }
+                })
+            }
+        })
+
+    } catch (errorAlert) {
+        return Swal.fire({
+            title: 'Error interno',
+            icon: 'error',
+            confirmButtonColor: '#f43',
+            html: errorAlert.message,
+        })
+    }
+}
+
 
 
 function validarCliente(){
@@ -745,7 +822,6 @@ function validarRoles(){
     }
     return true;
 }
-
 
 function inputError(inputForm){
     inputForm.classList.add('is-invalid');

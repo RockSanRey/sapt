@@ -2753,7 +2753,243 @@ class Matramites extends Model
         }
     }
 
+    public function consultaDatosEstatusCliente($id)
+    {
+        try {
 
+            $builder=$this->dbBuild->table('sys_clientes');
+            $builder->select("IDUSUA_CLIEN,CODBARR_CLIEN, CONCAT(`NOMBRE_CLIEN`,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS `NOMBRE`,TELEFONO_CLIEN,
+            MOVIL_CLIEN,EMAIL_CLIEN,DESCRIPCION_ESTAT");
+            $builder->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
+            $builder->join('cat_estatus','CLAVE_ESTAT=ESTATUS_CLIEN');
+            $builder->where('IDUSUA_CLIEN', $id);
+            $builder->groupBy('IDUSUA_CLIEN');
+            $builder->orderBy('NOMBRE_CLIEN', 'ASC');
+            $resultado=$builder->get();
+
+            if($resultado->getNumRows()>0){
+                log_message('info','[ACLARACIONES|Async/Q] Generando datos desde consulta para continuar renderizado de tabla usuarios');
+                $cliente=$resultado->getResultArray();
+            }
+
+            $buildera=$this->dbBuild->table('sys_clientes_contratos');
+            $buildera->select("CONCAT(IDUSUA_CLIEN,'_',CONTRATO_CCONT) AS `idTablePk`,CONTRATO_CCONT,DESCRIPCION_CONT,DESCRIPCION_CEXP,
+            DESCRIPCION_CPERM,DESCRIPCION_CTARI,CALLE_UBIC,NEXTE_UBIC,NINTE_UBIC,COLONIA_COLON,CODIPOST_CODPOS,NOMBRE_MUNIC,NOMBRE_ESTA,
+            DESCRIPCION_ESTAT,ESTATUS_CLIEN");
+            $buildera->join('sys_clientes','CLIENTE_CCONT=IDUSUA_CLIEN');
+            $buildera->join('sys_clientes_detalles','CONTRATO_DETA=CONTRATO_CCONT','left');
+            $buildera->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
+            $buildera->join('cat_contratosExpedicion','CLAVE_CEXP=MODO_CCONT');
+            $buildera->join('cat_contratosTarifas','CLAVE_CTARI=DESCUENTO_CCONT');
+            $buildera->join('cat_contratosPermisos','CLAVE_CPERM=PERMISO_CCONT');
+            $buildera->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
+            $buildera->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
+            $buildera->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $buildera->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
+            $buildera->join('cat_estados','CLAVE_ESTA=ESTADO_UBIC');
+            $buildera->join('cat_estatus','CLAVE_ESTAT=ESTATUS_CLIEN');
+            $buildera->where('IDUSUA_CLIEN', $id);
+            $buildera->groupBy('CONTRATO_CCONT');
+            $buildera->orderBy('CONTRATO_CCONT','ASC');
+            $resultado1=$buildera->get();
+
+            if($resultado1->getNumRows()>0){
+                log_message('info','[ACLARACIONES|Async/Q] Generando datos desde consulta para continuar renderizado de tabla contratos');
+                $contratos=$resultado1->getResultArray();
+            }
+
+            $builderb=$this->dbBuild->table('sys_clientes_cobros');
+            $builderb->select("IDCOBRO_COBR,CONSECUTIVO_COBR,CONTRATO_COBR,METODO_PAGO,TOTAL_PAGO,ESTATUS_PAGO,FMODIF_PAGO,
+            CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS CLIENTE");
+            $builderb->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_COBR');
+            $builderb->join('sys_clientes_pagos','IDCOBRO_PAGO=IDCOBRO_COBR');
+            $builderb->join('sys_clientes','IDUSUA_CLIEN=IDUSUARIO_COBR');
+            $builderb->where('IDUSUA_CLIEN',$id);
+            $builderb->groupBy('IDUSUA_CLIEN, IDCOBRO_COBR');
+            $builderb->orderBy('FMODIF_COBR','DESC');
+            $resultado2=$builderb->get();
+
+            if($resultado2->getNumRows()>0){
+                log_message('info','[ACLARACIONES|Async/Q] Generando datos desde consulta para obtener total de cobros');
+                $pagos=$resultado2->getResultArray();
+            }
+
+            return [
+                $cliente,
+                $contratos,
+                $pagos,
+            ];
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function mostrarDatosDetallesContratos($id)
+    {
+        try {
+            $parametros=explode('_',$id);
+            $builder=$this->dbBuild->table('sys_clientes_detalles');
+            $builder->select("CONCAT(CONTRATO_DETA,'_',CODIGO_DETA) AS idTablePk, CODIGO_DETA,DESCRIPCION_CONC,CANTIDAD_DETA,COSTO_DETA,TOTAL_DETA,ESPECIAL_DETA");
+            $builder->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_DETA');
+            $builder->join('sys_clientes','IDUSUA_CLIEN=USUARIO_DETA');
+            $builder->join('cat_conceptos','CLAVE_CONC=CODIGO_DETA');
+            $builder->where('CONTRATO_CCONT', $parametros[1]);
+            $builder->where('ESTATUS_DETA','ADEU');
+            $builder->groupBy('CODIGO_DETA');
+            $builder->orderBy('CODIGO_DETA', 'ASC');
+            $resultado=$builder->get();
+
+            if($resultado->getNumRows()>0){
+                log_message('info','[ACLARACIONES|Async/Q] Generando datos desde consulta para continuar renderizado de detalles deuda');
+                $detalles=$resultado->getResultArray();
+            }
+
+            $buildera=$this->dbBuild->table('sys_clientes_detalles');
+            $buildera->select("CONTRATO_DETA,SUM(TOTAL_DETA) AS TOTALES");
+            $buildera->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_DETA');
+            $buildera->join('sys_clientes','IDUSUA_CLIEN=USUARIO_DETA');
+            $buildera->where('CONTRATO_CCONT', $parametros[1]);
+            $buildera->where('ESTATUS_DETA','ADEU');
+            $buildera->groupBy('CONTRATO_CCONT');
+            $buildera->orderBy('CONTRATO_CCONT','ASC');
+            $resultado1=$buildera->get();
+
+            if($resultado1->getNumRows()>0){
+                log_message('info','[ACLARACIONES|Async/Q] Generando datos desde consulta para continuar renderizado de tabla contratos');
+                $totales=$resultado1->getResultArray();
+            }
+
+            $builderb=$this->dbBuild->table('sys_clientes_contratosCondonado');
+            $builderb->select("FOLIO_CCOND,CONTRATO_CCOND,MONTO_CCOND,FMODIF_CCOND");
+            $builderb->where('CONTRATO_CCOND', $parametros[1]);
+            $builderb->where('ESTATUS_CCOND','ACTI');
+            $builderb->orderBy('FMODIF_CCOND','DESC');
+            $resultado2=$builderb->get();
+
+            if($resultado2->getNumRows()>0){
+                log_message('info','[ACLARACIONES|Async/Q] Generando datos desde consulta para continuar renderizado de condonaciones');
+                $condonaciones=$resultado2->getResultArray();
+            }
+
+            return [
+                $detalles,
+                $totales,
+                $condonaciones,
+            ];
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function modificarDatosCondonacion($id)
+    {
+        try {
+
+            $parametro=explode('_', $id);
+
+            $builder=$this->dbBuild->table('sys_clientes_detalles');
+            $builder->select('TOTAL_DETA');
+            $builder->where('CONTRATO_DETA', $parametro[0]);
+            $builder->where('CODIGO_DETA', $parametro[1]);
+            $builder->where('ESTATUS_DETA', 'ADEU');
+            $resultado=$builder->get();
+
+            if($resultado->getNumRows()>0){
+                return $resultado->getResultArray();
+            }
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
+
+    public function realizarDatosCondonacionDeuda($datosParaCondonar)
+    {
+        try {
+            $parametros = explode('_', $datosParaCondonar[1]);
+
+            $log_extra=[
+                'user'=>$datosParaCondonar[0],
+                'item'=>$parametros[0],
+                'item2'=>$parametros[1],
+            ];
+            $setCondonarDetalles=[
+                'ESPECIAL_DETA'=>$datosParaCondonar[3],
+                'IDMODIF_DETA'=>$datosParaCondonar[0],
+                'FMODIF_DETA'=>date('Y-m-d'),
+                'ESTATUS_DETA'=>'CANC',
+            ];
+            $buildera=$this->dbBuild->table('sys_clientes_detalles');
+            $buildera->where('CONTRATO_DETA',$parametros[1]);
+            $buildera->whereIn('CODIGO_DETA',$datosParaCondonar[2]);
+            $buildera->where('ESTATUS_DETA','ADEU');
+            $buildera->set($setCondonarDetalles);
+            $buildera->update($setCondonarDetalles);
+            log_message('notice','[ACLARACIONES|Async/Q] {user} cambio el estatus de cancelado en detalles deuda',$log_extra);
+
+
+            $builderb=$this->dbBuild->table('sys_clientes_contratosCondonado');
+            $builderb->selectMax('(CONSECUTIVO_CCOND)+1','CONSECUTIVO_CCOND');
+            $builderb->where('ESTATUS_CCOND','ACTI');
+            $resultado0=$builderb->get();
+            log_message('info','[ACLARACIONES|Async/Q] Obteniendo consecutivo para foliar acuse.');
+
+            foreach($resultado0->getResultArray() as $filas){
+                $secuenciaAcuse=$filas['CONSECUTIVO_CCOND'];
+            }
+            if($secuenciaAcuse==''){
+                $secuenciaAcuse=1;
+            }
+
+            $setMovimiento=date('YmdHis');
+            $arrCodigos=implode(', ',$datosParaCondonar[2]);
+
+            $setAcuseCondonacion=[
+                'FECHACAP_CCOND'=>date('Y-m-d'),
+                'HORACAP_CCOND'=>date('H:i:s'),
+                'CAPTURA_CCOND'=>$datosParaCondonar[0],
+                'FOLIO_CCOND'=>$setMovimiento,
+                'CONSECUTIVO_CCOND'=>str_pad($secuenciaAcuse,6,'0', STR_PAD_LEFT),
+                'CONTRATO_CCOND'=>$parametros[1],
+                'USUARIO_CCOND'=>$parametros[0],
+                'CODIGOS_CCOND'=>$arrCodigos,
+                'MOTCAMBIO_CCOND'=>$datosParaCondonar[4],
+                'DEUDA_CCOND'=>$datosParaCondonar[5],
+                'MONTO_CCOND'=>$datosParaCondonar[6],
+                'RESTA_CCOND'=>$datosParaCondonar[7],
+                'FCAMBIO_CCOND'=>date('Y-m-d'),
+                'IDCAMBIO_CCOND'=>$datosParaCondonar[0],
+                'IDMODIF_CCOND'=>$datosParaCondonar[0],
+                'FMODIF_CCOND'=>date('Y-m-d'),
+                'ESTATUS_CCOND'=>'ACTI',
+            ];
+            $builderc=$this->dbBuild->table('sys_clientes_contratosCondonado');
+            $builderc->insert($setAcuseCondonacion);
+            log_message('info','[ACLARACIONES|Async/Q] {user} genero un acuse para notificar condonacion en detalles deuda',$log_extra);
+
+            $builderd=$this->dbBuild->table('sys_clientes_contratosCondonado');
+            $builderd->select("CONCAT(FOLIO_CCOND,'_',USUARIO_CCOND,'_',CONTRATO_CCOND) AS `idTablePk`, FOLIO_CCOND, CONTRATO_CCOND, FMODIF_CCOND");
+            $builderd->where('FOLIO_CCOND', $setMovimiento);
+            $builderd->where('USUARIO_CCOND', $parametros[0]);
+            $builderd->where('CONTRATO_CCOND', $parametros[1]);
+            $builderd->where('ESTATUS_CCOND','ACTI');
+            $resultado1=$builderd->get();
+
+            if($resultado1->getNumRows()>0){
+                log_message('info','[ACLARACIONES|Async/Q] Notificando folio de acuse para impresión.');
+                return $resultado1->getResultArray();
+            }
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+
+    }
 
 
     public function autocompletarDatosUsuario($id)
@@ -2766,6 +3002,29 @@ class Matramites extends Model
             $builder->like('NOMBRE_CLIEN',$id,'after');
             $builder->where('ESTATUS_CCONT','ACTI');
             $builder->where('ESTATUS_CLIEN','ACTI');
+            $builder->groupBy('IDUSUA_CLIEN');
+            $builder->orderBy('NOMBRE_CLIEN, APATERNO_CLIEN');
+            $builder->limit(100);
+            $resultado=$builder->get();
+            if($resultado->getNumRows()>0){
+                log_message('info','[TRAMITES|Async/Q] Generando datos desde consulta para continuar edición de usuario');
+                return $resultado->getResultArray();
+
+            }
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+    }
+
+    public function autoDatosCompleteUserAclara($id)
+    {
+        try {
+            $parametro=explode('_',$id);
+            $builder=$this->dbBuild->table('sys_clientes');
+            $builder->select("IDUSUA_CLIEN, CODBARR_CLIEN, CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS NOMBRE,CODBARR_CLIEN");
+            $builder->join('sys_clientes_contratos','CLIENTE_CCONT=IDUSUA_CLIEN');
+            $builder->like('NOMBRE_CLIEN',$id,'after');
             $builder->groupBy('IDUSUA_CLIEN');
             $builder->orderBy('NOMBRE_CLIEN, APATERNO_CLIEN');
             $builder->limit(100);
