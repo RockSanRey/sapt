@@ -262,8 +262,8 @@ class Mareportes extends Model
             $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
             $builder->join('cat_estatus','CLAVE_ESTAT=ESTATUS_COBR');
             $builder->where('CONTRATO_COBR=CONTRATO_CCONT');
-            $builder->like('FMODIF_COBR', '2023-03','after');
-            // $builder->like('FMODIF_COBR', date('Y-m'),'after');
+            // $builder->like('FMODIF_COBR', '2023-03','after');
+            $builder->like('FMODIF_COBR', date('Y-m'),'after');
             $builder->where('ESTATUS_CLIEN','ACTI');
             $builder->where('ESTATUS_COBR','PAGA');
             $builder->groupBy('IDCOBRO_COBR');
@@ -1416,6 +1416,69 @@ class Mareportes extends Model
         }
     }
     
+    public function imprimirDatosAcuseAclaracion($id)
+    {
+        try {
+            $parametro=explode('_',$id);
+            $builder=$this->dbBuild->table('sys_clientes_contratosCondonado');
+            $builder->select("FOLIO_CCOND, FCAMBIO_CCOND, HORACAP_CCOND,CONTRATO_CCOND,
+            CONCAT(NOMBRE_CLIEN,' ',APATERNO_CLIEN,' ',AMATERNO_CLIEN) AS CLIENTE, CODBARR_CLIEN,
+            CONCAT(CALLE_UBIC,' ',NEXTE_UBIC,' ',NINTE_UBIC,', ',COLONIA_COLON,', C.P. ',CODIPOST_CODPOS,', ',NOMBRE_MUNIC) AS DOMICILIO,
+            SEXO_CLIEN,CODIGOS_CCOND,MOTCAMBIO_CCOND,DEUDA_CCOND,MONTO_CCOND,RESTA_CCOND,
+            CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS AUTORIZO");
+            $builder->join('sys_clientes','IDUSUA_CLIEN=USUARIO_CCOND');
+            $builder->join('sys_clientes_contratos','CONTRATO_CCONT=CONTRATO_CCOND');
+            $builder->join('sys_clientes_ubicaciones','IDUBIC_UBIC=UBICA_CCONT');
+            $builder->join('cat_codpostal','CLVCODPOS_CODPOS=CODIPOSTAL_UBIC');
+            $builder->join('cat_colonias','CLVCOLON_COLON=COLONIA_UBIC');
+            $builder->join('cat_municipios','CLVMUNI_MUNIC=MUNICIPIO_UBIC');
+            $builder->join('cat_contratos','CLAVE_CONT=TIPO_CCONT');
+            $builder->join('cat_contratosExpedicion','CLAVE_CEXP=MODO_CCONT');
+            $builder->join('cat_contratosPermisos','CLAVE_CPERM=PERMISO_CCONT');
+            $builder->join('cat_contratosTarifas','CLAVE_CTARI=DESCUENTO_CCONT');
+            $builder->join('sys_responsables','IDUSUA_RESPO=IDCAMBIO_CCOND');
+            $builder->where('FOLIO_CCOND',$parametro[0]);
+            $builder->where('CONTRATO_CCOND',$parametro[1]);
+            $builder->groupBy('FOLIO_CCOND');
+            $resultado=$builder->get();
+
+            if($resultado->getNumRows()>0){
+                $acuerdo= $resultado->getResultArray();
+            }
+
+            $buildera=$this->dbBuild->table('sys_responsables');
+            $buildera->select("CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS NOMBRE, SEXO_RESPO, DESCRIPHOM_PUESTO, DESCRIPMUJ_PUESTO");
+            $buildera->join('cat_puestos','CLAVE_PUESTO=PUESTO_RESPO');
+            $buildera->whereIn('PUESTO_RESPO',['COMIPRESI','COMITESOR']);
+            $buildera->where('ESTATUS_RESPO','ACTI');
+            $resultado0=$buildera->get();
+
+            if($resultado0->getNumRows()>0){
+                $presid= $resultado0->getResultArray();
+            }
+
+            $builderb=$this->dbBuild->table('sys_responsables');
+            $builderb->select("CONCAT(NOMBRE_RESPO,' ',APATERNO_RESPO,' ',AMATERNO_RESPO) AS NOMBRE, SEXO_RESPO, DESCRIPHOM_PUESTO, DESCRIPMUJ_PUESTO");
+            $builderb->join('cat_puestos','CLAVE_PUESTO=PUESTO_RESPO');
+            $builderb->where('PUESTO_RESPO','COMITESOR');
+            $builderb->where('ESTATUS_RESPO','ACTI');
+            $resultado1=$builderb->get();
+
+            if($resultado1->getNumRows()>0){
+                $tesore= $resultado1->getResultArray();
+            }
+
+            return [
+                $acuerdo,
+                $presid,
+                $tesore,
+            ];
+
+
+        } catch (Exception $errorElement) {
+            return json_encode($errorElement.message());
+        }
+    }
 
 
 

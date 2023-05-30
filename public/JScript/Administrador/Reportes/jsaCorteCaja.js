@@ -1452,6 +1452,7 @@ const llenarTablaPaginada = async (botonPaginaClick) => {
 const exportarListadoExcel = async (idBusqueda) => {
     try{
         let tablaExportadora = document.querySelector('#tablaExportadora');
+        tablaExportadora.classList.add('d-none');
         fetch(`acortecaja/exportadorListaFolios/${idBusqueda}`)
         .then(respRender => respRender.json())
         .then(respuestas => {

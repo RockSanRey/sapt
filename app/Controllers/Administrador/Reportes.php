@@ -879,6 +879,25 @@ class Reportes extends BaseController
         }
     }
 
+    public function imprimirAcuseAclaracion($id)
+    {
+        log_message('info','[AREPORTES|Async] Solicitando datos para renderizar acuse aclaracion');
+        if($tablaDatos = $this->modeloReportes->imprimirDatosAcuseAclaracion($id)){
+            log_message('info','[AREPORTES|Async] Envio de datos para renderizar acuse aclaracion');
+            return json_encode($tablaDatos);
+        }else {
+            log_message('info','[AREPORTES|Async] Ocurrio un error al consultar los datos, notificando');
+            $swalMensajes=[
+                'title'=>'Error Servidor',
+                'button'=>'Ok',
+                'icon'=>'error',
+                'text'=>'Ocurro un error al consultar los datos para renderizado notificando.',
+                'estatus'=>'error',
+            ];
+
+            return json_encode($swalMensajes);
+        }
+    }
 
 
 
