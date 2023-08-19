@@ -187,8 +187,8 @@ const buscandoDatosEditar = async (botonEditarEl) => {
         if(respuestas.estatus=='error'){
             formularioAreasCRUD.innerHTML=`<div>${respuestas.text}</div>`;
         }else{
-            respuestas.forEach(areas => {
-                const {CLAVE_AREA,DESCRIPCION_AREA,COMENTARIO_AREA} = areas;
+            respuestas.forEach(registros => {
+                const {CLAVE_AREA,DESCRIPCION_AREA,COMENTARIO_AREA} = registros;
                 formularioAreasCRUD.innerHTML = `
                 <div class="form-group mb-2">
                     <input type="hidden" name="textArea" id="textArea" value="${CLAVE_AREA}" />

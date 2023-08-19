@@ -20,7 +20,7 @@
                 </div>
                 <div id="tablaDinamica"></div>
             </div>
-            <div class="card-footer bg-white fuente-12p">
+            <div class="card-footer bg-white fuente-10p">
                 <div><small class="text-muted">Continue <a href="catpuestos">aquí</a> para agregar puestos o rangos a las áreas.</small></div>
             </div>
         </div>

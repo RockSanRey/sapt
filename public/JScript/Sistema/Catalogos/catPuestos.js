@@ -1,4 +1,4 @@
-let botonRegistrar = document.querySelector('#botonRegistrar');
+let botonRegistro = document.querySelector('#botonRegistro');
 let botonGuardar = document.querySelector('#botonGuardar');
 let botonActualizar = document.querySelector("#botonActualizar");
 let botonCancelar = document.querySelector('#botonCancelar');
@@ -8,7 +8,7 @@ let funcionEjecuta = 'Puestos';
 
 document.addEventListener('DOMContentLoaded', () => {
     obtenerListado();
-    botonRegistrar.addEventListener('click', () => plantillaFormulario());
+    botonRegistro.addEventListener('click', () => plantillaFormulario());
     botonGuardar.addEventListener('click', () => guardarRegistrosPuestos());
     botonActualizar.addEventListener('click', () => actualizarRegistrosPuestos());
     botonCancelar.addEventListener('click', () => plantillaFormulario());
@@ -407,7 +407,6 @@ const inputLimpiar = async () => {
         })
     }
 }
-
 
 
 function validarArea(){

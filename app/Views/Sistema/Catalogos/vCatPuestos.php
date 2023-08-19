@@ -14,24 +14,24 @@
                 <!-- Button trigger modal -->
                 <div class="text-justify mb-2 fuente-12p">
                     Para crear un nuevo registro haz clic en este botón
-                    <button type="button" class="btn btn-sm btn-success mb-2 fuente-10p" id="botonRegistrar" data-toggle="modal" data-target="#formRegistroDatos">
+                    <button type="button" id="botonRegistro" class="btn btn-sm btn-success mb-2 fuente-10p" data-toggle="modal" data-target="#formRegistroDatos">
                         <i class="fas fa-pencil-alt"></i> Crear Registro
                     </button>
                 </div>
                 <div id="tablaDinamica"></div>
             </div>
-            <div class="card-footer bg-white fuente-12p">
-                <div><small>Clic <a href="catareas">aquí</a> para agregar nuevas áreas.</small></div>
-                <div><small>Continue <a href="catperfiles">aquí</a> para crear perfiles a los puestos.</small></div>
+            <div class="card-footer bg-white fuente-10p">
+                <div><small class="text-muted">Registre nueva áreas <a href="catareas">aquí</a>.</small></div>
+                <div><small class="text-muted">Continue <a href="catperfiles">aquí</a> para agregar y armar perfiles.</small></div>
             </div>
         </div>
     </div>
 <!-- Modal -->
 <div class="modal fade" id="formRegistroDatos" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticCrearRegistro" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-title" id="staticCrearRegistro">Crear Registro</div>
+                <div class="modal-title" id="staticCrearRegistro"></div>
             </div>
             <div class="modal-body">
                 <form id="formularioPuestosCRUD"></form>
@@ -45,8 +45,7 @@
     </div>
 </div>
 
-<script src="/public/JScript/Sistema/Catalogos/catPuestos.js"></script>
+<script src="/public/jScript/Sistema/Catalogos/catPuestos.js"></script>
 <script src="/public/assets/sweetalert/sweetalert2.all.min.js"></script>
-<link href="/public/assets/estilos/css_frontend/formularios/formularios.css" rel="stylesheet">
-<link href="/public/assets/estilos/css_frontend/mensajes/mensajes.css" rel="stylesheet">
+
 <?=$this->endSection();?>
