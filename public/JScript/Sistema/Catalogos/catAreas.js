@@ -1,14 +1,14 @@
-let botonRegistrar = document.querySelector('#botonRegistrar');
+let botonRegistro = document.querySelector('#botonRegistro');
 let botonGuardar = document.querySelector('#botonGuardar');
 let botonActualizar = document.querySelector("#botonActualizar");
 let botonCancelar = document.querySelector('#botonCancelar');
 let cargaAnimacion = '<div class="spinner-grow spinner-grow-sm" role="status"><span class="sr-only">Loading...</span></div>';
 let controlEjecuta = 'catareas';
-let funcionEjecuta = 'CatAreas';
+let funcionEjecuta = 'Areas';
 
 document.addEventListener('DOMContentLoaded', () => {
     obtenerListado();
-    botonRegistrar.addEventListener('click', () => plantillaFormulario());
+    botonRegistro.addEventListener('click', () => plantillaFormulario());
     botonGuardar.addEventListener('click', () => guardarRegistroArea());
     botonActualizar.addEventListener('click', () => actualizarRegistroArea());
     botonCancelar.addEventListener('click', () => inputLimpiar());
@@ -45,6 +45,7 @@ const obtenerListado = async () => {
                     <td>${FMODIF_AREA}</td>
                 `;
                 const columnaAcciones = document.createElement('td');
+                columnaAcciones.classList.add('p-0');
                 if(TOTAL==0){
                     const botonEditarEl = document.createElement('button');
                     botonEditarEl.classList.add('btn','btn-sm','btn-info');
@@ -70,7 +71,7 @@ const obtenerListado = async () => {
                     badgePill.classList.add('badge','badge-warning','font-weight-bold');
                     const capaToolTipA = document.createElement('div');
                     capaToolTipA.classList.add('tooltip-box');
-                    capaToolTipA.innerHTML=TOTAL+'<span class="tooltip-info fuente-12p">Num puestos asignadas</span>';
+                    capaToolTipA.innerHTML=TOTAL+'<span class="tooltip-info fuente-12p">Num puestos asignados</span>';
                     capaToolTipA.addEventListener('mousemove', (e) => {
                         let ejex = e.clientX;
                         let ejey = e.clientY;

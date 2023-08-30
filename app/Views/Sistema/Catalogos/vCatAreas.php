@@ -14,7 +14,7 @@
                 <!-- Button trigger modal -->
                 <div class="text-justify mb-2 fuente-12p">
                     Para crear un nuevo registro haz clic en este botón
-                    <button type="button" id="botonRegistrar" class="btn btn-sm btn-success mb-2 fuente-10p" data-toggle="modal" data-target="#formRegistroDatos">
+                    <button type="button" id="botonRegistro" class="btn btn-sm btn-success mb-2 fuente-10p" data-toggle="modal" data-target="#formRegistroDatos">
                         <i class="fas fa-pencil-alt"></i> Crear Registro
                     </button>
                 </div>

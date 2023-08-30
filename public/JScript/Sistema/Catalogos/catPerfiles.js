@@ -3,26 +3,26 @@ let botonGuardar = document.querySelector('#botonGuardar');
 let botonActualizar = document.querySelector("#botonActualizar");
 let botonCancelar = document.querySelector('#botonCancelar');
 let cargaAnimacion = '<div class="spinner-grow spinner-grow-sm" role="status"><span class="sr-only">Loading...</span></div>';
-let controlEjecuta = 'catpuestos';
-let funcionEjecuta = 'Puestos';
+let controlEjecuta = 'catperfiles';
+let funcionEjecuta = 'Perfiles';
 
 document.addEventListener('DOMContentLoaded', () => {
     obtenerListado();
     botonRegistro.addEventListener('click', () => plantillaFormulario());
     botonGuardar.addEventListener('click', () => guardarRegistrosPerfiles());
     botonActualizar.addEventListener('click', () => actualizarRegistroPerfiles());
-    botonCancelar.addEventListener('click', () => plantillaFormulario());
+    botonCancelar.addEventListener('click', () => inputLimpiar());
 })
 
 const obtenerListado = async () => {
     try {
         let tablaDinamica = document.querySelector('#tablaDinamica');
         tablaDinamica.innerHTML=cargaAnimacion;
-        const respRender = await fetch(`${controlEjecuta}/llenarTablaPerfiles`)
+        const respRender = await fetch(`${controlEjecuta}/llenarTabla${funcionEjecuta}`)
         const respuestas = await respRender.json();
-        const tablaListaPerfiles = document.createElement('table');
-        tablaListaPerfiles.classList.add('table','table-sm','table-hover','fuente-12p');
-        tablaListaPerfiles.innerHTML=`
+        const tablaPerfiles = document.createElement('table');
+        tablaPerfiles.classList.add('table','table-sm','table-hover','fuente-12p');
+        tablaPerfiles.innerHTML=`
             <thead>
                 <th>Clave</th>
                 <th>Opciones</th>
@@ -30,21 +30,22 @@ const obtenerListado = async () => {
                 <th colspan="2">Acciones</th>
             </thead>
         `;
-        const cuerpoTablaListaPerfiles = document.createElement('tbody');
+        const cuerpoTablaPerfiles = document.createElement('tbody');
         if(respuestas.estatus=='error'||respuestas==null){
-            cuerpoTablaListaPerfiles.innerHTML=`<tr><td colspan="4">${respuestas.mensaje}</td></tr>`;
+            cuerpoTablaPerfiles.innerHTML=`<tr><td colspan="4">${respuestas.mensaje}</td></tr>`;
         }else{
             tablaDinamica.classList.add('tabla-contenedor');
-            respuestas.forEach(perfil => {
-                const {idTablePk,CLAVE_PERF,PERFIL_PERF,FMODIF_PERF,TOTAL} = perfil;
-                const filasTablaListaPerfiles = document.createElement('tr');
-                filasTablaListaPerfiles.setAttribute('dataparent',idTablePk);
-                filasTablaListaPerfiles.innerHTML = `
+            respuestas.forEach(registros => {
+                const {idTablePk,CLAVE_PERF,PERFIL_PERF,FMODIF_PERF,TOTAL} = registros;
+                const filasTablaPerfiles = document.createElement('tr');
+                filasTablaPerfiles.setAttribute('dataparent',idTablePk);
+                filasTablaPerfiles.innerHTML = `
                     <td>${CLAVE_PERF}</td>
                     <td class="fuente-10p">${PERFIL_PERF}</td>
                     <td>${FMODIF_PERF}</td>
                 `;
                 const columnaAcciones = document.createElement('td');
+                columnaAcciones.classList.add('p-0');
                 const badgePill = document.createElement('span');
                 badgePill.classList.add('badge','badge-warning','font-weight-bold');
                 const capaToolTipA = document.createElement('div');
@@ -61,9 +62,9 @@ const obtenerListado = async () => {
                 })
                 badgePill.appendChild(capaToolTipA);
                 const columnaBadge = document.createElement('td');
-                columnaBadge.classList.add('text-center', 'fuente-18p');
+                columnaBadge.classList.add('p-0','text-center', 'fuente-18p');
                 columnaBadge.appendChild(badgePill);
-                filasTablaListaPerfiles.appendChild(columnaBadge);
+                filasTablaPerfiles.appendChild(columnaBadge);
                 const botonEditarEl = document.createElement('button');
                 botonEditarEl.classList.add('btn','btn-info','btn-sm');
                 botonEditarEl.setAttribute('data-toggle','modal');
@@ -71,29 +72,25 @@ const obtenerListado = async () => {
                 botonEditarEl.setAttribute('dataedit',idTablePk);
                 botonEditarEl.setAttribute('id','botonEditarSel');
                 botonEditarEl.innerHTML = '<i class="fa fa-edit"></i>';
-                botonEditarEl.addEventListener('click',() => {
-                    buscandoDatosEditar(botonEditarEl);
-                });
+                botonEditarEl.addEventListener('click',() => {buscandoDatosEditar(botonEditarEl)});
                 const botonEliminarEl = document.createElement('button');
                 botonEliminarEl.classList.add('btn','btn-danger','btn-sm');
                 botonEliminarEl.setAttribute('dataelim',idTablePk);
                 botonEliminarEl.setAttribute('id','botonEliminarSel');
                 botonEliminarEl.innerHTML = '<i class="fa fa-eraser"></i>';
-                botonEliminarEl.addEventListener('click',()=>{
-                    confirmarEliminar(botonEliminarEl);
-                })
+                botonEliminarEl.addEventListener('click',()=>{confirmarEliminar(botonEliminarEl)});
                 const grupoAcciones = document.createElement('div');
                 grupoAcciones.classList.add('btn-group','text-center');
                 grupoAcciones.appendChild(botonEditarEl);
                 grupoAcciones.appendChild(botonEliminarEl);
                 columnaAcciones.appendChild(grupoAcciones);
-                filasTablaListaPerfiles.appendChild(columnaAcciones);
-                cuerpoTablaListaPerfiles.appendChild(filasTablaListaPerfiles);
+                filasTablaPerfiles.appendChild(columnaAcciones);
+                cuerpoTablaPerfiles.appendChild(filasTablaPerfiles);
             });
         }
-        tablaListaPerfiles.appendChild(cuerpoTablaListaPerfiles);
+        tablaPerfiles.appendChild(cuerpoTablaPerfiles);
         tablaDinamica.innerHTML='';
-        tablaDinamica.appendChild(tablaListaPerfiles);
+        tablaDinamica.appendChild(tablaPerfiles);
 
     } catch (errorAlert) {
         return Swal.fire({
@@ -108,10 +105,12 @@ const obtenerListado = async () => {
 };
 
 const plantillaFormulario = async () => {
-    let formularioRegistro = document.querySelector('#formularioRegistro');
+    let formularioPerfilesCRUD = document.querySelector('#formularioPerfilesCRUD');
+    let staticCrearRegistro = document.querySelector('#staticCrearRegistro');
+    staticCrearRegistro.innerHTML='Crear Registro';
     botonGuardar.classList.remove('d-none');
     botonActualizar.classList.add('d-none');
-    formularioRegistro.innerHTML=`
+    formularioPerfilesCRUD.innerHTML=`
         <div class="form-group mb-2">
             <select name="textArea" value="" class="custom-select custom-select-sm col-12" id="textArea"></select>
         </div>
@@ -149,8 +148,8 @@ const plantillaFormulario = async () => {
 const guardarRegistrosPerfiles = async () => {
     try {
         if(validarArea()&&validarPuesto()&&validarComentario()&&validarRoles()){
-            let formularioRegistro = document.querySelector('#formularioRegistro');
-            const crearDatos = new FormData(formularioRegistro);
+            let formularioPerfilesCRUD = document.querySelector('#formularioPerfilesCRUD');
+            const crearDatos = new FormData(formularioPerfilesCRUD);
             const respRender = await fetch('catperfiles/guardarPerfiles',{
                 method: 'POST',
                 body: crearDatos,
@@ -191,16 +190,18 @@ const guardarRegistrosPerfiles = async () => {
 
 const buscandoDatosEditar = async (botonEditarEl) => {
     try {
-        let formularioRegistro = document.querySelector('#formularioRegistro');
+        let formularioPerfilesCRUD = document.querySelector('#formularioPerfilesCRUD');
+        let staticCrearRegistro = document.querySelector('#staticCrearRegistro');
+        staticCrearRegistro.innerHTML='Modificar Registro';
         botonGuardar.classList.add('d-none');
         botonActualizar.classList.remove('d-none');
-        formularioRegistro.innerHTML=cargaAnimacion;
+        formularioPerfilesCRUD.innerHTML=cargaAnimacion;
         let idRegistro = botonEditarEl.attributes.dataedit.value
         const respRender = await fetch(`catperfiles/buscarEditarPerfiles/${idRegistro}`);
         const respuestas = await respRender.json();
         respuestas.forEach(perfiles => {
             const {CLAVE_PERF,PERFIL_PERF,COMENTS_PERF} = perfiles;
-            formularioRegistro.innerHTML=`
+            formularioPerfilesCRUD.innerHTML=`
                 <input type="hidden" name="textPuesto" value="${CLAVE_PERF}" id="textPuesto">
                 <div class="form-group mb-2">
                     <input type="text" name="textPuestoV" value="${CLAVE_PERF}" class="form-control form-control-sm col-md-4 col-12" id="textPuestoV" maxlength="13" placeholder="Puesto" readonly>
@@ -239,8 +240,8 @@ const buscandoDatosEditar = async (botonEditarEl) => {
 const actualizarRegistroPerfiles = async () => {
     try {
         if(validarPuesto()&&validarComentario()&&validarRoles()){
-            let formularioRegistro = document.querySelector('#formularioRegistro');
-            const actualizaDatos = new FormData(formularioRegistro);
+            let formularioPerfilesCRUD = document.querySelector('#formularioPerfilesCRUD');
+            const actualizaDatos = new FormData(formularioPerfilesCRUD);
             const respRender = await fetch('catperfiles/actualizarPerfiles', {
                 method: 'POST',
                 body: actualizaDatos,
@@ -696,8 +697,8 @@ const eliminarRegistrosPerfiles = async (idRegistro) => {
 }
 
 const inputLimpiar = async () => {
-    let formularioRegistro = document.querySelector('#formularioRegistro');
-    formularioRegistro.innerHTML='';
+    let formularioPerfilesCRUD = document.querySelector('#formularioPerfilesCRUD');
+    formularioPerfilesCRUD.innerHTML='';
 }
 
 

@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     botonRegistro.addEventListener('click', () => plantillaFormulario());
     botonGuardar.addEventListener('click', () => guardarRegistrosPuestos());
     botonActualizar.addEventListener('click', () => actualizarRegistrosPuestos());
-    botonCancelar.addEventListener('click', () => plantillaFormulario());
+    botonCancelar.addEventListener('click', () => inputLimpiar());
 })
 
 const obtenerListado = async () => {
@@ -20,9 +20,9 @@ const obtenerListado = async () => {
         tablaDinamica.innerHTML=cargaAnimacion;
         const respRender = await fetch(`${controlEjecuta}/llenarTabla${funcionEjecuta}`);
         const respuestas = await respRender.json();
-        const tablaListaPuestos = document.createElement('table');
-        tablaListaPuestos.classList.add('table','table-sm','table-hover','fuente-12p');
-        tablaListaPuestos.innerHTML=`
+        const tablaPuestos = document.createElement('table');
+        tablaPuestos.classList.add('table','table-sm','table-hover','fuente-12p');
+        tablaPuestos.innerHTML=`
             <thead>
                 <th>Area</th>
                 <th>Clave</th>
@@ -31,22 +31,23 @@ const obtenerListado = async () => {
                 <th>Acciones</th>
             </thead>
         `;
-        const cuerpoTablaListaPuestos = document.createElement('tbody');
+        const cuerpoTablaPuestos = document.createElement('tbody');
         if(respuestas.estatus=='error'){
-            cuerpoTablaListaPuestos.innerHTML=`<tr><td colspan="4">${respuestas.mensaje}</td></tr>`;
+            cuerpoTablaPuestos.innerHTML=`<tr><td colspan="4">${respuestas.mensaje}</td></tr>`;
         }else{
             tablaDinamica.classList.add('tabla-contenedor');
             respuestas.forEach(puesto => {
                 const {CLAVEAREA_PUESTO,CLAVE_PUESTO,DESCRIPHOM_PUESTO,RANGO_PUESTO,FMODIF_PUESTO,TOTAL,idTablePk} = puesto;
-                const filaTablaListasPuestos = document.createElement('tr');
-                filaTablaListasPuestos.setAttribute('dataparent',idTablePk);
-                filaTablaListasPuestos.innerHTML = `
+                const filaTablaPuestos = document.createElement('tr');
+                filaTablaPuestos.setAttribute('dataparent',idTablePk);
+                filaTablaPuestos.innerHTML = `
                     <td>${CLAVEAREA_PUESTO}</td>
                     <td>${CLAVE_PUESTO}</td>
                     <td class="col">${DESCRIPHOM_PUESTO} | ${RANGO_PUESTO}</td>
                     <td>${FMODIF_PUESTO}</td>
                 `;
                 const columnaAcciones = document.createElement('td');
+                columnaAcciones.classList.add('p-0');
                 if(TOTAL==0){
                     const botonEditarEl = document.createElement('button');
                     botonEditarEl.classList.add('btn','btn-sm','btn-info','btn-sm');
@@ -86,14 +87,14 @@ const obtenerListado = async () => {
                     columnaAcciones.classList.add('text-center', 'fuente-18p');
                     columnaAcciones.appendChild(badgePill);
                 }
-                filaTablaListasPuestos.appendChild(columnaAcciones);
-                cuerpoTablaListaPuestos.appendChild(filaTablaListasPuestos);
+                filaTablaPuestos.appendChild(columnaAcciones);
+                cuerpoTablaPuestos.appendChild(filaTablaPuestos);
             });
             
         }
-        tablaListaPuestos.appendChild(cuerpoTablaListaPuestos);
+        tablaPuestos.appendChild(cuerpoTablaPuestos);
         tablaDinamica.innerHTML='';
-        tablaDinamica.appendChild(tablaListaPuestos);
+        tablaDinamica.appendChild(tablaPuestos);
 
     } catch (errorAlert) {
         return Swal.fire({
@@ -108,6 +109,8 @@ const obtenerListado = async () => {
 const plantillaFormulario = async () => {
     try {
         let formularioPuestosCRUD = document.querySelector('#formularioPuestosCRUD');
+        let staticCrearRegistro = document.querySelector('#staticCrearRegistro');
+        staticCrearRegistro.innerHTML='Crear Registro'
         botonGuardar.classList.remove('d-none');
         botonActualizar.classList.add('d-none');
         formularioPuestosCRUD.innerHTML=`
@@ -124,7 +127,7 @@ const plantillaFormulario = async () => {
                 <input type="text" name="textDescripcionM" value="" class="form-control form-control-sm" id="textDescripcionM" max-length="30" placeholder="Descripción Muj">
             </div>
             <div class="form-group mb-2">
-                <input type="number" name="textRango" value="" class="form-control form-control-sm col-md-3 col-6" id="textRango" maxlength="3" placeholder="Rango">
+                <input type="number" name="textRango" value="" class="form-control form-control-sm col-md-5 col-8" id="textRango" maxlength="3" placeholder="Rango">
             </div>
             <div class="form-group mb-2">
                 <textarea name="textComentario" cols="40" class="form-control form-control-sm" id="textComentario" max-length="500" rows="4" placeholder="Comentarios"></textarea>
@@ -206,6 +209,8 @@ const buscandoDatosEditar = async (botonEditarEl) => {
         botonGuardar.classList.add('d-none');
         botonActualizar.classList.remove('d-none');
         let formularioPuestosCRUD = document.querySelector('#formularioPuestosCRUD');
+        let staticCrearRegistro = document.querySelector('#staticCrearRegistro');
+        staticCrearRegistro.innerHTML='Modificar Registro'
         const respRender = await fetch(`${controlEjecuta}/buscarEditar${funcionEjecuta}/${idRegistro}`);
         const respuestas = await respRender.json();
         if(respuestas.estatus=='error'||respuestas==null){

@@ -3,6 +3,8 @@ let botonGuardar = document.querySelector('#botonGuardar');
 let botonActualizar = document.querySelector("#botonActualizar");
 let botonCancelar = document.querySelector('#botonCancelar');
 let cargaAnimacion = '<div class="spinner-grow spinner-grow-sm" role="status"><span class="sr-only">Loading...</span></div>';
+let controlEjecuta = 'catestatus';
+let funcionEjecuta = 'Estatus';
 
 document.addEventListener('DOMContentLoaded', () => {
     obtenerListado();

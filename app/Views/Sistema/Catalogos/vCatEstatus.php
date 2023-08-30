@@ -44,7 +44,7 @@
 </div>
 
 
-<script src="/public/JScript/Sistema/Catalogos/jsEstatus.js"></script>
+<script src="/public/JScript/Sistema/Catalogos/catEstatus.js"></script>
 <script src="/public/assets/sweetalert/sweetalert2.all.min.js"></script>
 
 <?=$this->endSection();?>

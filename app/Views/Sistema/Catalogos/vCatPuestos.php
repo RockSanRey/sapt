@@ -45,7 +45,7 @@
     </div>
 </div>
 
-<script src="/public/jScript/Sistema/Catalogos/catPuestos.js"></script>
+<script src="/public/JScript/Sistema/Catalogos/catPuestos.js"></script>
 <script src="/public/assets/sweetalert/sweetalert2.all.min.js"></script>
 
 <?=$this->endSection();?>

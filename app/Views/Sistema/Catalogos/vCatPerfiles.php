@@ -32,7 +32,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-title" id="staticCrearRegistro">Crear Registro</div>
+                <div class="modal-title" id="staticCrearRegistro"></div>
             </div>
             <div class="modal-body">
                 <form id="formularioPerfilesCRUD"></form>
